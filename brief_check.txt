@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -15,13 +15,13 @@ export default function BriefPage({ params }: { params: { id: string } }) {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { window.location.href = '/login'; return }
 
-      const { data, error: fetchErr } = await supabase
+      const { data, error } = await supabase
         .from('artist_booking_view')
         .select('*')
         .eq('id', params.id)
         .single()
 
-      if (fetchErr || !data) {
+      if (error || !data) {
         setError('Brief not found or you do not have access.')
       } else {
         setBooking(data)
@@ -108,7 +108,7 @@ export default function BriefPage({ params }: { params: { id: string } }) {
           )}
 
           {booking.brief_doc_url && (
-            <a
+            
               href={booking.brief_doc_url}
               target="_blank"
               rel="noreferrer"

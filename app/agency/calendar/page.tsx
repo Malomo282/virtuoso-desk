@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -9,6 +9,74 @@ const BRAG: Record<string, { label: string; color: string; bg: string; cls: stri
   R: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
   A: { label: 'Pending', color: '#C8A24A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
   G: { label: 'Urgent', color: '#E05555', bg: 'rgba(224,85,85,0.15)', cls: 'text-red-400' },
+}
+
+function toICSDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+}
+
+function foldLine(line: string) {
+  if (line.length <= 75) return line
+  let result = ''
+  let rest = line
+  let first = true
+  while (rest.length > 0) {
+    const chunkSize = first ? 75 : 74
+    const chunk = rest.slice(0, chunkSize)
+    result += (first ? '' : '\r\n ') + chunk
+    rest = rest.slice(chunkSize)
+    first = false
+  }
+  return result
+}
+
+function escapeICSText(text: string) {
+  return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n')
+}
+
+function generateICS(bookings: any[]) {
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Virtuoso Entertainment//Booking Calendar//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+  ]
+
+  bookings.forEach(b => {
+    if (!b.starts_at || !b.ends_at) return
+
+    const uid = b.id + '@virtuosoentertainment.co.uk'
+    const venueName = b.venues?.name || 'Gig'
+    const summaryParts = [venueName]
+    if (b.artists?.stage_name) summaryParts.push(b.artists.stage_name)
+    const summary = summaryParts.join(' - ')
+
+    const descriptionParts = []
+    if (b.artists?.stage_name) descriptionParts.push('Artist: ' + b.artists.stage_name)
+    if (b.fee_venue) descriptionParts.push('Fee: GBP ' + b.fee_venue)
+    if (b.dress_code) descriptionParts.push('Dress code: ' + b.dress_code)
+    if (b.event_name) descriptionParts.push('Event: ' + b.event_name)
+    const description = descriptionParts.join('\n')
+
+    lines.push('BEGIN:VEVENT')
+    lines.push('UID:' + uid)
+    lines.push('DTSTAMP:' + toICSDate(new Date().toISOString()))
+    lines.push('DTSTART:' + toICSDate(b.starts_at))
+    lines.push('DTEND:' + toICSDate(b.ends_at))
+    lines.push(foldLine('SUMMARY:' + escapeICSText(summary)))
+    if (b.venues?.address) {
+      lines.push(foldLine('LOCATION:' + escapeICSText(b.venues.address)))
+    }
+    if (description) {
+      lines.push(foldLine('DESCRIPTION:' + escapeICSText(description)))
+    }
+    lines.push('END:VEVENT')
+  })
+
+  lines.push('END:VCALENDAR')
+  return lines.join('\r\n')
 }
 
 export default function CalendarPage() {
@@ -27,7 +95,7 @@ export default function CalendarPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
       const [{ data: bData }, { data: vData }] = await Promise.all([
-        supabase.from('bookings').select('*,venues(name),artists(stage_name)'),
+        supabase.from('bookings').select('*,venues(name,address),artists(stage_name)'),
         supabase.from('venues').select('id,name').order('name'),
       ])
       if (bData) setBookings(bData)
@@ -50,6 +118,24 @@ export default function CalendarPage() {
     return true
   })
 
+  function handleExportICS() {
+    const exportable = filteredBookings.filter(b => b.starts_at && b.ends_at)
+    if (exportable.length === 0) {
+      alert('No bookings with valid dates to export.')
+      return
+    }
+    const ics = generateICS(exportable)
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'virtuoso-bookings.ics'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
@@ -68,8 +154,14 @@ export default function CalendarPage() {
     <div className="min-h-screen bg-[#0E1117] flex">
       <AgencySidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center">
+        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">Calendar</div>
+          <button
+            onClick={handleExportICS}
+            className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-[#D6B25E] transition-colors"
+          >
+            Export .ics
+          </button>
         </div>
         <div className="p-8">
           <div className="flex flex-wrap gap-3 mb-6 items-center">
