@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -13,17 +13,31 @@ type Gig = {
   fee: number
   notes: string
   status: string
+  venue_id: string
   venues?: { name: string; address: string }
+}
+
+type GigResponse = {
+  id: string
+  gig_id: string
+  artist_id: string
+  response: string
+  artists?: { stage_name: string }
 }
 
 export default function AvailableGigsPage() {
   const router = useRouter()
   const [gigs, setGigs] = useState<Gig[]>([])
+  const [responses, setResponses] = useState<GigResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [venues, setVenues] = useState<any[]>([])
+  const [expandedGig, setExpandedGig] = useState('')
+  const [confirmingResponse, setConfirmingResponse] = useState('')
+  const [confirmFee, setConfirmFee] = useState('')
+  const [confirming, setConfirming] = useState(false)
   const [form, setForm] = useState({
     venue_id: '',
     start_date: '',
@@ -36,25 +50,31 @@ export default function AvailableGigsPage() {
   })
 
   useEffect(() => {
-    async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { router.push('/login'); return }
-
-      const [{ data: gigData }, { data: venueData }] = await Promise.all([
-        supabase
-          .from('available_gigs')
-          .select('*, venues(name, address)')
-          .eq('status', 'open')
-          .order('starts_at', { ascending: true }),
-        supabase.from('venues').select('id, name').order('name'),
-      ])
-
-      if (gigData) setGigs(gigData)
-      if (venueData) setVenues(venueData)
-      setLoading(false)
-    }
-    load()
+    loadAll()
   }, [])
+
+  async function loadAll() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { router.push('/login'); return }
+
+    const [{ data: gigData }, { data: venueData }, { data: responseData }] = await Promise.all([
+      supabase
+        .from('available_gigs')
+        .select('*, venues(name, address)')
+        .eq('status', 'open')
+        .order('starts_at', { ascending: true }),
+      supabase.from('venues').select('id, name').order('name'),
+      supabase
+        .from('gig_responses')
+        .select('*, artists(stage_name)')
+        .eq('response', 'interested'),
+    ])
+
+    if (gigData) setGigs(gigData)
+    if (venueData) setVenues(venueData)
+    if (responseData) setResponses(responseData)
+    setLoading(false)
+  }
 
   function update(field: string, value: string) {
     setForm(prev => {
@@ -77,8 +97,8 @@ export default function AvailableGigsPage() {
       return
     }
 
-    const startsAt = new Date(`${form.start_date}T${form.start_time}`)
-    const endsAt = new Date(`${form.end_date}T${form.end_time}`)
+    const startsAt = new Date(form.start_date + 'T' + form.start_time)
+    const endsAt = new Date(form.end_date + 'T' + form.end_time)
 
     if (endsAt <= startsAt) {
       setError('End time must be after start time (for overnight gigs, set the end date to the next day)')
@@ -86,7 +106,7 @@ export default function AvailableGigsPage() {
       return
     }
 
-    const { data, error: saveError } = await supabase
+    const { error: saveError } = await supabase
       .from('available_gigs')
       .insert({
         venue_id: form.venue_id,
@@ -97,8 +117,6 @@ export default function AvailableGigsPage() {
         notes: form.notes,
         status: 'open',
       })
-      .select('*, venues(name, address)')
-      .single()
 
     if (saveError) {
       setError(saveError.message)
@@ -106,24 +124,10 @@ export default function AvailableGigsPage() {
       return
     }
 
-    if (data) {
-      setGigs(prev => [...prev, data])
-      setShowForm(false)
-      setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
-    }
+    setShowForm(false)
+    setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
     setSaving(false)
-  }
-
-  async function fillGig(gigId: string) {
-    const { error } = await supabase
-      .from('available_gigs')
-      .update({ status: 'filled' })
-      .eq('id', gigId)
-
-    if (!error) {
-      setGigs(prev => prev.filter(g => g.id !== gigId))
-      router.push('/agency/bookings/new')
-    }
+    loadAll()
   }
 
   async function cancelGig(gigId: string) {
@@ -135,6 +139,48 @@ export default function AvailableGigsPage() {
     if (!error) {
       setGigs(prev => prev.filter(g => g.id !== gigId))
     }
+  }
+
+  function startConfirm(responseId: string, gigFee: number | null) {
+    setConfirmingResponse(responseId)
+    setConfirmFee(gigFee != null ? String(gigFee) : '')
+  }
+
+  async function confirmArtist(gig: Gig, response: GigResponse) {
+    setConfirming(true)
+
+    const { error: bookingError } = await supabase.from('bookings').insert({
+      venue_id: gig.venue_id,
+      artist_id: response.artist_id,
+      starts_at: gig.starts_at,
+      ends_at: gig.ends_at,
+      fee_venue: gig.fee,
+      fee_artist: confirmFee ? parseInt(confirmFee) : null,
+      dress_code: 'Smart casual',
+      brag_status: 'A',
+      internal_notes: gig.notes,
+    })
+
+    if (bookingError) {
+      setError(bookingError.message)
+      setConfirming(false)
+      return
+    }
+
+    await supabase.from('available_gigs').update({ status: 'filled' }).eq('id', gig.id)
+    await supabase.from('gig_responses').update({ response: 'confirmed' }).eq('id', response.id)
+
+    const otherResponses = responses.filter(r => r.gig_id === gig.id && r.id !== response.id)
+    if (otherResponses.length > 0) {
+      await supabase
+        .from('gig_responses')
+        .update({ response: 'declined' })
+        .in('id', otherResponses.map(r => r.id))
+    }
+
+    setConfirming(false)
+    setConfirmingResponse('')
+    router.push('/agency/bookings')
   }
 
   const inputClass = "w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#C8A24A] transition-colors"
@@ -274,43 +320,93 @@ export default function AvailableGigsPage() {
               const timeStr = startsAt && endsAt
                 ? startsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ' - ' + endsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
                 : null
+              const gigResponses = responses.filter(r => r.gig_id === gig.id)
+              const isExpanded = expandedGig === gig.id
 
               return (
                 <div
                   key={gig.id}
-                  className="bg-[#151A22] border border-[#263044] rounded-xl p-5 flex items-center gap-4"
+                  className="bg-[#151A22] border border-[#263044] rounded-xl p-5"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white font-semibold mb-1">
-                      {gig.venues?.name || 'Unknown venue'}
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-semibold mb-1">
+                        {gig.venues?.name || 'Unknown venue'}
+                      </div>
+                      <div className="flex gap-4 text-xs text-[#6A7A8A] flex-wrap font-mono">
+                        {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
+                        {timeStr && <span>{timeStr}</span>}
+                        {gig.genre && <span>{gig.genre}</span>}
+                        {gig.fee != null && <span className="text-[#C8A24A] font-semibold">GBP {gig.fee.toLocaleString()}</span>}
+                      </div>
+                      {gig.notes && (
+                        <div className="text-[#4E5A6A] text-xs mt-2 italic">{gig.notes}</div>
+                      )}
                     </div>
-                    <div className="flex gap-4 text-xs text-[#6A7A8A] flex-wrap font-mono">
-                      {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
-                      {timeStr && <span>{timeStr}</span>}
-                      {gig.genre && <span>{gig.genre}</span>}
-                      {gig.fee != null && <span className="text-[#C8A24A] font-semibold">GBP {gig.fee.toLocaleString()}</span>}
+
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => setExpandedGig(isExpanded ? '' : gig.id)}
+                        className="bg-[#1C2330] border border-[#263044] text-white text-xs font-semibold px-3 py-2 rounded-lg hover:border-[#C8A24A] transition-colors"
+                      >
+                        {gigResponses.length} interested
+                      </button>
+                      <button
+                        onClick={() => cancelGig(gig.id)}
+                        className="bg-red-900/30 border border-red-800 text-red-400 hover:bg-red-900/50 transition-colors text-xs font-semibold px-3 py-2 rounded-lg"
+                      >
+                        Cancel
+                      </button>
                     </div>
-                    {gig.notes && (
-                      <div className="text-[#4E5A6A] text-xs mt-2 italic">{gig.notes}</div>
-                    )}
                   </div>
 
-                  <div className="flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => fillGig(gig.id)}
-                      className="bg-green-900/30 border border-green-800 text-green-400 hover:bg-green-900/50 transition-colors text-xs font-semibold px-3 py-2 rounded-lg"
-                      title="Accept - create booking"
-                    >
-                      Accept
-                    </button>
-                    <button
-                      onClick={() => cancelGig(gig.id)}
-                      className="bg-red-900/30 border border-red-800 text-red-400 hover:bg-red-900/50 transition-colors text-xs font-semibold px-3 py-2 rounded-lg"
-                      title="Cancel this gig"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  {isExpanded && (
+                    <div className="mt-4 pt-4 border-t border-[#263044]">
+                      {gigResponses.length === 0 ? (
+                        <div className="text-[#4E5A6A] text-sm">No artists have responded yet.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {gigResponses.map(r => (
+                            <div key={r.id} className="flex items-center justify-between bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3">
+                              <div className="text-white text-sm">{r.artists?.stage_name || 'Unknown artist'}</div>
+
+                              {confirmingResponse === r.id ? (
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="number"
+                                    value={confirmFee}
+                                    onChange={e => setConfirmFee(e.target.value)}
+                                    placeholder="Artist fee"
+                                    className="w-28 bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none focus:border-[#C8A24A]"
+                                  />
+                                  <button
+                                    onClick={() => confirmArtist(gig, r)}
+                                    disabled={confirming}
+                                    className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-[#D6B25E] disabled:opacity-50 transition-colors"
+                                  >
+                                    {confirming ? 'Confirming...' : 'Confirm booking'}
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmingResponse('')}
+                                    className="text-xs text-[#6A7A8A] hover:text-white"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => startConfirm(r.id, gig.fee)}
+                                  className="text-xs bg-green-900/30 border border-green-800 text-green-400 px-3 py-1.5 rounded-lg hover:bg-green-900/50 transition-colors"
+                                >
+                                  Confirm this artist
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}

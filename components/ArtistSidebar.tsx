@@ -1,10 +1,12 @@
-﻿'use client'
+'use client'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 const navItems = [
   { label: 'Dashboard', href: '/artist/dashboard' },
   { label: 'Calendar', href: '/artist/calendar' },
+  { label: 'Available gigs', href: '/artist/available' },
+  { label: 'Notifications', href: '/artist/notifications' },
   { label: 'My profile', href: '/artist/profile' },
 ]
 
