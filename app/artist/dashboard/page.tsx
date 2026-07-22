@@ -25,7 +25,7 @@ export default function ArtistDashboard() {
       const { data: bookingData } = await supabase
         .from('artist_booking_view')
         .select('*')
-        .order('date', { ascending: true })
+        .order('starts_at', { ascending: true })
 
       setBookings(bookingData || [])
       setLoading(false)
@@ -33,10 +33,9 @@ export default function ArtistDashboard() {
     load()
   }, [])
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const now = new Date()
 
-  const upcoming = bookings.filter(b => new Date(b.date) >= today)
+  const upcoming = bookings.filter(b => new Date(b.starts_at) >= now)
   const totalEarnings = bookings.reduce((sum, b) => sum + (b.fee_artist || 0), 0)
   const nextGig = upcoming[0]
 
@@ -78,7 +77,7 @@ export default function ArtistDashboard() {
           <div className="bg-[#151A22] border border-[#263044] rounded-xl p-5">
             <div className="text-[#6A7A8A] text-xs uppercase tracking-widest mb-2">Next gig</div>
             <div className="text-lg font-semibold text-[#C8A24A]">
-              {nextGig ? new Date(nextGig.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'None booked'}
+              {nextGig ? new Date(nextGig.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'None booked'}
             </div>
           </div>
           <div className="bg-[#151A22] border border-[#263044] rounded-xl p-5">
@@ -102,7 +101,9 @@ export default function ArtistDashboard() {
                   <div>
                     <div className="text-white text-sm font-medium">{b.venue_name}</div>
                     <div className="text-[#6A7A8A] text-xs mt-0.5">
-                      {new Date(b.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+                      {new Date(b.starts_at).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+                      {' · '}
+                      {new Date(b.starts_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                   <div className="text-[#C8A24A] text-sm font-semibold">

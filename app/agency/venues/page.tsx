@@ -12,6 +12,7 @@ type Venue = {
   type: string
   capacity: number
   contact: string
+  contact_phone: string
   notes: string
   genres: string[]
 }
@@ -26,7 +27,7 @@ export default function VenuesPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({
     name: '', address: '', type: 'Club',
-    capacity: '', contact: '', notes: '', genres: ''
+    capacity: '', contact: '', contactPhone: '', notes: '', genres: ''
   })
   const [saving, setSaving] = useState(false)
 
@@ -63,6 +64,7 @@ export default function VenuesPage() {
       type: form.type,
       capacity: form.capacity ? parseInt(form.capacity) : null,
       contact: form.contact,
+      contact_phone: form.contactPhone,
       notes: form.notes,
       genres: form.genres ? form.genres.split(',').map(g => g.trim()) : [],
     }).select().single()
@@ -70,7 +72,7 @@ export default function VenuesPage() {
     if (!error && data) {
       setVenues(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)))
       setShowForm(false)
-      setForm({ name: '', address: '', type: 'Club', capacity: '', contact: '', notes: '', genres: '' })
+      setForm({ name: '', address: '', type: 'Club', capacity: '', contact: '', contactPhone: '', notes: '', genres: '' })
     }
     setSaving(false)
   }
@@ -145,14 +147,18 @@ export default function VenuesPage() {
                   <label className={labelClass}>Address</label>
                   <input type="text" value={form.address} onChange={e => setForm(p => ({...p, address: e.target.value}))} className={inputClass} placeholder="Full address" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className={labelClass}>Capacity</label>
                     <input type="number" value={form.capacity} onChange={e => setForm(p => ({...p, capacity: e.target.value}))} className={inputClass} placeholder="e.g. 500" />
                   </div>
                   <div>
-                    <label className={labelClass}>On-site contact</label>
-                    <input type="text" value={form.contact} onChange={e => setForm(p => ({...p, contact: e.target.value}))} className={inputClass} placeholder="Name and number" />
+                    <label className={labelClass}>Contact name</label>
+                    <input type="text" value={form.contact} onChange={e => setForm(p => ({...p, contact: e.target.value}))} className={inputClass} placeholder="e.g. Jamie Appleton" required />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Contact phone</label>
+                    <input type="tel" value={form.contactPhone} onChange={e => setForm(p => ({...p, contactPhone: e.target.value}))} className={inputClass} placeholder="e.g. 07123 456789" required />
                   </div>
                 </div>
                 <div>
@@ -222,10 +228,12 @@ export default function VenuesPage() {
 
                 {selected?.id === v.id && (
                   <div className="mt-4 pt-4 border-t border-[#263044] space-y-2">
-                    {v.contact && (
+                    {(v.contact || v.contact_phone) && (
                       <div>
                         <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Contact</div>
-                        <div className="text-[#6A7A8A] text-sm">{v.contact}</div>
+                        <div className="text-[#6A7A8A] text-sm">
+                          {v.contact}{v.contact && v.contact_phone && ' • '}{v.contact_phone}
+                        </div>
                       </div>
                     )}
                     {v.notes && (
