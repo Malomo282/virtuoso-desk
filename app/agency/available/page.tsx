@@ -157,7 +157,7 @@ export default function AvailableGigsPage() {
       fee_venue: gig.fee,
       fee_artist: confirmFee ? parseInt(confirmFee) : null,
       dress_code: 'Smart casual',
-      brag_status: 'A',
+      brag_status: 'G',
       internal_notes: gig.notes,
     })
 

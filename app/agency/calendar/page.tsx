@@ -1,14 +1,14 @@
-﻿'use client'
+'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 
 const BRAG: Record<string, { label: string; color: string; bg: string; cls: string }> = {
-  B: { label: 'Complete', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
-  R: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
-  A: { label: 'Pending', color: '#C8A24A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
-  G: { label: 'Urgent', color: '#E05555', bg: 'rgba(224,85,85,0.15)', cls: 'text-red-400' },
+  B: { label: 'Completed / To be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
+  R: { label: 'Less than 48h / Urgent', color: '#E05555', bg: 'rgba(224,85,85,0.15)', cls: 'text-red-400' },
+  A: { label: 'Available / Reviewing confirmation', color: '#C8A24A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
+  G: { label: 'Booking confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
 }
 
 function toICSDate(dateStr: string) {

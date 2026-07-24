@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -16,7 +16,7 @@ export default function UrgentPage() {
       const { data } = await supabase
         .from('bookings')
         .select('*,venues(name),artists(stage_name)')
-        .eq('brag_status', 'G')
+        .eq('brag_status', 'R')
         .order('starts_at', { ascending: true })
       if (data) setBookings(data)
       setLoading(false)
@@ -25,7 +25,7 @@ export default function UrgentPage() {
   }, [])
 
   async function confirmBooking(id: string) {
-    const { error } = await supabase.from('bookings').update({ brag_status: 'R' }).eq('id', id)
+    const { error } = await supabase.from('bookings').update({ brag_status: 'G' }).eq('id', id)
     if (!error) setBookings(prev => prev.filter(b => b.id !== id))
   }
 

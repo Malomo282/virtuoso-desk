@@ -1,14 +1,14 @@
-﻿'use client'
+'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 
 const BRAG: Record<string, { label: string; color: string; border: string }> = {
-  B: { label: 'Complete', color: 'bg-blue-900/30 text-blue-400', border: 'border-l-blue-500' },
-  R: { label: 'Confirmed', color: 'bg-green-900/30 text-green-400', border: 'border-l-green-500' },
-  A: { label: 'Pending', color: 'bg-yellow-900/30 text-yellow-500', border: 'border-l-yellow-500' },
-  G: { label: 'Urgent', color: 'bg-red-900/30 text-red-400', border: 'border-l-red-500' },
+  B: { label: 'Completed / To be paid', color: 'bg-blue-900/30 text-blue-400', border: 'border-l-blue-500' },
+  R: { label: 'Less than 48h / Urgent', color: 'bg-red-900/30 text-red-400', border: 'border-l-red-500' },
+  A: { label: 'Available / Reviewing', color: 'bg-yellow-900/30 text-yellow-500', border: 'border-l-yellow-500' },
+  G: { label: 'Booking confirmed', color: 'bg-green-900/30 text-green-400', border: 'border-l-green-500' },
 }
 
 export default function BookingsPage() {
