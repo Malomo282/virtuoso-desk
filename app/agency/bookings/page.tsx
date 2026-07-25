@@ -51,6 +51,51 @@ export default function BookingsPage() {
     setActionError('')
   }
 
+  async function markCompleted(booking: any) {
+    setActionSaving(true)
+    setActionError('')
+
+    const { error } = await supabase
+      .from('bookings')
+      .update({ brag_status: 'B' })
+      .eq('id', booking.id)
+
+    if (error) {
+      setActionError(error.message)
+      setActionSaving(false)
+      return
+    }
+
+    // Auto-generate the venue invoice on completion (30-day terms), unless one already exists
+    const { data: existingInvoice } = await supabase
+      .from('invoices')
+      .select('id')
+      .eq('booking_id', booking.id)
+      .maybeSingle()
+
+    if (!existingInvoice) {
+      const dueDate = new Date()
+      dueDate.setDate(dueDate.getDate() + 30)
+      const { error: invoiceError } = await supabase.from('invoices').insert({
+        booking_id: booking.id,
+        amount: booking.fee_venue || 0,
+        vat: 0,
+        status: 'pending',
+        due_date: dueDate.toISOString().slice(0, 10),
+      })
+      if (invoiceError) {
+        setActionError('Booking marked completed, but invoice creation failed: ' + invoiceError.message)
+        setActionSaving(false)
+        loadBookings()
+        return
+      }
+    }
+
+    setSelected(null)
+    setActionSaving(false)
+    loadBookings()
+  }
+
   async function confirmCancel(booking: any) {
     if (!cancelReason.trim()) {
       setActionError('Please provide a cancellation reason.')
@@ -287,10 +332,16 @@ export default function BookingsPage() {
                         </div>
                       )}
                       {!b.cancelled_at && cancelling !== b.id && rescheduling !== b.id && (
-                        <div className="col-span-2 flex gap-2 mt-2">
+                        <div className="col-span-2 flex gap-2 mt-2 flex-wrap">
                           <button className="bg-[#1C2330] border border-[#263044] text-[#6A7A8A] text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Edit booking</button>
+                          {b.brag_status !== 'B' && (
+                            <button onClick={e => { e.stopPropagation(); markCompleted(b) }} disabled={actionSaving} className="bg-blue-900/30 border border-blue-800 text-blue-400 text-xs px-3 py-1.5 rounded-lg hover:bg-blue-900/50 disabled:opacity-50 transition-colors">
+                              {actionSaving ? 'Saving...' : 'Mark completed'}
+                            </button>
+                          )}
                           <button onClick={e => { e.stopPropagation(); startReschedule(b) }} className="bg-[#1C2330] border border-[#263044] text-[#C8A24A] text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Reschedule</button>
                           <button onClick={e => { e.stopPropagation(); startCancel(b.id) }} className="bg-red-900/30 border border-red-800 text-red-400 text-xs px-3 py-1.5 rounded-lg hover:bg-red-900/50 transition-colors">Cancel booking</button>
+                          {actionError && <div className="w-full text-red-400 text-xs mt-1">{actionError}</div>}
                         </div>
                       )}
 
