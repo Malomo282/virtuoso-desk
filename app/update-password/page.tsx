@@ -72,19 +72,19 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
 
         <div className="text-center mb-10">
-          <div className="text-5xl font-bold text-[#C8A24A] mb-3">VE</div>
+          <div className="text-5xl font-bold text-primary mb-3">VE</div>
           <div className="text-white text-sm font-semibold tracking-[0.2em] uppercase mb-1">
             Virtuoso Entertainment
           </div>
         </div>
 
-        <div className="bg-[#151A22] border border-[#263044] rounded-2xl p-8">
+        <div className="bg-card border border-border rounded-2xl p-8">
           <h1 className="text-white text-xl font-semibold mb-1">Set new password</h1>
-          <p className="text-[#6A7A8A] text-sm mb-6">Choose a strong password for your account.</p>
+          <p className="text-muted-foreground/80 text-sm mb-6">Choose a strong password for your account.</p>
 
           {error && (
             <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm mb-4">
@@ -94,7 +94,7 @@ export default function UpdatePasswordPage() {
           )}
 
           {!ready && !error && (
-            <div className="text-[#6A7A8A] text-sm text-center py-4">
+            <div className="text-muted-foreground/80 text-sm text-center py-4">
               Verifying your reset link...
             </div>
           )}
@@ -102,7 +102,7 @@ export default function UpdatePasswordPage() {
           {ready && (
             <form onSubmit={handleUpdate} className="space-y-4">
               <div>
-                <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                   New password
                 </label>
                 <input
@@ -110,13 +110,13 @@ export default function UpdatePasswordPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A] transition-colors"
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
                   placeholder="Minimum 8 characters"
                 />
               </div>
 
               <div>
-                <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                   Confirm password
                 </label>
                 <input
@@ -124,7 +124,7 @@ export default function UpdatePasswordPage() {
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
                   required
-                  className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A] transition-colors"
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
                   placeholder="Repeat your password"
                 />
               </div>
@@ -132,7 +132,7 @@ export default function UpdatePasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#C8A24A] hover:bg-[#D6B25E] disabled:opacity-50 text-[#0E1117] font-bold py-3 rounded-lg text-sm uppercase tracking-widest transition-colors"
+                className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold py-3 rounded-lg text-sm uppercase tracking-widest transition-colors"
               >
                 {loading ? 'Updating...' : 'Set new password'}
               </button>
@@ -140,7 +140,7 @@ export default function UpdatePasswordPage() {
           )}
 
           <p className="text-center mt-6">
-            <a href="/reset-password" className="text-[#6A7A8A] text-xs hover:text-[#C8A24A] transition-colors">
+            <a href="/reset-password" className="text-muted-foreground/80 text-xs hover:text-primary transition-colors">
               Request a new link
             </a>
           </p>

@@ -64,23 +64,23 @@ export default function RosterPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <AgencySidebar />
 
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center justify-between">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">Artist Roster</div>
           <button
             onClick={() => router.push('/agency/roster/invite')}
-            className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-[#D6B25E] transition-colors"
+            className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
           >
             + Invite artist
           </button>
@@ -95,19 +95,19 @@ export default function RosterPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by name, alias or genre..."
-              className="w-full max-w-md bg-[#151A22] border border-[#263044] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#C8A24A] transition-colors"
+              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
           {filtered.length === 0 && (
             <div className="text-center py-16">
-              <div className="text-[#4E5A6A] text-sm mb-2">
+              <div className="text-muted-foreground/60 text-sm mb-2">
                 {search ? 'No artists match your search' : 'No artists on the roster yet'}
               </div>
               {!search && (
                 <button
                   onClick={() => router.push('/agency/roster/invite')}
-                  className="text-[#C8A24A] text-sm hover:underline"
+                  className="text-primary text-sm hover:underline"
                 >
                   Invite your first artist →
                 </button>
@@ -119,10 +119,10 @@ export default function RosterPage() {
             {filtered.map(artist => (
               <div
                 key={artist.id}
-                className="bg-[#151A22] border border-[#263044] rounded-xl p-5 hover:border-[#C8A24A]/50 transition-colors cursor-pointer"
+                className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-colors cursor-pointer"
               >
                 {/* Avatar */}
-                <div className="w-12 h-12 rounded-full bg-[#1C2330] border border-[#263044] flex items-center justify-center text-[#C8A24A] font-bold text-sm mb-4">
+                <div className="w-12 h-12 rounded-full bg-secondary border border-border flex items-center justify-center text-primary font-bold text-sm mb-4">
                   {initials(artist.stage_name || artist.full_name)}
                 </div>
 
@@ -131,30 +131,30 @@ export default function RosterPage() {
                 </div>
 
                 {artist.full_name && artist.stage_name && (
-                  <div className="text-[#6A7A8A] text-xs mb-2">{artist.full_name}</div>
+                  <div className="text-muted-foreground/80 text-xs mb-2">{artist.full_name}</div>
                 )}
 
                 {artist.genres && artist.genres.length > 0 && (
-                  <div className="text-[#4E5A6A] text-xs mb-3 font-mono">
+                  <div className="text-muted-foreground/60 text-xs mb-3 font-mono">
                     {artist.genres.join(' · ')}
                   </div>
                 )}
 
                 {artist.min_fee && (
-                  <div className="text-[#6A7A8A] text-xs mb-3">
-                    Min fee: <span className="text-[#C8A24A]">£{artist.min_fee}</span>
+                  <div className="text-muted-foreground/80 text-xs mb-3">
+                    Min fee: <span className="text-primary">£{artist.min_fee}</span>
                   </div>
                 )}
 
-                <div className="pt-3 border-t border-[#263044] flex justify-between text-xs">
+                <div className="pt-3 border-t border-border flex justify-between text-xs">
                   <div className="text-center">
                     <div className="text-white font-bold">
                       {bookingCounts[artist.id] || 0}
                     </div>
-                    <div className="text-[#4E5A6A] uppercase tracking-wider">bookings</div>
+                    <div className="text-muted-foreground/60 uppercase tracking-wider">bookings</div>
                   </div>
                   {artist.email && (
-                    <div className="text-[#4E5A6A] text-xs truncate max-w-24">
+                    <div className="text-muted-foreground/60 text-xs truncate max-w-24">
                       {artist.email}
                     </div>
                   )}

@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 16% 6%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 14% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 14% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Virtuoso gold */
+    --primary: 45 53% 54%;
+    --primary-foreground: 240 16% 6%;
+
+    --secondary: 240 12% 13%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 12% 13%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 240 20% 12%;
+    --accent-foreground: 45 53% 54%;
+
+    --destructive: 0 69% 61%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 148 40% 49%;
+    --info: 220 82% 65%;
+
+    --border: 240 8% 13%;
+    --input: 240 12% 13%;
+    --ring: 45 53% 54%;
+
+    --sidebar: 240 28% 5%;
+
+    --radius: 0.125rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'ss01', 'cv01';
+  }
+}

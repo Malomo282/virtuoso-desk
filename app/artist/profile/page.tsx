@@ -101,31 +101,31 @@ export default function ArtistProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
           <div className="text-white font-semibold">My Profile</div>
         </div>
 
         <div className="p-8 max-w-xl">
           <div className="mb-6">
             <h1 className="text-white text-xl font-semibold mb-1">Edit your profile</h1>
-            <p className="text-[#6A7A8A] text-sm">
+            <p className="text-muted-foreground/80 text-sm">
               Update how you appear to Virtuoso Entertainment and prospective venues.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 bg-[#151A22] border border-[#263044] rounded-xl p-6">
+          <form onSubmit={handleSubmit} className="space-y-4 bg-card border border-border rounded-xl p-6">
             <div>
-              <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+              <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                 Stage name
               </label>
               <input
@@ -133,52 +133,52 @@ export default function ArtistProfilePage() {
                 value={form.stageName}
                 onChange={e => update('stageName', e.target.value)}
                 required
-                className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A]"
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
                 placeholder="e.g. DJ Reide"
               />
             </div>
 
             <div>
-              <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+              <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                 Bio
               </label>
               <textarea
                 value={form.bio}
                 onChange={e => update('bio', e.target.value)}
                 rows={4}
-                className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A] resize-none"
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary resize-none"
                 placeholder="A short bio venues and the agency will see"
               />
             </div>
 
             <div>
-              <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+              <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                 Genres
               </label>
               <input
                 type="text"
                 value={form.genres}
                 onChange={e => update('genres', e.target.value)}
-                className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A]"
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
                 placeholder="e.g. House, Afrobeats, Hip-Hop (comma separated)"
               />
             </div>
 
             <div>
-              <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+              <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                 Photo URL
               </label>
               <input
                 type="text"
                 value={form.photoUrl}
                 onChange={e => update('photoUrl', e.target.value)}
-                className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A]"
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
                 placeholder="https://..."
               />
             </div>
 
             <div>
-              <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">
+              <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
                 Minimum fee (GBP)
               </label>
               <input
@@ -186,7 +186,7 @@ export default function ArtistProfilePage() {
                 inputMode="decimal"
                 value={form.minFee}
                 onChange={e => update('minFee', e.target.value)}
-                className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A]"
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
                 placeholder="e.g. 250"
               />
             </div>
@@ -206,7 +206,7 @@ export default function ArtistProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full bg-[#C8A24A] hover:bg-[#D6B25E] disabled:opacity-40 text-[#0E1117] font-bold py-3 rounded-lg text-sm uppercase tracking-widest transition-colors"
+              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-40 text-primary-foreground font-bold py-3 rounded-lg text-sm uppercase tracking-widest transition-colors"
             >
               {saving ? 'Saving...' : 'Save changes'}
             </button>

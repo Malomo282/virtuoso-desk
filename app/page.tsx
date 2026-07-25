@@ -21,8 +21,8 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-      <div className="text-[#C8A24A] text-4xl font-bold">VE</div>
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-primary text-4xl font-bold">VE</div>
     </div>
   )
 }

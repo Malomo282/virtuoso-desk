@@ -21,11 +21,11 @@ export default function ArtistSidebar() {
   }
 
   return (
-    <div className="w-60 min-w-60 bg-[#0B0D10] border-r border-[#263044] h-screen flex flex-col sticky top-0">
-      <div className="px-5 py-5 border-b border-[#263044] text-center flex-shrink-0">
-        <div className="text-3xl font-bold text-[#C8A24A] mb-1">VE</div>
+    <div className="w-60 min-w-60 bg-sidebar border-r border-border h-screen flex flex-col sticky top-0">
+      <div className="px-5 py-5 border-b border-border text-center flex-shrink-0">
+        <div className="text-3xl font-bold text-primary mb-1">VE</div>
         <div className="text-white text-xs font-semibold tracking-widest uppercase">Virtuoso</div>
-        <div className="text-[#6A7A8A] text-xs tracking-widest uppercase">Entertainment Ltd</div>
+        <div className="text-muted-foreground/80 text-xs tracking-widest uppercase">Entertainment Ltd</div>
       </div>
       <nav className="py-2 px-3 overflow-y-auto flex-1">
         {navItems.map((item, i) => {
@@ -37,8 +37,8 @@ export default function ArtistSidebar() {
               className={
                 'flex items-center px-3 py-2 rounded-lg cursor-pointer text-xs uppercase tracking-wider font-medium mb-0.5 transition-all ' +
                 (isActive
-                  ? 'bg-[#0F1B2D] border-l-2 border-[#C8A24A] text-[#C8A24A] pl-[10px]'
-                  : 'text-[#6A7A8A] hover:bg-[#151A22] hover:text-white')
+                  ? 'bg-accent border-l-2 border-primary text-primary pl-[10px]'
+                  : 'text-muted-foreground/80 hover:bg-card hover:text-white')
               }
             >
               {item.label}
@@ -46,10 +46,10 @@ export default function ArtistSidebar() {
           )
         })}
       </nav>
-      <div className="px-3 py-3 border-t border-[#263044] flex-shrink-0">
+      <div className="px-3 py-3 border-t border-border flex-shrink-0">
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-[#263044] text-[#E05555] text-xs uppercase tracking-wider hover:bg-red-900/20 hover:border-red-900 transition-colors font-medium"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-border text-destructive text-xs uppercase tracking-wider hover:bg-red-900/20 hover:border-red-900 transition-colors font-medium"
         >
           Sign out
         </button>

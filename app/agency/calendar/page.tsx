@@ -7,7 +7,7 @@ import AgencySidebar from '@/components/AgencySidebar'
 const BRAG: Record<string, { label: string; color: string; bg: string; cls: string }> = {
   B: { label: 'Completed / To be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
   R: { label: 'Less than 48h / Urgent', color: '#E05555', bg: 'rgba(224,85,85,0.15)', cls: 'text-red-400' },
-  A: { label: 'Available / Reviewing confirmation', color: '#C8A24A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
+  A: { label: 'Available / Reviewing confirmation', color: '#C8A94A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
   G: { label: 'Booking confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
 }
 
@@ -138,8 +138,8 @@ export default function CalendarPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
@@ -151,47 +151,47 @@ export default function CalendarPage() {
     : 'TBC'
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <AgencySidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center justify-between">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">Calendar</div>
           <button
             onClick={handleExportICS}
-            className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-[#D6B25E] transition-colors"
+            className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
           >
             Export .ics
           </button>
         </div>
         <div className="p-8">
           <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-[#151A22] border border-[#263044] text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-[#C8A24A]">
+            <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-card border border-border text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
               <option value="">All venues</option>
               {venues.map(v => (<option key={v.id} value={v.id}>{v.name}</option>))}
             </select>
             <div className="flex gap-2">
               {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Urgent' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Confirmed' }].map(({ value, label }) => (
-                <button key={value} onClick={() => setBragFilter(value)} className={'px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (bragFilter === value ? 'bg-[#C8A24A] text-[#0B0D10]' : 'bg-[#151A22] border border-[#263044] text-[#6A7A8A] hover:text-white')}>{label}</button>
+                <button key={value} onClick={() => setBragFilter(value)} className={'px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (bragFilter === value ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground/80 hover:text-white')}>{label}</button>
               ))}
             </div>
             <div className="ml-auto flex items-center gap-4">
               {Object.entries(BRAG).map(([k, v]) => (
                 <div key={k} className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ background: v.color }} />
-                  <span className="text-[#6A7A8A] text-xs">{v.label}</span>
+                  <span className="text-muted-foreground/80 text-xs">{v.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="flex items-center gap-4 mb-4">
-            <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-[#151A22] border border-[#263044] text-white px-3 py-1.5 rounded-lg text-sm hover:border-[#C8A24A] transition-colors">Prev</button>
+            <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-card border border-border text-white px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Prev</button>
             <div className="text-white font-semibold text-lg flex-1 text-center">{months[calM]} {calY}</div>
-            <button onClick={() => { if (calM === 11) { setCalM(0); setCalY(calY + 1) } else setCalM(calM + 1) }} className="bg-[#151A22] border border-[#263044] text-white px-3 py-1.5 rounded-lg text-sm hover:border-[#C8A24A] transition-colors">Next</button>
+            <button onClick={() => { if (calM === 11) { setCalM(0); setCalY(calY + 1) } else setCalM(calM + 1) }} className="bg-card border border-border text-white px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Next</button>
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {days.map(d => (<div key={d} className="text-center text-[#4E5A6A] text-xs uppercase tracking-widest py-2">{d}</div>))}
+            {days.map(d => (<div key={d} className="text-center text-muted-foreground/60 text-xs uppercase tracking-widest py-2">{d}</div>))}
           </div>
 
           <div className="grid grid-cols-7 gap-1">
@@ -202,8 +202,8 @@ export default function CalendarPage() {
               const dayBks = filteredBookings.filter(b => b.starts_at && b.starts_at.slice(0, 10) === ds)
               const isT = today.getFullYear() === calY && today.getMonth() === calM && today.getDate() === d
               return (
-                <div key={d} className={'min-h-20 bg-[#151A22] border rounded-lg p-1.5 ' + (isT ? 'border-[#C8A24A]' : 'border-[#263044]')}>
-                  <div className={'text-xs font-mono mb-1 ' + (isT ? 'text-[#C8A24A]' : 'text-[#6A7A8A]')}>{d}</div>
+                <div key={d} className={'min-h-20 bg-card border rounded-lg p-1.5 ' + (isT ? 'border-primary' : 'border-border')}>
+                  <div className={'text-xs font-mono mb-1 ' + (isT ? 'text-primary' : 'text-muted-foreground/80')}>{d}</div>
                   {dayBks.map(b => {
                     const br = BRAG[b.brag_status] || BRAG.A
                     return (
@@ -218,12 +218,12 @@ export default function CalendarPage() {
           </div>
 
           {selected && (
-            <div className="mt-6 bg-[#151A22] border border-[#263044] rounded-xl p-5">
+            <div className="mt-6 bg-card border border-border rounded-xl p-5">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="text-white font-semibold text-lg">{selected.venues?.name}</div>
-                  {selected.event_name && <div className="text-[#6A7A8A] text-sm">{selected.event_name}</div>}
-                  <div className="text-[#4E5A6A] text-xs mt-1">
+                  {selected.event_name && <div className="text-muted-foreground/80 text-sm">{selected.event_name}</div>}
+                  <div className="text-muted-foreground/60 text-xs mt-1">
                     {new Date(selected.starts_at).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
                 </div>
@@ -232,21 +232,21 @@ export default function CalendarPage() {
                     <div className="w-2 h-2 rounded-full" style={{ background: BRAG[selected.brag_status]?.color }} />
                     {BRAG[selected.brag_status]?.label}
                   </div>
-                  <button onClick={() => setSelected(null)} className="text-[#4E5A6A] hover:text-white">Close</button>
+                  <button onClick={() => setSelected(null)} className="text-muted-foreground/60 hover:text-white">Close</button>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Artist</div>
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Artist</div>
                   <div className="text-white">{selected.artists?.stage_name || 'TBC'}</div>
                 </div>
                 <div>
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Time</div>
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Time</div>
                   <div className="text-white">{selectedTime}</div>
                 </div>
                 <div>
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Fee</div>
-                  <div className="text-[#C8A24A] font-bold">GBP {(selected.fee_venue || 0).toLocaleString()}</div>
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Fee</div>
+                  <div className="text-primary font-bold">GBP {(selected.fee_venue || 0).toLocaleString()}</div>
                 </div>
               </div>
             </div>

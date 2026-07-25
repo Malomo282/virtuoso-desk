@@ -114,15 +114,15 @@ export default function NewBookingPage() {
     router.push('/agency/bookings')
   }
 
-  const inp = "w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A] transition-colors"
-  const lbl = "block text-[#8A96A8] text-xs uppercase tracking-widest mb-2"
+  const inp = "w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+  const lbl = "block text-muted-foreground text-xs uppercase tracking-widest mb-2"
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <AgencySidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center gap-3">
-          <button onClick={() => router.push('/agency/bookings')} className="text-[#6A7A8A] hover:text-white text-sm">Back</button>
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center gap-3">
+          <button onClick={() => router.push('/agency/bookings')} className="text-muted-foreground/80 hover:text-white text-sm">Back</button>
           <div className="text-white font-semibold">New Booking</div>
         </div>
         <div className="p-8 max-w-2xl">
@@ -149,16 +149,16 @@ export default function NewBookingPage() {
               <input type="text" value={form.event_name} onChange={e => update('event_name', e.target.value)} className={inp} placeholder="e.g. Residents Night" />
             </div>
 
-            <div className="bg-[#151A22] border border-[#263044] rounded-lg p-4">
-              <div className="text-[#8A96A8] text-xs uppercase tracking-widest mb-3">Date and time</div>
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="text-muted-foreground text-xs uppercase tracking-widest mb-3">Date and time</div>
               <div className="flex items-center gap-3 flex-wrap">
                 <input type="date" value={form.start_date} onChange={e => update('start_date', e.target.value)} className={inp + ' w-auto flex-1 min-w-[140px]'} required />
                 <input type="time" value={form.start_time} onChange={e => update('start_time', e.target.value)} className={inp + ' w-auto flex-1 min-w-[100px]'} required />
-                <span className="text-[#4E5A6A] text-sm px-1">to</span>
+                <span className="text-muted-foreground/60 text-sm px-1">to</span>
                 <input type="time" value={form.end_time} onChange={e => update('end_time', e.target.value)} className={inp + ' w-auto flex-1 min-w-[100px]'} required />
                 <input type="date" value={form.end_date} onChange={e => update('end_date', e.target.value)} className={inp + ' w-auto flex-1 min-w-[140px]'} required />
               </div>
-              <p className="text-[#4E5A6A] text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
+              <p className="text-muted-foreground/60 text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -210,8 +210,8 @@ export default function NewBookingPage() {
             {error && <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm">{error}</div>}
 
             <div className="flex gap-3">
-              <button type="button" onClick={() => router.push('/agency/bookings')} className="px-6 py-3 bg-[#1C2330] border border-[#263044] text-[#6A7A8A] text-sm rounded-lg hover:text-white">Cancel</button>
-              <button type="submit" disabled={loading} className="px-6 py-3 bg-[#C8A24A] hover:bg-[#D6B25E] disabled:opacity-50 text-[#0B0D10] font-bold text-sm rounded-lg uppercase tracking-wider">{loading ? 'Saving...' : 'Save booking'}</button>
+              <button type="button" onClick={() => router.push('/agency/bookings')} className="px-6 py-3 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-white">Cancel</button>
+              <button type="submit" disabled={loading} className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-sm rounded-lg uppercase tracking-wider">{loading ? 'Saving...' : 'Save booking'}</button>
             </div>
           </form>
         </div>

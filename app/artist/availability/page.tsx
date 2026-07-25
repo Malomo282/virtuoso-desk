@@ -86,48 +86,48 @@ export default function ArtistAvailabilityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
           <div className="text-white font-semibold">My Availability</div>
         </div>
 
         <div className="p-8 max-w-xl">
           <div className="mb-6">
             <h1 className="text-white text-xl font-semibold mb-1">Blackout dates</h1>
-            <p className="text-[#6A7A8A] text-sm">
+            <p className="text-muted-foreground/80 text-sm">
               Mark dates you are unavailable. The agency will avoid booking you on these dates.
             </p>
           </div>
 
-          <form onSubmit={addDate} className="bg-[#151A22] border border-[#263044] rounded-xl p-6 space-y-4 mb-6">
+          <form onSubmit={addDate} className="bg-card border border-border rounded-xl p-6 space-y-4 mb-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">Date</label>
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">Date</label>
                 <input
                   type="date"
                   value={newDate}
                   onChange={e => setNewDate(e.target.value)}
                   required
-                  className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A]"
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="block text-[#8A96A8] text-xs uppercase tracking-widest mb-2">Note (optional)</label>
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">Note (optional)</label>
                 <input
                   type="text"
                   value={newNote}
                   onChange={e => setNewNote(e.target.value)}
                   placeholder="e.g. Holiday"
-                  className="w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#C8A24A]"
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
@@ -141,14 +141,14 @@ export default function ArtistAvailabilityPage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-[#C8A24A] hover:bg-[#D6B25E] disabled:opacity-40 text-[#0E1117] font-bold px-5 py-2.5 rounded-lg text-sm uppercase tracking-widest transition-colors"
+              className="bg-primary hover:bg-primary/90 disabled:opacity-40 text-primary-foreground font-bold px-5 py-2.5 rounded-lg text-sm uppercase tracking-widest transition-colors"
             >
               {saving ? 'Adding...' : 'Add blackout date'}
             </button>
           </form>
 
           {dates.length === 0 ? (
-            <div className="text-center py-10 text-[#4E5A6A] text-sm">
+            <div className="text-center py-10 text-muted-foreground/60 text-sm">
               No blackout dates added yet.
             </div>
           ) : (
@@ -156,17 +156,17 @@ export default function ArtistAvailabilityPage() {
               {dates.map(d => (
                 <div
                   key={d.id}
-                  className="flex items-center justify-between bg-[#151A22] border border-[#263044] rounded-lg px-4 py-3"
+                  className="flex items-center justify-between bg-card border border-border rounded-lg px-4 py-3"
                 >
                   <div>
                     <div className="text-white text-sm font-semibold">
                       {new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
-                    {d.note && <div className="text-[#6A7A8A] text-xs">{d.note}</div>}
+                    {d.note && <div className="text-muted-foreground/80 text-xs">{d.note}</div>}
                   </div>
                   <button
                     onClick={() => removeDate(d.id)}
-                    className="text-xs text-[#E05555] hover:underline"
+                    className="text-xs text-destructive hover:underline"
                   >
                     Remove
                   </button>

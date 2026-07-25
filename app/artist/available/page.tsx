@@ -101,23 +101,23 @@ export default function ArtistAvailableGigsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
           <div className="text-white font-semibold">Available Gigs</div>
         </div>
 
         <div className="p-8 max-w-2xl">
           {gigs.length === 0 && (
-            <div className="text-center py-16 text-[#4E5A6A] text-sm">
+            <div className="text-center py-16 text-muted-foreground/60 text-sm">
               No open gigs at the moment. Check back soon.
             </div>
           )}
@@ -132,43 +132,43 @@ export default function ArtistAvailableGigsPage() {
               const myResponse = responses[gig.id]
 
               return (
-                <div key={gig.id} className="bg-[#151A22] border border-[#263044] rounded-xl p-5">
+                <div key={gig.id} className="bg-card border border-border rounded-xl p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="text-white font-semibold mb-1">{gig.venues?.name || 'Unknown venue'}</div>
-                      <div className="flex gap-4 text-xs text-[#6A7A8A] flex-wrap font-mono">
+                      <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap font-mono">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
                         {timeStr && <span>{timeStr}</span>}
                         {gig.genre && <span>{gig.genre}</span>}
                       </div>
                       {gig.fee != null && (
-                        <div className="text-[#C8A24A] font-semibold text-sm mt-2">GBP {gig.fee.toLocaleString()}</div>
+                        <div className="text-primary font-semibold text-sm mt-2">GBP {gig.fee.toLocaleString()}</div>
                       )}
                       {gig.notes && (
-                        <div className="text-[#4E5A6A] text-xs mt-2 italic">{gig.notes}</div>
+                        <div className="text-muted-foreground/60 text-xs mt-2 italic">{gig.notes}</div>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-[#263044] flex items-center gap-2">
+                  <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
                     {myResponse === 'interested' ? (
                       <div className="flex items-center gap-2">
                         <span className="text-xs bg-green-900/30 text-green-400 px-3 py-1.5 rounded-full font-semibold">You are interested</span>
                         <button
                           onClick={() => respond(gig.id, 'declined')}
                           disabled={submitting === gig.id}
-                          className="text-xs text-[#6A7A8A] hover:text-white transition-colors"
+                          className="text-xs text-muted-foreground/80 hover:text-white transition-colors"
                         >
                           Change to decline
                         </button>
                       </div>
                     ) : myResponse === 'declined' ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs bg-[#1C2330] text-[#6A7A8A] px-3 py-1.5 rounded-full">Declined</span>
+                        <span className="text-xs bg-secondary text-muted-foreground/80 px-3 py-1.5 rounded-full">Declined</span>
                         <button
                           onClick={() => respond(gig.id, 'interested')}
                           disabled={submitting === gig.id}
-                          className="text-xs text-[#C8A24A] hover:underline transition-colors"
+                          className="text-xs text-primary hover:underline transition-colors"
                         >
                           Change to interested
                         </button>
@@ -178,14 +178,14 @@ export default function ArtistAvailableGigsPage() {
                         <button
                           onClick={() => respond(gig.id, 'interested')}
                           disabled={submitting === gig.id}
-                          className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#D6B25E] disabled:opacity-50 transition-colors"
+                          className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                         >
                           {submitting === gig.id ? 'Saving...' : 'I am interested'}
                         </button>
                         <button
                           onClick={() => respond(gig.id, 'declined')}
                           disabled={submitting === gig.id}
-                          className="bg-[#1C2330] border border-[#263044] text-[#6A7A8A] text-xs px-4 py-2 rounded-lg hover:text-white disabled:opacity-50 transition-colors"
+                          className="bg-secondary border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-white disabled:opacity-50 transition-colors"
                         >
                           Decline
                         </button>

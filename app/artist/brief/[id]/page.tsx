@@ -70,20 +70,20 @@ export default function BriefPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex">
+      <div className="min-h-screen bg-background flex">
         <ArtistSidebar />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
             <div className="text-red-400 text-sm mb-4">{error}</div>
-            <a href="/artist/dashboard" className="text-[#C8A24A] text-sm hover:underline">Back to dashboard</a>
+            <a href="/artist/dashboard" className="text-primary text-sm hover:underline">Back to dashboard</a>
           </div>
         </div>
       </div>
@@ -99,23 +99,23 @@ export default function BriefPage({ params }: { params: { id: string } }) {
   const timeRange = startStr + ' to ' + endStr + nextDaySuffix
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-6 h-14 flex items-center gap-3">
-          <button onClick={() => router.push('/artist/dashboard')} className="text-[#6A7A8A] hover:text-white text-sm">Back</button>
+        <div className="bg-card border-b border-border px-6 h-14 flex items-center gap-3">
+          <button onClick={() => router.push('/artist/dashboard')} className="text-muted-foreground/80 hover:text-white text-sm">Back</button>
           <span className="text-white text-sm font-semibold">Artist Brief</span>
         </div>
 
         <div className="p-6 max-w-xl">
           <div className="mb-6">
-            <div className="text-[#C8A24A] text-xs uppercase tracking-widest font-mono mb-2">Virtuoso Entertainment Ltd</div>
+            <div className="text-primary text-xs uppercase tracking-widest font-mono mb-2">Virtuoso Entertainment Ltd</div>
             <h1 className="text-white text-2xl font-bold mb-1">{booking.venue_name}</h1>
-            {booking.event_name && <div className="text-[#6A7A8A] text-sm">{booking.event_name}</div>}
+            {booking.event_name && <div className="text-muted-foreground/80 text-sm">{booking.event_name}</div>}
           </div>
 
-          <div className="bg-[#151A22] border border-[#263044] rounded-xl p-5 mb-4">
-            <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-4">Booking details</div>
+          <div className="bg-card border border-border rounded-xl p-5 mb-4">
+            <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-4">Booking details</div>
             <div className="grid grid-cols-2 gap-4">
               {[
                 ['Date', startsAt.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })],
@@ -124,13 +124,13 @@ export default function BriefPage({ params }: { params: { id: string } }) {
                 ['Dress code', booking.dress_code || 'TBC'],
               ].map(([label, value]) => (
                 <div key={label}>
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">{label}</div>
-                  <div className={'text-sm font-medium ' + (label === 'Your fee' ? 'text-[#C8A24A]' : 'text-white')}>{value}</div>
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">{label}</div>
+                  <div className={'text-sm font-medium ' + (label === 'Your fee' ? 'text-primary' : 'text-white')}>{value}</div>
                 </div>
               ))}
               {booking.venue_address && (
                 <div className="col-span-2">
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Venue address</div>
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Venue address</div>
                   <div className="text-white text-sm">{booking.venue_address}</div>
                 </div>
               )}
@@ -138,9 +138,9 @@ export default function BriefPage({ params }: { params: { id: string } }) {
           </div>
 
           {booking.brief_text && (
-            <div className="bg-[#151A22] border border-[#263044] rounded-xl p-5 mb-4">
-              <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-3">Music brief</div>
-              <div className="text-[#6A7A8A] text-sm leading-relaxed">{booking.brief_text}</div>
+            <div className="bg-card border border-border rounded-xl p-5 mb-4">
+              <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-3">Music brief</div>
+              <div className="text-muted-foreground/80 text-sm leading-relaxed">{booking.brief_text}</div>
             </div>
           )}
 
@@ -149,19 +149,19 @@ export default function BriefPage({ params }: { params: { id: string } }) {
               href={booking.brief_doc_url}
               target="_blank"
               rel="noreferrer"
-              className="block w-full bg-[#C8A24A]/10 border border-[#C8A24A]/30 rounded-xl p-4 text-center text-[#C8A24A] text-sm font-semibold hover:bg-[#C8A24A]/20 transition-colors mb-4"
+              className="block w-full bg-primary/10 border border-primary/30 rounded-xl p-4 text-center text-primary text-sm font-semibold hover:bg-primary/20 transition-colors mb-4"
             >
               Open full brief document
             </a>
           )}
 
-          <div className="bg-[#151A22] border border-[#263044] rounded-xl p-5 mb-4">
-            <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-3">Contract / rider</div>
+          <div className="bg-card border border-border rounded-xl p-5 mb-4">
+            <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-3">Contract / rider</div>
             {agreement ? (
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="min-w-0">
                   <div className="text-white text-sm truncate">{agreement.fileName}</div>
-                  <div className="text-[#4E5A6A] text-xs">
+                  <div className="text-muted-foreground/60 text-xs">
                     Uploaded {agreement.uploadedAt ? new Date(agreement.uploadedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                   </div>
                 </div>
@@ -170,7 +170,7 @@ export default function BriefPage({ params }: { params: { id: string } }) {
                 </a>
               </div>
             ) : (
-              <p className="text-[#6A7A8A] text-xs mb-3">
+              <p className="text-muted-foreground/80 text-xs mb-3">
                 Upload your signed contract or rider for this gig (PDF, Word, or image — max 4MB).
               </p>
             )}
@@ -179,12 +179,12 @@ export default function BriefPage({ params }: { params: { id: string } }) {
                 type="file"
                 accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                 onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                className="text-xs text-[#6A7A8A] file:mr-3 file:bg-[#1C2330] file:border file:border-[#263044] file:text-[#6A7A8A] file:text-xs file:px-3 file:py-1.5 file:rounded-lg file:cursor-pointer"
+                className="text-xs text-muted-foreground/80 file:mr-3 file:bg-secondary file:border file:border-border file:text-muted-foreground/80 file:text-xs file:px-3 file:py-1.5 file:rounded-lg file:cursor-pointer"
               />
               <button
                 type="submit"
                 disabled={!uploadFile || uploading}
-                className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#D6B25E] disabled:opacity-40 transition-colors"
+                className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-40 transition-colors"
               >
                 {uploading ? 'Uploading...' : agreement ? 'Replace document' : 'Upload document'}
               </button>
@@ -192,9 +192,9 @@ export default function BriefPage({ params }: { params: { id: string } }) {
             {uploadError && <div className="text-red-400 text-xs mt-2">{uploadError}</div>}
           </div>
 
-          <div className="bg-[#1C2330] border border-[#263044] rounded-xl p-4 text-center">
-            <div className="text-[#6A7A8A] text-xs">
-              Questions? Contact <a href="mailto:bookings@virtuosoentertainment.co.uk" className="text-[#C8A24A] hover:underline">bookings@virtuosoentertainment.co.uk</a>
+          <div className="bg-secondary border border-border rounded-xl p-4 text-center">
+            <div className="text-muted-foreground/80 text-xs">
+              Questions? Contact <a href="mailto:bookings@virtuosoentertainment.co.uk" className="text-primary hover:underline">bookings@virtuosoentertainment.co.uk</a>
             </div>
           </div>
         </div>

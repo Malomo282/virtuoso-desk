@@ -222,27 +222,27 @@ export default function AvailableGigsPage() {
     router.push('/agency/bookings')
   }
 
-  const inputClass = "w-full bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#C8A24A] transition-colors"
-  const labelClass = "block text-[#8A96A8] text-xs uppercase tracking-widest mb-1.5"
+  const inputClass = "w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+  const labelClass = "block text-muted-foreground text-xs uppercase tracking-widest mb-1.5"
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <AgencySidebar />
 
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center justify-between">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">Available Gigs</div>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-[#D6B25E] transition-colors"
+            className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
           >
             + Create gig
           </button>
@@ -251,7 +251,7 @@ export default function AvailableGigsPage() {
         <div className="p-8">
 
           {showForm && (
-            <div className="bg-[#151A22] border border-[#C8A24A]/30 rounded-xl p-6 mb-6">
+            <div className="bg-card border border-primary/30 rounded-xl p-6 mb-6">
               <h2 className="text-white font-semibold mb-4">New available gig</h2>
               <form onSubmit={saveGig} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -281,16 +281,16 @@ export default function AvailableGigsPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#1C2330] border border-[#263044] rounded-lg p-4">
-                  <div className="text-[#8A96A8] text-xs uppercase tracking-widest mb-3">Date and time</div>
+                <div className="bg-secondary border border-border rounded-lg p-4">
+                  <div className="text-muted-foreground text-xs uppercase tracking-widest mb-3">Date and time</div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <input type="date" value={form.start_date} onChange={e => update('start_date', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[140px]'} required />
                     <input type="time" value={form.start_time} onChange={e => update('start_time', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[100px]'} required />
-                    <span className="text-[#4E5A6A] text-sm px-1">to</span>
+                    <span className="text-muted-foreground/60 text-sm px-1">to</span>
                     <input type="time" value={form.end_time} onChange={e => update('end_time', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[100px]'} required />
                     <input type="date" value={form.end_date} onChange={e => update('end_date', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[140px]'} required />
                   </div>
-                  <p className="text-[#4E5A6A] text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
+                  <p className="text-muted-foreground/60 text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
                 </div>
 
                 <div>
@@ -324,14 +324,14 @@ export default function AvailableGigsPage() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="px-5 py-2.5 bg-[#1C2330] border border-[#263044] text-[#6A7A8A] text-sm rounded-lg hover:text-white transition-colors"
+                    className="px-5 py-2.5 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-white transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-5 py-2.5 bg-[#C8A24A] text-[#0B0D10] font-bold text-sm rounded-lg hover:bg-[#D6B25E] disabled:opacity-50 transition-colors"
+                    className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                   >
                     {saving ? 'Saving...' : 'Create gig'}
                   </button>
@@ -342,10 +342,10 @@ export default function AvailableGigsPage() {
 
           {gigs.length === 0 && !showForm && (
             <div className="text-center py-16">
-              <div className="text-[#4E5A6A] text-sm mb-2">No open gigs at the moment</div>
+              <div className="text-muted-foreground/60 text-sm mb-2">No open gigs at the moment</div>
               <button
                 onClick={() => setShowForm(true)}
-                className="text-[#C8A24A] text-sm hover:underline"
+                className="text-primary text-sm hover:underline"
               >
                 Create your first available gig
               </button>
@@ -365,28 +365,28 @@ export default function AvailableGigsPage() {
               return (
                 <div
                   key={gig.id}
-                  className="bg-[#151A22] border border-[#263044] rounded-xl p-5"
+                  className="bg-card border border-border rounded-xl p-5"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="text-white font-semibold mb-1">
                         {gig.venues?.name || 'Unknown venue'}
                       </div>
-                      <div className="flex gap-4 text-xs text-[#6A7A8A] flex-wrap font-mono">
+                      <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap font-mono">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
                         {timeStr && <span>{timeStr}</span>}
                         {gig.genre && <span>{gig.genre}</span>}
-                        {gig.fee != null && <span className="text-[#C8A24A] font-semibold">GBP {gig.fee.toLocaleString()}</span>}
+                        {gig.fee != null && <span className="text-primary font-semibold">GBP {gig.fee.toLocaleString()}</span>}
                       </div>
                       {gig.notes && (
-                        <div className="text-[#4E5A6A] text-xs mt-2 italic">{gig.notes}</div>
+                        <div className="text-muted-foreground/60 text-xs mt-2 italic">{gig.notes}</div>
                       )}
                     </div>
 
                     <div className="flex gap-2 flex-shrink-0">
                       <button
                         onClick={() => setExpandedGig(isExpanded ? '' : gig.id)}
-                        className="bg-[#1C2330] border border-[#263044] text-white text-xs font-semibold px-3 py-2 rounded-lg hover:border-[#C8A24A] transition-colors"
+                        className="bg-secondary border border-border text-white text-xs font-semibold px-3 py-2 rounded-lg hover:border-primary transition-colors"
                       >
                         {gigResponses.length} interested
                       </button>
@@ -400,13 +400,13 @@ export default function AvailableGigsPage() {
                   </div>
 
                   {isExpanded && (
-                    <div className="mt-4 pt-4 border-t border-[#263044]">
+                    <div className="mt-4 pt-4 border-t border-border">
                       {gigResponses.length === 0 ? (
-                        <div className="text-[#4E5A6A] text-sm">No artists have responded yet.</div>
+                        <div className="text-muted-foreground/60 text-sm">No artists have responded yet.</div>
                       ) : (
                         <div className="space-y-2">
                           {gigResponses.map(r => (
-                            <div key={r.id} className="flex items-center justify-between bg-[#1C2330] border border-[#263044] rounded-lg px-4 py-3">
+                            <div key={r.id} className="flex items-center justify-between bg-secondary border border-border rounded-lg px-4 py-3">
                               <div className="text-white text-sm">{r.artists?.stage_name || 'Unknown artist'}</div>
 
                               {confirmingResponse === r.id ? (
@@ -416,18 +416,18 @@ export default function AvailableGigsPage() {
                                     value={confirmFee}
                                     onChange={e => setConfirmFee(e.target.value)}
                                     placeholder="Artist fee"
-                                    className="w-28 bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none focus:border-[#C8A24A]"
+                                    className="w-28 bg-background border border-border rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none focus:border-primary"
                                   />
                                   <button
                                     onClick={() => confirmArtist(gig, r)}
                                     disabled={confirming}
-                                    className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-[#D6B25E] disabled:opacity-50 transition-colors"
+                                    className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                                   >
                                     {confirming ? 'Confirming...' : 'Confirm booking'}
                                   </button>
                                   <button
                                     onClick={() => setConfirmingResponse('')}
-                                    className="text-xs text-[#6A7A8A] hover:text-white"
+                                    className="text-xs text-muted-foreground/80 hover:text-white"
                                   >
                                     Cancel
                                   </button>

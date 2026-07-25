@@ -6,7 +6,7 @@ import ArtistSidebar from '@/components/ArtistSidebar'
 
 const STATUS = {
   available: { label: 'Available (awaiting agency decision)', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
-  reviewing: { label: 'Being reviewed', color: '#C8A24A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
+  reviewing: { label: 'Being reviewed', color: '#C8A94A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
   confirmed: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
 }
 
@@ -91,8 +91,8 @@ export default function ArtistCalendarPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1117] flex items-center justify-center">
-        <div className="text-[#C8A24A] text-4xl font-bold animate-pulse">VE</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
       </div>
     )
   }
@@ -104,10 +104,10 @@ export default function ArtistCalendarPage() {
     : 'TBC'
 
   return (
-    <div className="min-h-screen bg-[#0E1117] flex">
+    <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-[#151A22] border-b border-[#263044] px-8 h-14 flex items-center">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
           <div className="text-white font-semibold">My Calendar</div>
         </div>
         <div className="p-8">
@@ -115,19 +115,19 @@ export default function ArtistCalendarPage() {
             {Object.entries(STATUS).map(([k, v]) => (
               <div key={k} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: v.color }} />
-                <span className="text-[#6A7A8A] text-xs">{v.label}</span>
+                <span className="text-muted-foreground/80 text-xs">{v.label}</span>
               </div>
             ))}
           </div>
 
           <div className="flex items-center gap-4 mb-4">
-            <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-[#151A22] border border-[#263044] text-white px-3 py-1.5 rounded-lg text-sm hover:border-[#C8A24A] transition-colors">Prev</button>
+            <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-card border border-border text-white px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Prev</button>
             <div className="text-white font-semibold text-lg flex-1 text-center">{months[calM]} {calY}</div>
-            <button onClick={() => { if (calM === 11) { setCalM(0); setCalY(calY + 1) } else setCalM(calM + 1) }} className="bg-[#151A22] border border-[#263044] text-white px-3 py-1.5 rounded-lg text-sm hover:border-[#C8A24A] transition-colors">Next</button>
+            <button onClick={() => { if (calM === 11) { setCalM(0); setCalY(calY + 1) } else setCalM(calM + 1) }} className="bg-card border border-border text-white px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Next</button>
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {days.map(d => (<div key={d} className="text-center text-[#4E5A6A] text-xs uppercase tracking-widest py-2">{d}</div>))}
+            {days.map(d => (<div key={d} className="text-center text-muted-foreground/60 text-xs uppercase tracking-widest py-2">{d}</div>))}
           </div>
 
           <div className="grid grid-cols-7 gap-1">
@@ -138,8 +138,8 @@ export default function ArtistCalendarPage() {
               const dayEvents = events.filter(e => e.starts_at && e.starts_at.slice(0, 10) === ds)
               const isT = today.getFullYear() === calY && today.getMonth() === calM && today.getDate() === d
               return (
-                <div key={d} className={'min-h-20 bg-[#151A22] border rounded-lg p-1.5 ' + (isT ? 'border-[#C8A24A]' : 'border-[#263044]')}>
-                  <div className={'text-xs font-mono mb-1 ' + (isT ? 'text-[#C8A24A]' : 'text-[#6A7A8A]')}>{d}</div>
+                <div key={d} className={'min-h-20 bg-card border rounded-lg p-1.5 ' + (isT ? 'border-primary' : 'border-border')}>
+                  <div className={'text-xs font-mono mb-1 ' + (isT ? 'text-primary' : 'text-muted-foreground/80')}>{d}</div>
                   {dayEvents.map(e => {
                     const st = STATUS[e.status as keyof typeof STATUS]
                     return (
@@ -159,12 +159,12 @@ export default function ArtistCalendarPage() {
           </div>
 
           {selected && (
-            <div className="mt-6 bg-[#151A22] border border-[#263044] rounded-xl p-5">
+            <div className="mt-6 bg-card border border-border rounded-xl p-5">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="text-white font-semibold text-lg">{selected.venue_name}</div>
-                  {selected.event_name && <div className="text-[#6A7A8A] text-sm">{selected.event_name}</div>}
-                  <div className="text-[#4E5A6A] text-xs mt-1">
+                  {selected.event_name && <div className="text-muted-foreground/80 text-sm">{selected.event_name}</div>}
+                  <div className="text-muted-foreground/60 text-xs mt-1">
                     {new Date(selected.starts_at).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
                 </div>
@@ -176,18 +176,18 @@ export default function ArtistCalendarPage() {
                     <div className="w-2 h-2 rounded-full" style={{ background: STATUS[selected.status as keyof typeof STATUS].color }} />
                     {STATUS[selected.status as keyof typeof STATUS].label}
                   </div>
-                  <button onClick={() => setSelected(null)} className="text-[#4E5A6A] hover:text-white">Close</button>
+                  <button onClick={() => setSelected(null)} className="text-muted-foreground/60 hover:text-white">Close</button>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                 <div>
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Time</div>
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Time</div>
                   <div className="text-white">{selectedTime}</div>
                 </div>
                 <div>
-                  <div className="text-[#4E5A6A] text-xs uppercase tracking-widest mb-1">Fee</div>
-                  <div className="text-[#C8A24A] font-bold">
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Fee</div>
+                  <div className="text-primary font-bold">
                     GBP {((selected.fee_artist ?? selected.fee) || 0).toLocaleString()}
                   </div>
                 </div>
@@ -196,12 +196,12 @@ export default function ArtistCalendarPage() {
               {selected.kind === 'booking' ? (
                 <button
                   onClick={() => router.push('/artist/brief/' + selected.bookingId)}
-                  className="text-xs bg-[#C8A24A]/10 border border-[#C8A24A]/30 text-[#C8A24A] px-3 py-1.5 rounded-lg hover:bg-[#C8A24A]/20 transition-colors"
+                  className="text-xs bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
                 >
                   View full brief
                 </button>
               ) : (
-                <div className="text-[#4E5A6A] text-xs italic">
+                <div className="text-muted-foreground/60 text-xs italic">
                   You have expressed interest in this gig. The agency has not confirmed it yet.
                 </div>
               )}
