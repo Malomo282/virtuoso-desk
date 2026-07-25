@@ -170,7 +170,7 @@ export default function CalendarPage() {
               {venues.map(v => (<option key={v.id} value={v.id}>{v.name}</option>))}
             </select>
             <div className="flex gap-2">
-              {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Confirmed' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Urgent' }].map(({ value, label }) => (
+              {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Urgent' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Confirmed' }].map(({ value, label }) => (
                 <button key={value} onClick={() => setBragFilter(value)} className={'px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (bragFilter === value ? 'bg-[#C8A24A] text-[#0B0D10]' : 'bg-[#151A22] border border-[#263044] text-[#6A7A8A] hover:text-white')}>{label}</button>
               ))}
             </div>

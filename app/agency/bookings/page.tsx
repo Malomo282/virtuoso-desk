@@ -262,7 +262,7 @@ export default function BookingsPage() {
         </div>
         <div className="p-8">
           <div className="flex gap-2 mb-6 flex-wrap">
-            {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Confirmed' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Urgent' }, { value: 'cancelled', label: 'Cancelled' }].map(({ value, label }) => (
+            {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Urgent' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Confirmed' }, { value: 'cancelled', label: 'Cancelled' }].map(({ value, label }) => (
               <button key={value} onClick={() => setFilter(value)} className={'px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (filter === value ? 'bg-[#C8A24A] text-[#0B0D10]' : 'bg-[#151A22] border border-[#263044] text-[#6A7A8A] hover:text-white')}>{label}</button>
             ))}
           </div>

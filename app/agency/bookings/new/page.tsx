@@ -186,10 +186,10 @@ export default function NewBookingPage() {
               <div>
                 <label className={lbl}>BRAG Status</label>
                 <select value={form.brag_status} onChange={e => update('brag_status', e.target.value)} className={inp}>
-                  <option value="R">Green - Confirmed</option>
+                  <option value="G">Green - Confirmed</option>
                   <option value="A">Amber - Pending</option>
                   <option value="B">Blue - Complete</option>
-                  <option value="G">Red - Urgent</option>
+                  <option value="R">Red - Urgent</option>
                 </select>
               </div>
             </div>
