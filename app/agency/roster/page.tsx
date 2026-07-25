@@ -20,17 +20,21 @@ export default function RosterPage() {
   const router = useRouter()
   const [artists, setArtists] = useState<Artist[]>([])
   const [bookingCounts, setBookingCounts] = useState<Record<string, number>>({})
+  const [docsByArtist, setDocsByArtist] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [docsFor, setDocsFor] = useState<{ artist: Artist; docs: Record<string, any> } | null>(null)
+  const [docsLoading, setDocsLoading] = useState('')
 
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
 
-      const [{ data: artistData }, { data: bookingData }] = await Promise.all([
+      const [{ data: artistData }, { data: bookingData }, { data: docData }] = await Promise.all([
         supabase.from('artists').select('*').order('stage_name'),
         supabase.from('bookings').select('artist_id'),
+        supabase.from('artist_documents').select('artist_id, doc_type'),
       ])
 
       if (artistData) setArtists(artistData)
@@ -41,6 +45,14 @@ export default function RosterPage() {
           counts[b.artist_id] = (counts[b.artist_id] || 0) + 1
         })
         setBookingCounts(counts)
+      }
+
+      if (docData) {
+        const byArtist: Record<string, string[]> = {}
+        docData.forEach((d: any) => {
+          byArtist[d.artist_id] = [...(byArtist[d.artist_id] || []), d.doc_type]
+        })
+        setDocsByArtist(byArtist)
       }
 
       setLoading(false)
@@ -60,6 +72,14 @@ export default function RosterPage() {
 
   function initials(name: string) {
     return name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'VE'
+  }
+
+  async function viewDocuments(artist: Artist) {
+    setDocsLoading(artist.id)
+    const res = await fetch('/api/artist-documents?artistId=' + artist.id)
+    const json = await res.json()
+    if (res.ok) setDocsFor({ artist, docs: json.documents || {} })
+    setDocsLoading('')
   }
 
   if (loading) {
@@ -148,7 +168,7 @@ export default function RosterPage() {
 
                 <div className="pt-3 border-t border-border flex justify-between text-xs">
                   <div className="text-center">
-                    <div className="text-white font-bold">
+                    <div className="text-foreground font-bold">
                       {bookingCounts[artist.id] || 0}
                     </div>
                     <div className="text-muted-foreground/60 uppercase tracking-wider">bookings</div>
@@ -159,11 +179,103 @@ export default function RosterPage() {
                     </div>
                   )}
                 </div>
+
+                {(() => {
+                  const held = docsByArtist[artist.id] || []
+                  const complete = held.includes('id') && held.includes('right_to_work')
+                  return (
+                    <div className="pt-3 mt-3 border-t border-border flex items-center justify-between gap-2">
+                      <span
+                        className={
+                          'text-xs px-2 py-1 rounded-full font-semibold ' +
+                          (complete
+                            ? 'bg-success/15 text-success'
+                            : held.length > 0
+                              ? 'bg-primary/15 text-primary'
+                              : 'bg-destructive/15 text-destructive')
+                        }
+                      >
+                        {complete ? 'Right to work ✓' : held.length > 0 ? 'Docs incomplete' : 'Docs missing'}
+                      </span>
+                      {held.length > 0 && (
+                        <button
+                          onClick={e => { e.stopPropagation(); viewDocuments(artist) }}
+                          disabled={docsLoading === artist.id}
+                          className="text-xs text-primary hover:underline disabled:opacity-50"
+                        >
+                          {docsLoading === artist.id ? 'Opening...' : 'View'}
+                        </button>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             ))}
           </div>
 
         </div>
+
+        {docsFor && (
+          <div
+            className="fixed inset-0 bg-black/70 flex items-center justify-center p-6 z-50"
+            onClick={() => setDocsFor(null)}
+          >
+            <div
+              className="bg-card border border-border rounded-xl p-6 max-w-md w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <div className="text-foreground font-semibold">
+                    {docsFor.artist.stage_name || docsFor.artist.full_name}
+                  </div>
+                  <div className="text-muted-foreground/60 text-xs">Right to work documents</div>
+                </div>
+                <button onClick={() => setDocsFor(null)} className="text-muted-foreground/60 hover:text-foreground text-sm">
+                  Close
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { type: 'id', label: 'Photo ID' },
+                  { type: 'right_to_work', label: 'Right to work' },
+                ].map(({ type, label }) => {
+                  const doc = docsFor.docs[type]
+                  return (
+                    <div key={type} className="flex items-center justify-between gap-3 border border-border rounded-lg px-4 py-3">
+                      <div className="min-w-0">
+                        <div className="text-foreground text-sm">{label}</div>
+                        {doc ? (
+                          <div className="text-muted-foreground/60 text-xs truncate">
+                            {doc.fileName}
+                            {doc.uploadedAt ? ' · ' + new Date(doc.uploadedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                          </div>
+                        ) : (
+                          <div className="text-destructive text-xs">Not provided</div>
+                        )}
+                      </div>
+                      {doc?.url && (
+                        <a
+                          href={doc.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs bg-secondary border border-border text-primary px-3 py-1.5 rounded-lg hover:border-primary transition-colors flex-shrink-0"
+                        >
+                          Open
+                        </a>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              <p className="text-muted-foreground/60 text-xs mt-4">
+                Links expire after one hour.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
