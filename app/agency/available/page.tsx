@@ -163,6 +163,19 @@ export default function AvailableGigsPage() {
       return
     }
 
+    const { data: blackoutDates } = await supabase
+      .from('artist_availability')
+      .select('id, date, note')
+      .eq('artist_id', response.artist_id)
+      .gte('date', gig.starts_at.slice(0, 10))
+      .lte('date', gig.ends_at.slice(0, 10))
+
+    if (blackoutDates && blackoutDates.length > 0) {
+      setError((response.artists?.stage_name || 'This artist') + ' has marked ' + blackoutDates[0].date + ' as unavailable' + (blackoutDates[0].note ? ' (' + blackoutDates[0].note + ')' : '') + '.')
+      setConfirming(false)
+      return
+    }
+
     const { error: bookingError } = await supabase.from('bookings').insert({
       venue_id: gig.venue_id,
       artist_id: response.artist_id,

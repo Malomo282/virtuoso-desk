@@ -77,6 +77,20 @@ export default function NewBookingPage() {
       return
     }
 
+    const { data: blackoutDates } = await supabase
+      .from('artist_availability')
+      .select('id, date, note')
+      .eq('artist_id', form.artist_id)
+      .gte('date', form.start_date)
+      .lte('date', form.end_date)
+
+    if (blackoutDates && blackoutDates.length > 0) {
+      const artistName = artists.find(a => a.id === form.artist_id)?.name || 'This artist'
+      setError(artistName + ' has marked ' + blackoutDates[0].date + ' as unavailable' + (blackoutDates[0].note ? ' (' + blackoutDates[0].note + ')' : '') + '.')
+      setLoading(false)
+      return
+    }
+
     const { error } = await supabase.from('bookings').insert({
       venue_id: form.venue_id,
       artist_id: form.artist_id,

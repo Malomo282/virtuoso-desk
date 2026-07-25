@@ -6,6 +6,7 @@ const navItems = [
   { label: 'Dashboard', href: '/artist/dashboard' },
   { label: 'Calendar', href: '/artist/calendar' },
   { label: 'Available gigs', href: '/artist/available' },
+  { label: 'My availability', href: '/artist/availability' },
   { label: 'Notifications', href: '/artist/notifications' },
   { label: 'My profile', href: '/artist/profile' },
 ]
