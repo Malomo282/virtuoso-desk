@@ -95,7 +95,7 @@ export default function CalendarPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
       const [{ data: bData }, { data: vData }] = await Promise.all([
-        supabase.from('bookings').select('*,venues(name,address),artists(stage_name)'),
+        supabase.from('bookings').select('*,venues(name,address),artists(stage_name)').is('cancelled_at', null),
         supabase.from('venues').select('id,name').order('name'),
       ])
       if (bData) setBookings(bData)

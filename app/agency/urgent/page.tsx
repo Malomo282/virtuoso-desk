@@ -17,6 +17,7 @@ export default function UrgentPage() {
         .from('bookings')
         .select('*,venues(name),artists(stage_name)')
         .eq('brag_status', 'R')
+        .is('cancelled_at', null)
         .order('starts_at', { ascending: true })
       if (data) setBookings(data)
       setLoading(false)

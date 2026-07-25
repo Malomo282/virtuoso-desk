@@ -17,22 +17,187 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [selected, setSelected] = useState<any>(null)
+  const [cancelling, setCancelling] = useState('')
+  const [cancelReason, setCancelReason] = useState('')
+  const [rescheduling, setRescheduling] = useState('')
+  const [rescheduleForm, setRescheduleForm] = useState({ start_date: '', start_time: '', end_date: '', end_time: '' })
+  const [actionError, setActionError] = useState('')
+  const [actionSaving, setActionSaving] = useState(false)
 
   useEffect(() => {
-    async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { router.push('/login'); return }
-      const { data } = await supabase
-        .from('bookings')
-        .select('*,venues(name,address),artists(stage_name)')
-        .order('starts_at', { ascending: true })
-      if (data) setBookings(data)
-      setLoading(false)
-    }
-    load()
+    loadBookings()
   }, [])
 
-  const filtered = bookings.filter(b => !filter || b.brag_status === filter)
+  async function loadBookings() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { router.push('/login'); return }
+    const { data } = await supabase
+      .from('bookings')
+      .select('*,venues(name,address),artists(stage_name,user_id)')
+      .order('starts_at', { ascending: true })
+    if (data) setBookings(data)
+    setLoading(false)
+  }
+
+  const filtered = bookings.filter(b => {
+    if (filter === 'cancelled') return !!b.cancelled_at
+    if (b.cancelled_at) return false
+    return !filter || b.brag_status === filter
+  })
+
+  function startCancel(id: string) {
+    setCancelling(id)
+    setCancelReason('')
+    setActionError('')
+  }
+
+  async function confirmCancel(booking: any) {
+    if (!cancelReason.trim()) {
+      setActionError('Please provide a cancellation reason.')
+      return
+    }
+    setActionSaving(true)
+    setActionError('')
+
+    const { error } = await supabase
+      .from('bookings')
+      .update({ cancelled_at: new Date().toISOString(), cancellation_reason: cancelReason })
+      .eq('id', booking.id)
+
+    if (error) {
+      setActionError(error.message)
+      setActionSaving(false)
+      return
+    }
+
+    if (booking.artists?.user_id) {
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIds: [booking.artists.user_id],
+          type: 'booking_cancelled',
+          message: 'Your booking at ' + (booking.venues?.name || 'a venue') + ' has been cancelled: ' + cancelReason,
+        }),
+      })
+    }
+
+    setCancelling('')
+    setSelected(null)
+    setActionSaving(false)
+    loadBookings()
+  }
+
+  function startReschedule(booking: any) {
+    const startsAt = new Date(booking.starts_at)
+    const endsAt = new Date(booking.ends_at)
+    setRescheduleForm({
+      start_date: startsAt.toISOString().slice(0, 10),
+      start_time: startsAt.toISOString().slice(11, 16),
+      end_date: endsAt.toISOString().slice(0, 10),
+      end_time: endsAt.toISOString().slice(11, 16),
+    })
+    setRescheduling(booking.id)
+    setActionError('')
+  }
+
+  async function confirmReschedule(booking: any) {
+    const { start_date, start_time, end_date, end_time } = rescheduleForm
+    if (!start_date || !start_time || !end_date || !end_time) {
+      setActionError('Please fill in the new start and end date/time.')
+      return
+    }
+
+    const newStartsAt = new Date(start_date + 'T' + start_time)
+    const newEndsAt = new Date(end_date + 'T' + end_time)
+
+    if (newEndsAt <= newStartsAt) {
+      setActionError('End time must be after start time.')
+      return
+    }
+
+    setActionSaving(true)
+    setActionError('')
+
+    const { data: conflicts } = await supabase
+      .from('bookings')
+      .select('id, event_name')
+      .eq('artist_id', booking.artist_id)
+      .neq('id', booking.id)
+      .is('cancelled_at', null)
+      .lt('starts_at', newEndsAt.toISOString())
+      .gt('ends_at', newStartsAt.toISOString())
+
+    if (conflicts && conflicts.length > 0) {
+      setActionError((booking.artists?.stage_name || 'This artist') + ' already has a booking (' + (conflicts[0].event_name || 'untitled') + ') that overlaps the new time slot.')
+      setActionSaving(false)
+      return
+    }
+
+    const { data: blackoutDates } = await supabase
+      .from('artist_availability')
+      .select('id, date, note')
+      .eq('artist_id', booking.artist_id)
+      .gte('date', start_date)
+      .lte('date', end_date)
+
+    if (blackoutDates && blackoutDates.length > 0) {
+      setActionError((booking.artists?.stage_name || 'This artist') + ' has marked ' + blackoutDates[0].date + ' as unavailable' + (blackoutDates[0].note ? ' (' + blackoutDates[0].note + ')' : '') + '.')
+      setActionSaving(false)
+      return
+    }
+
+    const { error: insertError } = await supabase.from('bookings').insert({
+      venue_id: booking.venue_id,
+      artist_id: booking.artist_id,
+      event_name: booking.event_name,
+      starts_at: newStartsAt.toISOString(),
+      ends_at: newEndsAt.toISOString(),
+      fee_venue: booking.fee_venue,
+      fee_artist: booking.fee_artist,
+      dress_code: booking.dress_code,
+      brag_status: 'A',
+      brief_text: booking.brief_text,
+      internal_notes: booking.internal_notes,
+      brief_doc_url: booking.brief_doc_url,
+    })
+
+    if (insertError) {
+      setActionError(insertError.message)
+      setActionSaving(false)
+      return
+    }
+
+    const newDateLabel = newStartsAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + newStartsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+
+    const { error: cancelError } = await supabase
+      .from('bookings')
+      .update({ cancelled_at: new Date().toISOString(), cancellation_reason: 'Rescheduled to ' + newDateLabel })
+      .eq('id', booking.id)
+
+    if (cancelError) {
+      setActionError(cancelError.message)
+      setActionSaving(false)
+      return
+    }
+
+    if (booking.artists?.user_id) {
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIds: [booking.artists.user_id],
+          type: 'booking_rescheduled',
+          message: 'Your booking at ' + (booking.venues?.name || 'a venue') + ' has been rescheduled to ' + newDateLabel + '.',
+        }),
+      })
+    }
+
+    setRescheduling('')
+    setSelected(null)
+    setActionSaving(false)
+    loadBookings()
+  }
 
   if (loading) {
     return (
@@ -52,7 +217,7 @@ export default function BookingsPage() {
         </div>
         <div className="p-8">
           <div className="flex gap-2 mb-6 flex-wrap">
-            {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Confirmed' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Urgent' }].map(({ value, label }) => (
+            {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Confirmed' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Urgent' }, { value: 'cancelled', label: 'Cancelled' }].map(({ value, label }) => (
               <button key={value} onClick={() => setFilter(value)} className={'px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (filter === value ? 'bg-[#C8A24A] text-[#0B0D10]' : 'bg-[#151A22] border border-[#263044] text-[#6A7A8A] hover:text-white')}>{label}</button>
             ))}
           </div>
@@ -68,7 +233,7 @@ export default function BookingsPage() {
                 ? startsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ' - ' + endsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
                 : null
               return (
-                <div key={b.id} onClick={() => setSelected(selected?.id === b.id ? null : b)} className={'bg-[#151A22] border border-[#263044] border-l-4 ' + brag.border + ' rounded-xl p-4 cursor-pointer transition-all'}>
+                <div key={b.id} onClick={() => setSelected(selected?.id === b.id ? null : b)} className={'bg-[#151A22] border border-[#263044] border-l-4 ' + (b.cancelled_at ? 'border-l-[#4E5A6A] opacity-60' : brag.border) + ' rounded-xl p-4 cursor-pointer transition-all'}>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -83,9 +248,16 @@ export default function BookingsPage() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <span className="text-[#C8A24A] font-bold text-lg">GBP {(b.fee_venue || 0).toLocaleString()}</span>
-                      <span className={'text-xs font-semibold px-2 py-0.5 rounded-full ' + brag.color}>{brag.label}</span>
+                      {b.cancelled_at ? (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#1C2330] text-[#6A7A8A]">Cancelled</span>
+                      ) : (
+                        <span className={'text-xs font-semibold px-2 py-0.5 rounded-full ' + brag.color}>{brag.label}</span>
+                      )}
                     </div>
                   </div>
+                  {b.cancelled_at && b.cancellation_reason && (
+                    <div className="mt-2 text-xs text-[#6A7A8A] italic">Reason: {b.cancellation_reason}</div>
+                  )}
                   {b.artists && (
                     <div className="mt-3 pt-3 border-t border-[#263044] flex items-center justify-between">
                       <span className="text-xs text-[#6A7A8A]">{b.artists.stage_name}</span>
@@ -114,9 +286,54 @@ export default function BookingsPage() {
                           <div className="text-[#6A7A8A] text-sm leading-relaxed">{b.internal_notes}</div>
                         </div>
                       )}
-                      <div className="col-span-2 flex gap-2 mt-2">
-                        <button className="bg-[#1C2330] border border-[#263044] text-[#6A7A8A] text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Edit booking</button>
-                      </div>
+                      {!b.cancelled_at && cancelling !== b.id && rescheduling !== b.id && (
+                        <div className="col-span-2 flex gap-2 mt-2">
+                          <button className="bg-[#1C2330] border border-[#263044] text-[#6A7A8A] text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Edit booking</button>
+                          <button onClick={e => { e.stopPropagation(); startReschedule(b) }} className="bg-[#1C2330] border border-[#263044] text-[#C8A24A] text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Reschedule</button>
+                          <button onClick={e => { e.stopPropagation(); startCancel(b.id) }} className="bg-red-900/30 border border-red-800 text-red-400 text-xs px-3 py-1.5 rounded-lg hover:bg-red-900/50 transition-colors">Cancel booking</button>
+                        </div>
+                      )}
+
+                      {cancelling === b.id && (
+                        <div className="col-span-2 mt-2 bg-[#1C2330] border border-red-800/40 rounded-lg p-4" onClick={e => e.stopPropagation()}>
+                          <div className="text-white text-sm font-semibold mb-2">Cancel this booking</div>
+                          <textarea
+                            value={cancelReason}
+                            onChange={e => setCancelReason(e.target.value)}
+                            rows={2}
+                            placeholder="Reason for cancellation..."
+                            className="w-full bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#C8A24A] mb-3"
+                          />
+                          {actionError && <div className="text-red-400 text-xs mb-2">{actionError}</div>}
+                          <div className="flex gap-2">
+                            <button onClick={() => confirmCancel(b)} disabled={actionSaving} className="bg-red-900/40 border border-red-800 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-red-900/60 disabled:opacity-50 transition-colors">
+                              {actionSaving ? 'Cancelling...' : 'Confirm cancellation'}
+                            </button>
+                            <button onClick={() => setCancelling('')} className="text-xs text-[#6A7A8A] hover:text-white">Back</button>
+                          </div>
+                        </div>
+                      )}
+
+                      {rescheduling === b.id && (
+                        <div className="col-span-2 mt-2 bg-[#1C2330] border border-[#263044] rounded-lg p-4" onClick={e => e.stopPropagation()}>
+                          <div className="text-white text-sm font-semibold mb-3">Reschedule this booking</div>
+                          <div className="flex items-center gap-2 flex-wrap mb-3">
+                            <input type="date" value={rescheduleForm.start_date} onChange={e => setRescheduleForm(p => ({ ...p, start_date: e.target.value }))} className="bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#C8A24A]" />
+                            <input type="time" value={rescheduleForm.start_time} onChange={e => setRescheduleForm(p => ({ ...p, start_time: e.target.value }))} className="bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#C8A24A]" />
+                            <span className="text-[#4E5A6A] text-xs">to</span>
+                            <input type="time" value={rescheduleForm.end_time} onChange={e => setRescheduleForm(p => ({ ...p, end_time: e.target.value }))} className="bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#C8A24A]" />
+                            <input type="date" value={rescheduleForm.end_date} onChange={e => setRescheduleForm(p => ({ ...p, end_date: e.target.value }))} className="bg-[#0E1117] border border-[#263044] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#C8A24A]" />
+                          </div>
+                          <p className="text-[#4E5A6A] text-xs mb-3">This cancels the current booking and creates a new one at the new date/time (status reset to Pending), preserving the original in Cancelled history.</p>
+                          {actionError && <div className="text-red-400 text-xs mb-2">{actionError}</div>}
+                          <div className="flex gap-2">
+                            <button onClick={() => confirmReschedule(b)} disabled={actionSaving} className="bg-[#C8A24A] text-[#0B0D10] text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-[#D6B25E] disabled:opacity-50 transition-colors">
+                              {actionSaving ? 'Saving...' : 'Confirm reschedule'}
+                            </button>
+                            <button onClick={() => setRescheduling('')} className="text-xs text-[#6A7A8A] hover:text-white">Back</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
