@@ -61,6 +61,22 @@ export default function NewBookingPage() {
       return
     }
 
+    const { data: conflicts } = await supabase
+      .from('bookings')
+      .select('id, event_name, starts_at, ends_at')
+      .eq('artist_id', form.artist_id)
+      .is('cancelled_at', null)
+      .lt('starts_at', endsAt.toISOString())
+      .gt('ends_at', startsAt.toISOString())
+
+    if (conflicts && conflicts.length > 0) {
+      const artistName = artists.find(a => a.id === form.artist_id)?.name || 'This artist'
+      const conflict = conflicts[0]
+      setError(artistName + ' already has a booking (' + (conflict.event_name || 'untitled') + ') that overlaps this time slot.')
+      setLoading(false)
+      return
+    }
+
     const { error } = await supabase.from('bookings').insert({
       venue_id: form.venue_id,
       artist_id: form.artist_id,

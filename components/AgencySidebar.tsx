@@ -1,7 +1,7 @@
 'use client'
 import{useRouter,usePathname}from'next/navigation'
 import{supabase}from'@/lib/supabase'
-const navItems=[{label:'Dashboard',href:'/agency/dashboard'},{label:'Calendar',href:'/agency/calendar'},{divider:'Gig Management'},{label:'Available gigs',href:'/agency/available'},{label:'Booked gigs',href:'/agency/bookings'},{label:'Needs confirmation',href:'/agency/urgent'},{label:'Completed gigs',href:'/agency/completed'},{divider:'Finance'},{label:'Invoices',href:'/agency/invoices'},{label:'Documents',href:'/agency/documents'},{divider:'Agency'},{label:'Artist roster',href:'/agency/roster'},{label:'Venues',href:'/agency/venues'},{label:'Settings',href:'/agency/settings'}]
+const navItems=[{label:'Dashboard',href:'/agency/dashboard'},{label:'Calendar',href:'/agency/calendar'},{label:'Notifications',href:'/agency/notifications'},{divider:'Gig Management'},{label:'Available gigs',href:'/agency/available'},{label:'Booked gigs',href:'/agency/bookings'},{label:'Needs confirmation',href:'/agency/urgent'},{label:'Completed gigs',href:'/agency/completed'},{divider:'Finance'},{label:'Invoices',href:'/agency/invoices'},{label:'Documents',href:'/agency/documents'},{divider:'Agency'},{label:'Artist roster',href:'/agency/roster'},{label:'Venues',href:'/agency/venues'},{label:'Settings',href:'/agency/settings'}]
 export default function AgencySidebar(){
 const router=useRouter()
 const pathname=usePathname()

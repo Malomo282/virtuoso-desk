@@ -8,6 +8,8 @@ export default function ArtistAvailableGigsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [artistId, setArtistId] = useState('')
+  const [artistName, setArtistName] = useState('')
+  const [agencyUserIds, setAgencyUserIds] = useState<string[]>([])
   const [gigs, setGigs] = useState<any[]>([])
   const [responses, setResponses] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState<string>('')
@@ -19,12 +21,19 @@ export default function ArtistAvailableGigsPage() {
 
       const { data: artist } = await supabase
         .from('artists')
-        .select('id')
+        .select('id, stage_name')
         .eq('user_id', session.user.id)
         .maybeSingle()
 
       if (!artist) { setLoading(false); return }
       setArtistId(artist.id)
+      setArtistName(artist.stage_name)
+
+      const { data: agencyProfiles } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'agency')
+      if (agencyProfiles) setAgencyUserIds(agencyProfiles.map((p: any) => p.id))
 
       const [{ data: gigData }, { data: responseData }] = await Promise.all([
         supabase
@@ -75,6 +84,17 @@ export default function ArtistAvailableGigsPage() {
 
     if (!error) {
       setResponses(prev => ({ ...prev, [gigId]: response }))
+
+      if (agencyUserIds.length > 0) {
+        const gig = gigs.find(g => g.id === gigId)
+        const venueName = gig?.venues?.name || 'a venue'
+        const message = (artistName || 'An artist') + ' ' + (response === 'interested' ? 'is interested in' : 'declined') + ' the gig at ' + venueName
+        await fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userIds: agencyUserIds, type: 'gig_response', message }),
+        })
+      }
     }
     setSubmitting('')
   }

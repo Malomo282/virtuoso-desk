@@ -12,7 +12,7 @@ const{data:authData,error:authError}=await supabaseAdmin.auth.admin.createUser({
 if(authError)return NextResponse.json({error:authError.message},{status:400})
 const userId=authData.user.id
 await supabaseAdmin.from('profiles').insert({id:userId,role:'artist',full_name:fullName,email})
-await supabaseAdmin.from('artists').insert({user_id:userId,stage_name:stageName,full_name:fullName})
+const{error:artistError}=await supabaseAdmin.from('artists').insert({user_id:userId,stage_name:stageName});if(artistError)return NextResponse.json({error:'Artist profile creation failed: '+artistError.message},{status:500})
 await supabaseAdmin.from('artist_invites').update({used:true}).eq('token',token)
 return NextResponse.json({success:true})
 }catch(e:any){

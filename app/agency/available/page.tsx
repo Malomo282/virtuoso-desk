@@ -22,7 +22,7 @@ type GigResponse = {
   gig_id: string
   artist_id: string
   response: string
-  artists?: { stage_name: string }
+  artists?: { stage_name: string; user_id: string }
 }
 
 export default function AvailableGigsPage() {
@@ -66,7 +66,7 @@ export default function AvailableGigsPage() {
       supabase.from('venues').select('id, name').order('name'),
       supabase
         .from('gig_responses')
-        .select('*, artists(stage_name)')
+        .select('*, artists(stage_name, user_id)')
         .eq('response', 'interested'),
     ])
 
@@ -149,6 +149,20 @@ export default function AvailableGigsPage() {
   async function confirmArtist(gig: Gig, response: GigResponse) {
     setConfirming(true)
 
+    const { data: conflicts } = await supabase
+      .from('bookings')
+      .select('id, event_name')
+      .eq('artist_id', response.artist_id)
+      .is('cancelled_at', null)
+      .lt('starts_at', gig.ends_at)
+      .gt('ends_at', gig.starts_at)
+
+    if (conflicts && conflicts.length > 0) {
+      setError((response.artists?.stage_name || 'This artist') + ' already has a booking (' + (conflicts[0].event_name || 'untitled') + ') that overlaps this time slot.')
+      setConfirming(false)
+      return
+    }
+
     const { error: bookingError } = await supabase.from('bookings').insert({
       venue_id: gig.venue_id,
       artist_id: response.artist_id,
@@ -176,6 +190,18 @@ export default function AvailableGigsPage() {
         .from('gig_responses')
         .update({ response: 'declined' })
         .in('id', otherResponses.map(r => r.id))
+    }
+
+    if (response.artists?.user_id) {
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIds: [response.artists.user_id],
+          type: 'booking_confirmed',
+          message: 'You have been confirmed for the gig at ' + (gig.venues?.name || 'a venue') + '.',
+        }),
+      })
     }
 
     setConfirming(false)
