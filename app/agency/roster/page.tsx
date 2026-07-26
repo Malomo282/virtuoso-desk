@@ -182,10 +182,10 @@ export default function RosterPage() {
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
         {/* Topbar */}
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
-          <div className="text-white font-semibold">Artist Roster</div>
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center justify-between gap-3">
+          <div className="text-foreground font-semibold">Artist Roster</div>
           <button
             onClick={() => router.push('/agency/roster/invite')}
             className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
@@ -194,7 +194,7 @@ export default function RosterPage() {
           </button>
         </div>
 
-        <div className="p-8">
+        <div className="p-4 md:p-8">
 
           {/* Search */}
           <div className="mb-6">
@@ -203,13 +203,13 @@ export default function RosterPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by name, alias or genre..."
-              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
           {filtered.length === 0 && (
             <div className="text-center py-16">
-              <div className="text-muted-foreground/60 text-sm mb-2">
+              <div className="text-subtle-foreground text-sm mb-2">
                 {search ? 'No artists match your search' : 'No artists on the roster yet'}
               </div>
               {!search && (
@@ -223,7 +223,7 @@ export default function RosterPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map(artist => (
               <div
                 key={artist.id}
@@ -234,7 +234,7 @@ export default function RosterPage() {
                   {initials(artist.stage_name || artist.full_name)}
                 </div>
 
-                <div className="text-white font-semibold text-sm mb-0.5">
+                <div className="text-foreground font-semibold text-sm mb-0.5">
                   {artist.stage_name || artist.full_name}
                 </div>
 
@@ -243,7 +243,7 @@ export default function RosterPage() {
                 )}
 
                 {artist.genres && artist.genres.length > 0 && (
-                  <div className="text-muted-foreground/60 text-xs mb-3 font-mono">
+                  <div className="text-subtle-foreground text-xs mb-3 font-mono">
                     {artist.genres.join(' · ')}
                   </div>
                 )}
@@ -259,10 +259,10 @@ export default function RosterPage() {
                     <div className="text-foreground font-bold">
                       {bookingCounts[artist.id] || 0}
                     </div>
-                    <div className="text-muted-foreground/60 uppercase tracking-wider">bookings</div>
+                    <div className="text-subtle-foreground uppercase tracking-wider">bookings</div>
                   </div>
                   {artist.email && (
-                    <div className="text-muted-foreground/60 text-xs truncate max-w-24">
+                    <div className="text-subtle-foreground text-xs truncate max-w-24">
                       {artist.email}
                     </div>
                   )}
@@ -336,9 +336,9 @@ export default function RosterPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="text-foreground font-semibold">Edit artist</div>
-                  <div className="text-muted-foreground/60 text-xs">{editing.full_name || editing.stage_name}</div>
+                  <div className="text-subtle-foreground text-xs">{editing.full_name || editing.stage_name}</div>
                 </div>
-                <button type="button" onClick={() => setEditing(null)} className="text-muted-foreground/60 hover:text-foreground text-sm">
+                <button type="button" onClick={() => setEditing(null)} className="text-subtle-foreground hover:text-foreground text-sm">
                   Close
                 </button>
               </div>
@@ -350,11 +350,11 @@ export default function RosterPage() {
                   value={editForm.stageName}
                   onChange={e => setEditForm(p => ({ ...p, stageName: e.target.value }))}
                   required
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Genres / tags</label>
                   <TagInput
@@ -372,7 +372,7 @@ export default function RosterPage() {
                     value={editForm.minFee}
                     onChange={e => setEditForm(p => ({ ...p, minFee: e.target.value }))}
                     placeholder="250"
-                    className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                    className="w-full bg-secondary border border-input-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
@@ -384,7 +384,7 @@ export default function RosterPage() {
                   value={editForm.photoUrl}
                   onChange={e => setEditForm(p => ({ ...p, photoUrl: e.target.value }))}
                   placeholder="https://..."
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
@@ -394,7 +394,7 @@ export default function RosterPage() {
                   value={editForm.bio}
                   onChange={e => setEditForm(p => ({ ...p, bio: e.target.value }))}
                   rows={3}
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary resize-none"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary resize-none"
                 />
               </div>
 
@@ -428,9 +428,9 @@ export default function RosterPage() {
                   <div className="text-foreground font-semibold">
                     {docsFor.artist.stage_name || docsFor.artist.full_name}
                   </div>
-                  <div className="text-muted-foreground/60 text-xs">Right to work documents</div>
+                  <div className="text-subtle-foreground text-xs">Right to work documents</div>
                 </div>
-                <button onClick={() => setDocsFor(null)} className="text-muted-foreground/60 hover:text-foreground text-sm">
+                <button onClick={() => setDocsFor(null)} className="text-subtle-foreground hover:text-foreground text-sm">
                   Close
                 </button>
               </div>
@@ -447,7 +447,7 @@ export default function RosterPage() {
                       <div className="min-w-0">
                         <div className="text-foreground text-sm">{label}</div>
                         {doc ? (
-                          <div className="text-muted-foreground/60 text-xs truncate">
+                          <div className="text-subtle-foreground text-xs truncate">
                             {doc.fileName}
                             {doc.uploadedAt ? ' · ' + new Date(doc.uploadedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                           </div>
@@ -474,7 +474,7 @@ export default function RosterPage() {
                 <div className="text-muted-foreground text-xs uppercase tracking-widest mb-2">
                   File signed agency agreement
                 </div>
-                <p className="text-muted-foreground/60 text-xs mb-3">
+                <p className="text-subtle-foreground text-xs mb-3">
                   Upload the countersigned copy yourself if the artist returned it to you directly.
                 </p>
                 <input
@@ -492,7 +492,7 @@ export default function RosterPage() {
                 {agreementError && <div className="text-destructive text-xs mt-2">{agreementError}</div>}
               </div>
 
-              <p className="text-muted-foreground/60 text-xs mt-4">
+              <p className="text-subtle-foreground text-xs mt-4">
                 Links expire after one hour.
               </p>
             </div>

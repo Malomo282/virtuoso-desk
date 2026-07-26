@@ -2,8 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Theme tokens.
+ *
+ * Every text pair below is checked against WCAG 2.1 AA by audit-contrast.mjs,
+ * which parses THIS file rather than a copy, so the numbers cannot drift from
+ * what ships. Three solid text tiers (foreground / muted / subtle) replace the
+ * old opacity ladder: muted-foreground/60 only reached 3.3:1 once composited.
+ */
 @layer base {
-  :root {
+  :root,
+  [data-theme='dark'] {
     --background: 240 16% 6%;
     --foreground: 0 0% 98%;
 
@@ -13,31 +22,117 @@
     --popover: 240 14% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Virtuoso gold */
     --primary: 45 53% 54%;
     --primary-foreground: 240 16% 6%;
 
-    --secondary: 240 12% 13%;
+    --secondary: 240 12% 16%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 12% 13%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 240 12% 16%;
+    --muted-foreground: 240 8% 74%;
+    --subtle-foreground: 240 7% 62%;
 
-    --accent: 240 20% 12%;
+    --accent: 240 20% 14%;
     --accent-foreground: 45 53% 54%;
 
-    --destructive: 0 69% 61%;
+    --destructive: 0 75% 68%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 148 40% 49%;
-    --info: 220 82% 65%;
+    --success: 148 45% 58%;
+    --info: 220 85% 74%;
 
-    --border: 240 8% 13%;
-    --input: 240 12% 13%;
+    --border: 240 10% 22%;
+    --input: 240 12% 16%;
+    --input-border: 240 12% 44%;
     --ring: 45 53% 54%;
 
     --sidebar: 240 28% 5%;
 
+    --radius: 0.125rem;
+  }
+
+  [data-theme='midnight'] {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 45 60% 62%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 78%;
+    --subtle-foreground: 0 0% 64%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 45 60% 62%;
+    --destructive: 0 80% 72%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 148 50% 62%;
+    --info: 220 90% 76%;
+    --border: 0 0% 26%;
+    --input: 0 0% 13%;
+    --input-border: 0 0% 38%;
+    --ring: 45 60% 62%;
+    --sidebar: 0 0% 3%;
+    --radius: 0.125rem;
+  }
+
+  [data-theme='light'] {
+    --background: 240 10% 96%;
+    --foreground: 240 14% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 14% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 14% 10%;
+    /* Gold is darkened here: the dark-theme gold only reaches 2:1 on white. */
+    --primary: 42 88% 26%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 12% 92%;
+    --secondary-foreground: 240 14% 10%;
+    --muted: 240 12% 92%;
+    --muted-foreground: 240 10% 34%;
+    --subtle-foreground: 240 8% 42%;
+    --accent: 42 60% 90%;
+    --accent-foreground: 42 88% 26%;
+    --destructive: 0 72% 38%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 148 70% 24%;
+    --info: 220 80% 38%;
+    --border: 240 12% 82%;
+    --input: 0 0% 100%;
+    --input-border: 240 10% 58%;
+    --ring: 42 88% 26%;
+    --sidebar: 0 0% 100%;
+    --radius: 0.125rem;
+  }
+
+  [data-theme='slate'] {
+    --background: 222 25% 15%;
+    --foreground: 0 0% 98%;
+    --card: 222 22% 20%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222 22% 20%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 45 58% 62%;
+    --primary-foreground: 222 25% 12%;
+    --secondary: 222 20% 26%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 222 20% 26%;
+    --muted-foreground: 222 18% 78%;
+    --subtle-foreground: 222 14% 66%;
+    --accent: 222 26% 25%;
+    --accent-foreground: 45 58% 62%;
+    --destructive: 0 78% 72%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 148 48% 62%;
+    --info: 220 88% 76%;
+    --border: 222 16% 34%;
+    --input: 222 20% 26%;
+    --input-border: 222 18% 58%;
+    --ring: 45 58% 62%;
+    --sidebar: 222 28% 11%;
     --radius: 0.125rem;
   }
 }
@@ -49,5 +144,29 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: 'ss01', 'cv01';
+  }
+
+  /*
+   * WCAG 2.4.7. Many controls set focus:outline-none and only change border
+   * colour, which is easy to miss and disappears for keyboard users. This
+   * restores an always-visible ring on keyboard focus without bringing back
+   * the mouse-click outline.
+   */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  /* WCAG 2.3.3 - honour the OS "reduce motion" setting. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

@@ -64,9 +64,9 @@ export default function AgencyNotificationsPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
-          <div className="text-white font-semibold">Notifications</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center justify-between gap-3">
+          <div className="text-foreground font-semibold">Notifications</div>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
@@ -77,9 +77,9 @@ export default function AgencyNotificationsPage() {
           )}
         </div>
 
-        <div className="p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-2xl">
           {notifications.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground/60 text-sm">
+            <div className="text-center py-16 text-subtle-foreground text-sm">
               No notifications yet.
             </div>
           ) : (
@@ -100,7 +100,7 @@ export default function AgencyNotificationsPage() {
                       {n.type && (
                         <div className="text-primary text-xs uppercase tracking-widest font-semibold mb-1">{n.type}</div>
                       )}
-                      <div className="text-white text-sm">{n.message}</div>
+                      <div className="text-foreground text-sm">{n.message}</div>
                     </div>
                     {!n.read && (
                       <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />

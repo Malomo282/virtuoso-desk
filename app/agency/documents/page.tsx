@@ -80,32 +80,32 @@ export default function DocumentsPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
-          <div className="text-white font-semibold">Documents</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
+          <div className="text-foreground font-semibold">Documents</div>
         </div>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
 
           {/* Paperwork tracker: contracts/riders for upcoming gigs */}
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-white font-semibold">Paperwork — upcoming gigs</h2>
+              <h2 className="text-foreground font-semibold">Paperwork — upcoming gigs</h2>
               {missingCount > 0 ? (
-                <span className="text-xs bg-red-900/30 text-red-400 px-2.5 py-1 rounded-full font-semibold">{missingCount} missing</span>
+                <span className="text-xs bg-destructive/15 text-destructive px-2.5 py-1 rounded-full font-semibold">{missingCount} missing</span>
               ) : paperwork.length > 0 ? (
-                <span className="text-xs bg-green-900/30 text-green-400 px-2.5 py-1 rounded-full font-semibold">All in</span>
+                <span className="text-xs bg-success/15 text-success px-2.5 py-1 rounded-full font-semibold">All in</span>
               ) : null}
             </div>
 
             {paperwork.length === 0 ? (
-              <div className="text-muted-foreground/60 text-sm py-6">No upcoming bookings.</div>
+              <div className="text-subtle-foreground text-sm py-6">No upcoming bookings.</div>
             ) : (
-              <div className="bg-card border border-border rounded-xl overflow-hidden">
-                <table className="w-full">
+              <div className="bg-card border border-border rounded-xl overflow-x-auto">
+                <table className="w-full min-w-[560px]">
                   <thead>
                     <tr className="border-b border-border">
                       {['Date', 'Venue', 'Artist', 'Contract / rider', ''].map(h => (
-                        <th key={h} className="text-left px-4 py-3 text-muted-foreground/60 text-xs uppercase tracking-widest">{h}</th>
+                        <th key={h} className="text-left px-4 py-3 text-subtle-foreground text-xs uppercase tracking-widest">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -115,13 +115,13 @@ export default function DocumentsPage() {
                         <td className="px-4 py-3 text-muted-foreground/80 text-xs font-mono">
                           {new Date(p.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                         </td>
-                        <td className="px-4 py-3 text-white text-sm font-medium">{p.venues?.name || '—'}</td>
+                        <td className="px-4 py-3 text-foreground text-sm font-medium">{p.venues?.name || '—'}</td>
                         <td className="px-4 py-3 text-muted-foreground/80 text-sm">{p.artists?.stage_name || '—'}</td>
                         <td className="px-4 py-3">
                           {p.agreement ? (
-                            <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full font-semibold">Uploaded</span>
+                            <span className="text-xs bg-success/15 text-success px-2 py-1 rounded-full font-semibold">Uploaded</span>
                           ) : (
-                            <span className="text-xs bg-red-900/30 text-red-400 px-2 py-1 rounded-full font-semibold">Missing</span>
+                            <span className="text-xs bg-destructive/15 text-destructive px-2 py-1 rounded-full font-semibold">Missing</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -144,23 +144,23 @@ export default function DocumentsPage() {
           </div>
 
           {/* Briefs (Google Doc links attached to bookings) */}
-          <h2 className="text-white font-semibold mb-4">Briefs</h2>
+          <h2 className="text-foreground font-semibold mb-4">Briefs</h2>
           <div className="mb-6">
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search briefs..."
-              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
           {filteredBriefs.length === 0 && (
             <div className="text-center py-16">
-              <div className="text-muted-foreground/60 text-sm mb-2">
+              <div className="text-subtle-foreground text-sm mb-2">
                 {search ? 'No briefs match your search' : 'No briefs generated yet'}
               </div>
-              <p className="text-muted-foreground/60 text-xs">Add a Google Doc link when creating a booking to see it here</p>
+              <p className="text-subtle-foreground text-xs">Add a Google Doc link when creating a booking to see it here</p>
             </div>
           )}
 
@@ -171,9 +171,9 @@ export default function DocumentsPage() {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary"><NavIcon name="file" className="w-5 h-5"/></div>
                   <span className="text-xs bg-secondary text-muted-foreground/80 border border-border px-2 py-0.5 rounded">Brief</span>
                 </div>
-                <div className="text-white font-semibold text-sm mb-0.5">{b.venues?.name}</div>
+                <div className="text-foreground font-semibold text-sm mb-0.5">{b.venues?.name}</div>
                 {b.event_name && <div className="text-muted-foreground/80 text-xs mb-1">{b.event_name}</div>}
-                <div className="text-muted-foreground/60 text-xs font-mono mb-3">
+                <div className="text-subtle-foreground text-xs font-mono mb-3">
                   {b.artists?.stage_name}{b.starts_at ? ' · ' + new Date(b.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                 </div>
                 <a

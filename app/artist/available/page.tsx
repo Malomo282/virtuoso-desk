@@ -67,12 +67,12 @@ export default function ArtistAvailableGigsPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
-          <div className="text-white font-semibold">Available Gigs</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
+          <div className="text-foreground font-semibold">Available Gigs</div>
         </div>
 
-        <div className="p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-2xl">
           {error && (
             <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm mb-6">
               {error}
@@ -80,7 +80,7 @@ export default function ArtistAvailableGigsPage() {
           )}
 
           {gigs.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground/60 text-sm">
+            <div className="text-center py-16 text-subtle-foreground text-sm">
               No open gigs at the moment. Check back soon.
             </div>
           )}
@@ -98,7 +98,7 @@ export default function ArtistAvailableGigsPage() {
                 <div key={gig.id} className="bg-card border border-border rounded-xl p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="text-white font-semibold mb-1">{gigTitle(gig.title, gig.venues?.name)}</div>
+                      <div className="text-foreground font-semibold mb-1">{gigTitle(gig.title, gig.venues?.name)}</div>
                       <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap font-mono">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
                         {timeStr && <span>{timeStr}</span>}
@@ -108,7 +108,7 @@ export default function ArtistAvailableGigsPage() {
                         <div className="text-primary font-semibold text-sm mt-2">GBP {gig.fee.toLocaleString()}</div>
                       )}
                       {gig.notes && (
-                        <div className="text-muted-foreground/60 text-xs mt-2 italic">{gig.notes}</div>
+                        <div className="text-subtle-foreground text-xs mt-2 italic">{gig.notes}</div>
                       )}
                     </div>
                   </div>
@@ -116,11 +116,11 @@ export default function ArtistAvailableGigsPage() {
                   <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
                     {myResponse === 'accepted' ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs bg-green-900/30 text-green-400 px-3 py-1.5 rounded-full font-semibold">You are interested</span>
+                        <span className="text-xs bg-success/15 text-success px-3 py-1.5 rounded-full font-semibold">You are interested</span>
                         <button
                           onClick={() => respond(gig.id, 'declined')}
                           disabled={submitting === gig.id}
-                          className="text-xs text-muted-foreground/80 hover:text-white transition-colors"
+                          className="text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
                         >
                           Change to decline
                         </button>
@@ -148,7 +148,7 @@ export default function ArtistAvailableGigsPage() {
                         <button
                           onClick={() => respond(gig.id, 'declined')}
                           disabled={submitting === gig.id}
-                          className="bg-secondary border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-white disabled:opacity-50 transition-colors"
+                          className="bg-secondary border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-foreground disabled:opacity-50 transition-colors"
                         >
                           Decline
                         </button>

@@ -55,13 +55,13 @@ export default function ViewAsArtistPage() {
   }
 
   const card = 'bg-card border border-border rounded-xl p-5'
-  const dim = 'text-muted-foreground/60 text-xs uppercase tracking-widest'
+  const dim = 'text-subtle-foreground text-xs uppercase tracking-widest'
 
   return (
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center justify-between gap-3">
           <div className="text-foreground font-semibold">Artist View</div>
           <span className="text-xs bg-primary/15 text-primary px-2.5 py-1 rounded-full font-semibold">Admin</span>
         </div>
@@ -78,7 +78,7 @@ export default function ViewAsArtistPage() {
           <select
             value={selectedId}
             onChange={e => selectArtist(e.target.value)}
-            className="w-full max-w-sm bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary mb-6"
+            className="w-full max-w-sm bg-secondary border border-input-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary mb-6"
           >
             <option value="">Select an artist...</option>
             {artists.map(a => (
@@ -92,7 +92,7 @@ export default function ViewAsArtistPage() {
             </div>
           )}
 
-          {fetching && <div className="text-muted-foreground/60 text-sm">Loading artist portal...</div>}
+          {fetching && <div className="text-subtle-foreground text-sm">Loading artist portal...</div>}
 
           {data && (
             <>
@@ -106,7 +106,7 @@ export default function ViewAsArtistPage() {
               </div>
 
               {/* Mirrors the artist dashboard KPIs */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div className={card}>
                   <div className={dim + ' mb-2'}>Upcoming gigs</div>
                   <div className="text-3xl font-bold text-foreground">{data.upcomingCount}</div>
@@ -157,7 +157,7 @@ export default function ViewAsArtistPage() {
               <div className={card + ' mb-6'}>
                 <div className={dim + ' mb-4'}>Their bookings</div>
                 {data.bookings.length === 0 ? (
-                  <div className="text-muted-foreground/60 text-sm">No bookings.</div>
+                  <div className="text-subtle-foreground text-sm">No bookings.</div>
                 ) : (
                   <div className="space-y-2">
                     {data.bookings.map((b: any) => {
@@ -168,7 +168,7 @@ export default function ViewAsArtistPage() {
                             <div className="text-foreground text-sm font-medium truncate">
                               {b.venues?.name || 'Unknown venue'}
                             </div>
-                            <div className="text-muted-foreground/60 text-xs">
+                            <div className="text-subtle-foreground text-xs">
                               {new Date(b.starts_at).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                               {b.event_name ? ' · ' + b.event_name : ''}
                             </div>
@@ -191,7 +191,7 @@ export default function ViewAsArtistPage() {
               <div className={card}>
                 <div className={dim + ' mb-4'}>Blackout dates</div>
                 {data.blackoutDates.length === 0 ? (
-                  <div className="text-muted-foreground/60 text-sm">None marked.</div>
+                  <div className="text-subtle-foreground text-sm">None marked.</div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {data.blackoutDates.map((d: any) => (

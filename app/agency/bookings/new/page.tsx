@@ -122,20 +122,20 @@ export default function NewBookingPage() {
     router.push('/agency/bookings')
   }
 
-  const inp = "w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+  const inp = "w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
   const lbl = "block text-muted-foreground text-xs uppercase tracking-widest mb-2"
 
   return (
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center gap-3">
-          <button onClick={() => router.push('/agency/bookings')} className="text-muted-foreground/80 hover:text-white text-sm">Back</button>
-          <div className="text-white font-semibold">New Booking</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center gap-3">
+          <button onClick={() => router.push('/agency/bookings')} className="text-muted-foreground/80 hover:text-foreground text-sm">Back</button>
+          <div className="text-foreground font-semibold">New Booking</div>
         </div>
-        <div className="p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>Venue</label>
                 <select value={form.venue_id} onChange={e => update('venue_id', e.target.value)} className={inp} required>
@@ -162,14 +162,14 @@ export default function NewBookingPage() {
               <div className="flex items-center gap-3 flex-wrap">
                 <input type="date" value={form.start_date} onChange={e => update('start_date', e.target.value)} className={inp + ' w-auto flex-1 min-w-[140px]'} required />
                 <TimeSelect value={form.start_time} onChange={v => update('start_time', v)} className={inp + ' w-auto flex-1 min-w-[110px]'} required aria-label="Start time" />
-                <span className="text-muted-foreground/60 text-sm px-1">to</span>
+                <span className="text-subtle-foreground text-sm px-1">to</span>
                 <TimeSelect value={form.end_time} onChange={v => update('end_time', v)} className={inp + ' w-auto flex-1 min-w-[110px]'} required aria-label="End time" />
                 <input type="date" value={form.end_date} onChange={e => update('end_date', e.target.value)} className={inp + ' w-auto flex-1 min-w-[140px]'} required />
               </div>
-              <p className="text-muted-foreground/60 text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
+              <p className="text-subtle-foreground text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>Fee to venue</label>
                 <input type="number" value={form.fee_venue} onChange={e => update('fee_venue', e.target.value)} className={inp} placeholder="500" />
@@ -180,7 +180,7 @@ export default function NewBookingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>Dress code</label>
                 <select value={form.dress_code} onChange={e => update('dress_code', e.target.value)} className={inp}>
@@ -205,7 +205,7 @@ export default function NewBookingPage() {
             <div>
               <label className={lbl}>Contact number</label>
               <input type="tel" value={form.contact_number} onChange={e => update('contact_number', e.target.value)} className={inp} placeholder="e.g. 07123 456789" />
-              <p className="text-muted-foreground/60 text-xs mt-1.5">
+              <p className="text-subtle-foreground text-xs mt-1.5">
                 Shown to the artist on their brief as the contact for this gig. Prefilled from the venue when you pick one &mdash; overwrite it with your own number if you want them to call you.
               </p>
             </div>
@@ -223,10 +223,10 @@ export default function NewBookingPage() {
               <input type="text" value={form.brief_doc_url} onChange={e => update('brief_doc_url', e.target.value)} className={inp} placeholder="https://docs.google.com/..." />
             </div>
 
-            {error && <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm">{error}</div>}
+            {error && <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm">{error}</div>}
 
             <div className="flex gap-3">
-              <button type="button" onClick={() => router.push('/agency/bookings')} className="px-6 py-3 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-white">Cancel</button>
+              <button type="button" onClick={() => router.push('/agency/bookings')} className="px-6 py-3 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-foreground">Cancel</button>
               <button type="submit" disabled={loading} className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-sm rounded-lg uppercase tracking-wider">{loading ? 'Saving...' : 'Save booking'}</button>
             </div>
           </form>

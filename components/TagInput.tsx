@@ -110,7 +110,7 @@ export default function TagInput({ value, onChange, suggestions = [], placeholde
           onKeyDown={onKeyDown}
           onBlur={() => { if (trimmed) addTag(draft) }}
           placeholder={value.length === 0 ? (placeholder || 'Add a genre and press Enter') : ''}
-          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-foreground text-sm px-1.5 py-1 placeholder:text-muted-foreground/60"
+          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-foreground text-sm px-1.5 py-1 placeholder:text-subtle-foreground"
         />
       </div>
 

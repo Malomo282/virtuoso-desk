@@ -149,7 +149,7 @@ export default function VenuesPage() {
     return v.name?.toLowerCase().includes(s) || v.address?.toLowerCase().includes(s) || v.type?.toLowerCase().includes(s)
   })
 
-  const inputClass = "w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+  const inputClass = "w-full bg-secondary border border-input-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
   const labelClass = "block text-muted-foreground text-xs uppercase tracking-widest mb-1.5"
 
   if (loading) {
@@ -164,9 +164,9 @@ export default function VenuesPage() {
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
 
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
-          <div className="text-white font-semibold">Venues</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center justify-between gap-3">
+          <div className="text-foreground font-semibold">Venues</div>
           <button
             onClick={startAdd}
             className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
@@ -175,14 +175,14 @@ export default function VenuesPage() {
           </button>
         </div>
 
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <div className="mb-6">
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search venues..."
-              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full max-w-md bg-card border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
@@ -191,7 +191,7 @@ export default function VenuesPage() {
             <div className="bg-card border border-primary/30 rounded-xl p-6 mb-6">
               <h2 className="text-foreground font-semibold mb-4">{editingId ? 'Edit venue' : 'Add new venue'}</h2>
               <form onSubmit={saveVenue} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Venue name</label>
                     <input type="text" value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} className={inputClass} placeholder="e.g. Fabric London" required />
@@ -213,7 +213,7 @@ export default function VenuesPage() {
                   <label className={labelClass}>Address</label>
                   <input type="text" value={form.address} onChange={e => setForm(p => ({...p, address: e.target.value}))} className={inputClass} placeholder="Full address" />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className={labelClass}>Capacity</label>
                     <input type="number" value={form.capacity} onChange={e => setForm(p => ({...p, capacity: e.target.value}))} className={inputClass} placeholder="e.g. 500" />
@@ -252,7 +252,7 @@ export default function VenuesPage() {
           )}
 
           {filtered.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground/60 text-sm">
+            <div className="text-center py-16 text-subtle-foreground text-sm">
               {search ? 'No venues match your search' : 'No venues yet — add your first one'}
             </div>
           )}
@@ -269,14 +269,14 @@ export default function VenuesPage() {
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <div className="text-white font-semibold">{v.name}</div>
+                  <div className="text-foreground font-semibold">{v.name}</div>
                   <span className="text-xs bg-secondary text-muted-foreground/80 border border-border px-2 py-0.5 rounded">
                     {v.type}
                   </span>
                 </div>
 
                 {v.address && (
-                  <div className="text-muted-foreground/60 text-xs font-mono mb-3 inline-flex items-center gap-1.5"><NavIcon name="pin" className="w-3.5 h-3.5"/>{v.address}</div>
+                  <div className="text-subtle-foreground text-xs font-mono mb-3 inline-flex items-center gap-1.5"><NavIcon name="pin" className="w-3.5 h-3.5"/>{v.address}</div>
                 )}
 
                 {v.genres && v.genres.length > 0 && (
@@ -290,12 +290,12 @@ export default function VenuesPage() {
                 <div className="flex gap-4 pt-3 border-t border-border">
                   <div className="text-center">
                     <div className="text-primary font-bold">{bookingCounts[v.id] || 0}</div>
-                    <div className="text-muted-foreground/60 text-xs uppercase tracking-wider">bookings</div>
+                    <div className="text-subtle-foreground text-xs uppercase tracking-wider">bookings</div>
                   </div>
                   {v.capacity && (
                     <div className="text-center">
-                      <div className="text-white font-bold">{v.capacity.toLocaleString()}</div>
-                      <div className="text-muted-foreground/60 text-xs uppercase tracking-wider">capacity</div>
+                      <div className="text-foreground font-bold">{v.capacity.toLocaleString()}</div>
+                      <div className="text-subtle-foreground text-xs uppercase tracking-wider">capacity</div>
                     </div>
                   )}
                 </div>
@@ -304,7 +304,7 @@ export default function VenuesPage() {
                   <div className="mt-4 pt-4 border-t border-border space-y-2">
                     {(v.contact || v.contact_phone) && (
                       <div>
-                        <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Contact</div>
+                        <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Contact</div>
                         <div className="text-muted-foreground/80 text-sm">
                           {v.contact}{v.contact && v.contact_phone && ' • '}{v.contact_phone}
                         </div>
@@ -312,7 +312,7 @@ export default function VenuesPage() {
                     )}
                     {v.notes && (
                       <div>
-                        <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Notes</div>
+                        <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Notes</div>
                         <div className="text-muted-foreground/80 text-sm leading-relaxed">{v.notes}</div>
                       </div>
                     )}

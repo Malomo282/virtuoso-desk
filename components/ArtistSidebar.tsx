@@ -1,10 +1,7 @@
 'use client'
-import { useRouter, usePathname } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import NavIcon from '@/components/NavIcon'
-import { useUnreadNotifications } from '@/lib/use-unread'
+import Sidebar, { type NavEntry } from '@/components/Sidebar'
 
-const navItems = [
+const navItems: NavEntry[] = [
   { label: 'Dashboard', href: '/artist/dashboard', icon: 'dashboard' },
   { label: 'Calendar', href: '/artist/calendar', icon: 'calendar' },
   { label: 'Available gigs', href: '/artist/available', icon: 'music' },
@@ -15,59 +12,5 @@ const navItems = [
 ]
 
 export default function ArtistSidebar() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const unread = useUnreadNotifications()
-
-  async function handleSignOut() {
-    await supabase.auth.signOut()
-    window.location.href = '/login'
-  }
-
-  return (
-    <div className="w-60 min-w-60 bg-sidebar border-r border-border h-screen flex flex-col sticky top-0">
-      <div className="px-5 py-5 border-b border-border text-center flex-shrink-0">
-        <div className="text-3xl font-bold text-primary mb-1">VE</div>
-        <div className="text-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</div>
-        <div className="text-muted-foreground/80 text-xs tracking-widest uppercase">Entertainment Ltd</div>
-      </div>
-      <nav className="py-2 px-3 overflow-y-auto flex-1">
-        {navItems.map((item, i) => {
-          const isActive = pathname === item.href
-          const showUnread = item.href === '/artist/notifications' && unread > 0
-          return (
-            <div
-              key={i}
-              onClick={() => router.push(item.href)}
-              className={
-                'flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer text-xs uppercase tracking-wider font-medium mb-0.5 transition-all ' +
-                (isActive
-                  ? 'bg-accent border-l-2 border-primary text-primary pl-[10px]'
-                  : showUnread
-                    ? 'text-primary hover:bg-card'
-                    : 'text-muted-foreground/80 hover:bg-card hover:text-foreground')
-              }
-            >
-              <NavIcon name={item.icon} />
-              <span className="flex-1">{item.label}</span>
-              {showUnread && (
-                <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
-                  {unread > 9 ? '9+' : unread}
-                </span>
-              )}
-            </div>
-          )
-        })}
-      </nav>
-      <div className="px-3 py-3 border-t border-border flex-shrink-0">
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-border text-destructive text-xs uppercase tracking-wider hover:bg-destructive/10 hover:border-destructive/50 transition-colors font-medium"
-        >
-          <NavIcon name="logout" />
-          Sign out
-        </button>
-      </div>
-    </div>
-  )
+  return <Sidebar navItems={navItems} notificationsHref="/artist/notifications" />
 }

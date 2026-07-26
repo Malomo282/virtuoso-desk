@@ -7,10 +7,10 @@ import TimeSelect from '@/components/TimeSelect'
 import { gigTitle } from '@/lib/gig-title'
 
 const BRAG: Record<string, { label: string; color: string; border: string }> = {
-  B: { label: 'Completed / To be paid', color: 'bg-blue-900/30 text-blue-400', border: 'border-l-blue-500' },
-  R: { label: 'Less than 48h / Urgent', color: 'bg-red-900/30 text-red-400', border: 'border-l-red-500' },
-  A: { label: 'Available / Reviewing', color: 'bg-yellow-900/30 text-yellow-500', border: 'border-l-yellow-500' },
-  G: { label: 'Booking confirmed', color: 'bg-green-900/30 text-green-400', border: 'border-l-green-500' },
+  B: { label: 'Completed / To be paid', color: 'bg-info/15 text-info', border: 'border-l-info' },
+  R: { label: 'Less than 48h / Urgent', color: 'bg-destructive/15 text-destructive', border: 'border-l-destructive' },
+  A: { label: 'Available / Reviewing', color: 'bg-primary/15 text-primary', border: 'border-l-primary' },
+  G: { label: 'Booking confirmed', color: 'bg-success/15 text-success', border: 'border-l-success' },
 }
 
 export default function BookingsPage() {
@@ -262,19 +262,19 @@ export default function BookingsPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
-          <div className="text-white font-semibold">Booked Gigs</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center justify-between gap-3">
+          <div className="text-foreground font-semibold">Booked Gigs</div>
           <button onClick={() => router.push('/agency/bookings/new')} className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors">+ Add booking</button>
         </div>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <div className="flex gap-2 mb-6 flex-wrap">
             {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Urgent' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Confirmed' }, { value: 'cancelled', label: 'Cancelled' }].map(({ value, label }) => (
-              <button key={value} onClick={() => setFilter(value)} className={'px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (filter === value ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground/80 hover:text-white')}>{label}</button>
+              <button key={value} onClick={() => setFilter(value)} className={'px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ' + (filter === value ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground/80 hover:text-foreground')}>{label}</button>
             ))}
           </div>
 
-          {filtered.length === 0 && <div className="text-center py-12 text-muted-foreground/60">No bookings found. Add your first booking.</div>}
+          {filtered.length === 0 && <div className="text-center py-12 text-subtle-foreground">No bookings found. Add your first booking.</div>}
 
           <div className="flex flex-col gap-3">
             {filtered.map(b => {
@@ -285,11 +285,11 @@ export default function BookingsPage() {
                 ? startsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ' - ' + endsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
                 : null
               return (
-                <div key={b.id} onClick={() => setSelected(selected?.id === b.id ? null : b)} className={'bg-card border border-border border-l-4 ' + (b.cancelled_at ? 'border-l-muted-foreground/60 opacity-60' : brag.border) + ' rounded-xl p-4 cursor-pointer transition-all'}>
+                <div key={b.id} onClick={() => setSelected(selected?.id === b.id ? null : b)} className={'bg-card border border-border border-l-4 ' + (b.cancelled_at ? 'border-l-subtle-foreground opacity-60' : brag.border) + ' rounded-xl p-4 cursor-pointer transition-all'}>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="text-white font-semibold">{gigTitle(b.event_name, b.venues?.name)}</span>
+                        <span className="text-foreground font-semibold">{gigTitle(b.event_name, b.venues?.name)}</span>
                       </div>
                       <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
@@ -318,76 +318,76 @@ export default function BookingsPage() {
                   {selected?.id === b.id && (
                     <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Artist fee</div>
-                        <div className="text-white text-sm">GBP {(b.fee_artist || 0).toLocaleString()}</div>
+                        <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Artist fee</div>
+                        <div className="text-foreground text-sm">GBP {(b.fee_artist || 0).toLocaleString()}</div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Venue fee</div>
-                        <div className="text-white text-sm">GBP {(b.fee_venue || 0).toLocaleString()}</div>
+                        <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Venue fee</div>
+                        <div className="text-foreground text-sm">GBP {(b.fee_venue || 0).toLocaleString()}</div>
                       </div>
                       {b.brief_text && (
                         <div className="col-span-2">
-                          <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Brief</div>
+                          <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Brief</div>
                           <div className="text-muted-foreground/80 text-sm leading-relaxed">{b.brief_text}</div>
                         </div>
                       )}
                       {b.internal_notes && (
                         <div className="col-span-2">
-                          <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Internal notes</div>
+                          <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Internal notes</div>
                           <div className="text-muted-foreground/80 text-sm leading-relaxed">{b.internal_notes}</div>
                         </div>
                       )}
                       {!b.cancelled_at && cancelling !== b.id && rescheduling !== b.id && (
                         <div className="col-span-2 flex gap-2 mt-2 flex-wrap">
-                          <button className="bg-secondary border border-border text-muted-foreground/80 text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Edit booking</button>
+                          <button className="bg-secondary border border-border text-muted-foreground/80 text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Edit booking</button>
                           {b.brag_status !== 'B' && (
-                            <button onClick={e => { e.stopPropagation(); markCompleted(b) }} disabled={actionSaving} className="bg-blue-900/30 border border-blue-800 text-blue-400 text-xs px-3 py-1.5 rounded-lg hover:bg-blue-900/50 disabled:opacity-50 transition-colors">
+                            <button onClick={e => { e.stopPropagation(); markCompleted(b) }} disabled={actionSaving} className="bg-info/15 border border-info/40 text-info text-xs px-3 py-1.5 rounded-lg hover:bg-info/25 disabled:opacity-50 transition-colors">
                               {actionSaving ? 'Saving...' : 'Mark completed'}
                             </button>
                           )}
-                          <button onClick={e => { e.stopPropagation(); startReschedule(b) }} className="bg-secondary border border-border text-primary text-xs px-3 py-1.5 rounded-lg hover:text-white transition-colors">Reschedule</button>
-                          <button onClick={e => { e.stopPropagation(); startCancel(b.id) }} className="bg-red-900/30 border border-red-800 text-red-400 text-xs px-3 py-1.5 rounded-lg hover:bg-red-900/50 transition-colors">Cancel booking</button>
-                          {actionError && <div className="w-full text-red-400 text-xs mt-1">{actionError}</div>}
+                          <button onClick={e => { e.stopPropagation(); startReschedule(b) }} className="bg-secondary border border-border text-primary text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Reschedule</button>
+                          <button onClick={e => { e.stopPropagation(); startCancel(b.id) }} className="bg-destructive/15 border border-destructive/40 text-destructive text-xs px-3 py-1.5 rounded-lg hover:bg-destructive/25 transition-colors">Cancel booking</button>
+                          {actionError && <div className="w-full text-destructive text-xs mt-1">{actionError}</div>}
                         </div>
                       )}
 
                       {cancelling === b.id && (
-                        <div className="col-span-2 mt-2 bg-secondary border border-red-800/40 rounded-lg p-4" onClick={e => e.stopPropagation()}>
-                          <div className="text-white text-sm font-semibold mb-2">Cancel this booking</div>
+                        <div className="col-span-2 mt-2 bg-secondary border border-destructive/40/40 rounded-lg p-4" onClick={e => e.stopPropagation()}>
+                          <div className="text-foreground text-sm font-semibold mb-2">Cancel this booking</div>
                           <textarea
                             value={cancelReason}
                             onChange={e => setCancelReason(e.target.value)}
                             rows={2}
                             placeholder="Reason for cancellation..."
-                            className="w-full bg-background border border-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary mb-3"
+                            className="w-full bg-background border border-input-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary mb-3"
                           />
-                          {actionError && <div className="text-red-400 text-xs mb-2">{actionError}</div>}
+                          {actionError && <div className="text-destructive text-xs mb-2">{actionError}</div>}
                           <div className="flex gap-2">
-                            <button onClick={() => confirmCancel(b)} disabled={actionSaving} className="bg-red-900/40 border border-red-800 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-red-900/60 disabled:opacity-50 transition-colors">
+                            <button onClick={() => confirmCancel(b)} disabled={actionSaving} className="bg-destructive/20 border border-destructive/40 text-destructive text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-destructive/30 disabled:opacity-50 transition-colors">
                               {actionSaving ? 'Cancelling...' : 'Confirm cancellation'}
                             </button>
-                            <button onClick={() => setCancelling('')} className="text-xs text-muted-foreground/80 hover:text-white">Back</button>
+                            <button onClick={() => setCancelling('')} className="text-xs text-muted-foreground/80 hover:text-foreground">Back</button>
                           </div>
                         </div>
                       )}
 
                       {rescheduling === b.id && (
                         <div className="col-span-2 mt-2 bg-secondary border border-border rounded-lg p-4" onClick={e => e.stopPropagation()}>
-                          <div className="text-white text-sm font-semibold mb-3">Reschedule this booking</div>
+                          <div className="text-foreground text-sm font-semibold mb-3">Reschedule this booking</div>
                           <div className="flex items-center gap-2 flex-wrap mb-3">
-                            <input type="date" value={rescheduleForm.start_date} onChange={e => setRescheduleForm(p => ({ ...p, start_date: e.target.value }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" />
-                            <TimeSelect value={rescheduleForm.start_time} onChange={v => setRescheduleForm(p => ({ ...p, start_time: v }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" aria-label="New start time" />
-                            <span className="text-muted-foreground/60 text-xs">to</span>
-                            <TimeSelect value={rescheduleForm.end_time} onChange={v => setRescheduleForm(p => ({ ...p, end_time: v }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" aria-label="New end time" />
-                            <input type="date" value={rescheduleForm.end_date} onChange={e => setRescheduleForm(p => ({ ...p, end_date: e.target.value }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" />
+                            <input type="date" value={rescheduleForm.start_date} onChange={e => setRescheduleForm(p => ({ ...p, start_date: e.target.value }))} className="bg-background border border-input-border rounded-lg px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary" />
+                            <TimeSelect value={rescheduleForm.start_time} onChange={v => setRescheduleForm(p => ({ ...p, start_time: v }))} className="bg-background border border-input-border rounded-lg px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary" aria-label="New start time" />
+                            <span className="text-subtle-foreground text-xs">to</span>
+                            <TimeSelect value={rescheduleForm.end_time} onChange={v => setRescheduleForm(p => ({ ...p, end_time: v }))} className="bg-background border border-input-border rounded-lg px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary" aria-label="New end time" />
+                            <input type="date" value={rescheduleForm.end_date} onChange={e => setRescheduleForm(p => ({ ...p, end_date: e.target.value }))} className="bg-background border border-input-border rounded-lg px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary" />
                           </div>
-                          <p className="text-muted-foreground/60 text-xs mb-3">This cancels the current booking and creates a new one at the new date/time (status reset to Pending), preserving the original in Cancelled history.</p>
-                          {actionError && <div className="text-red-400 text-xs mb-2">{actionError}</div>}
+                          <p className="text-subtle-foreground text-xs mb-3">This cancels the current booking and creates a new one at the new date/time (status reset to Pending), preserving the original in Cancelled history.</p>
+                          {actionError && <div className="text-destructive text-xs mb-2">{actionError}</div>}
                           <div className="flex gap-2">
                             <button onClick={() => confirmReschedule(b)} disabled={actionSaving} className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors">
                               {actionSaving ? 'Saving...' : 'Confirm reschedule'}
                             </button>
-                            <button onClick={() => setRescheduling('')} className="text-xs text-muted-foreground/80 hover:text-white">Back</button>
+                            <button onClick={() => setRescheduling('')} className="text-xs text-muted-foreground/80 hover:text-foreground">Back</button>
                           </div>
                         </div>
                       )}

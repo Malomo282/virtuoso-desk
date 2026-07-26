@@ -77,17 +77,17 @@ export default function UpdatePasswordPage() {
 
         <div className="text-center mb-10">
           <div className="text-5xl font-bold text-primary mb-3">VE</div>
-          <div className="text-white text-sm font-semibold tracking-[0.2em] uppercase mb-1">
+          <div className="text-foreground text-sm font-semibold tracking-[0.2em] uppercase mb-1">
             Virtuoso Entertainment
           </div>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-8">
-          <h1 className="text-white text-xl font-semibold mb-1">Set new password</h1>
+          <h1 className="text-foreground text-xl font-semibold mb-1">Set new password</h1>
           <p className="text-muted-foreground/80 text-sm mb-6">Choose a strong password for your account.</p>
 
           {error && (
-            <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm mb-4">
+            <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm mb-4">
               {error}{' '}
               <a href="/reset-password" className="underline">Request a new link</a>
             </div>
@@ -110,7 +110,7 @@ export default function UpdatePasswordPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                   placeholder="Minimum 8 characters"
                 />
               </div>
@@ -124,7 +124,7 @@ export default function UpdatePasswordPage() {
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
                   required
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                   placeholder="Repeat your password"
                 />
               </div>

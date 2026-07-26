@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import TagInput from '@/components/TagInput'
+import ThemePicker from '@/components/ThemePicker'
 
 export default function ArtistProfilePage() {
   const router = useRouter()
@@ -111,14 +112,14 @@ export default function ArtistProfilePage() {
   return (
     <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
-          <div className="text-white font-semibold">My Profile</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
+          <div className="text-foreground font-semibold">My Profile</div>
         </div>
 
-        <div className="p-8 max-w-xl">
+        <div className="p-4 md:p-8 max-w-xl">
           <div className="mb-6">
-            <h1 className="text-white text-xl font-semibold mb-1">Edit your profile</h1>
+            <h1 className="text-foreground text-xl font-semibold mb-1">Edit your profile</h1>
             <p className="text-muted-foreground/80 text-sm">
               Update how you appear to Virtuoso Entertainment and prospective venues.
             </p>
@@ -134,7 +135,7 @@ export default function ArtistProfilePage() {
                 value={form.stageName}
                 onChange={e => update('stageName', e.target.value)}
                 required
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary"
                 placeholder="e.g. DJ Reide"
               />
             </div>
@@ -147,7 +148,7 @@ export default function ArtistProfilePage() {
                 value={form.bio}
                 onChange={e => update('bio', e.target.value)}
                 rows={4}
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary resize-none"
+                className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary resize-none"
                 placeholder="A short bio venues and the agency will see"
               />
             </div>
@@ -171,7 +172,7 @@ export default function ArtistProfilePage() {
                 type="text"
                 value={form.photoUrl}
                 onChange={e => update('photoUrl', e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary"
                 placeholder="https://..."
               />
             </div>
@@ -185,19 +186,19 @@ export default function ArtistProfilePage() {
                 inputMode="decimal"
                 value={form.minFee}
                 onChange={e => update('minFee', e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary"
                 placeholder="e.g. 250"
               />
             </div>
 
             {error && (
-              <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm">
+              <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="bg-green-900/20 border border-green-800 rounded-lg px-4 py-3 text-green-400 text-sm">
+              <div className="bg-success/10 border border-success/40 rounded-lg px-4 py-3 text-success text-sm">
                 Profile updated successfully.
               </div>
             )}
@@ -223,6 +224,11 @@ export default function ArtistProfilePage() {
             >
               Go to My documents &rarr;
             </button>
+          </div>
+
+          <div className="mt-8 bg-card border border-border rounded-xl p-6">
+            <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Appearance</h2>
+            <ThemePicker />
           </div>
         </div>
       </div>

@@ -124,12 +124,12 @@ export default function ArtistDocumentsPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
           <div className="text-foreground font-semibold">My Documents</div>
         </div>
 
-        <div className="p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-2xl">
           {error && (
             <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm mb-6">
               {error}
@@ -168,7 +168,7 @@ export default function ArtistDocumentsPage() {
                   </a>
                 </div>
               ) : (
-                <p className="text-muted-foreground/60 text-xs mb-3">
+                <p className="text-subtle-foreground text-xs mb-3">
                   Upload your signed copy once the agency has sent it to you.
                 </p>
               )}
@@ -213,7 +213,7 @@ export default function ArtistDocumentsPage() {
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div>
                         <div className="text-foreground text-sm font-medium">{label}</div>
-                        <div className="text-muted-foreground/60 text-xs">{hint}</div>
+                        <div className="text-subtle-foreground text-xs">{hint}</div>
                       </div>
                       <span
                         className={
@@ -272,7 +272,7 @@ export default function ArtistDocumentsPage() {
             </p>
 
             {bookings.length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground/60 text-sm">
+              <div className="text-center py-10 text-subtle-foreground text-sm">
                 You have no bookings yet. Contracts can be uploaded once you are booked.
               </div>
             ) : (
@@ -286,7 +286,7 @@ export default function ArtistDocumentsPage() {
                           <div className="text-foreground text-sm font-medium truncate">
                             {b.venue_name || 'Unknown venue'}
                           </div>
-                          <div className="text-muted-foreground/60 text-xs">
+                          <div className="text-subtle-foreground text-xs">
                             {b.starts_at
                               ? new Date(b.starts_at).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
                               : ''}

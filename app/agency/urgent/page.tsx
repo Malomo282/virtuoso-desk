@@ -41,16 +41,16 @@ export default function UrgentPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <AgencySidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
-          <div className="text-white font-semibold">Needs Confirmation</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
+          <div className="text-foreground font-semibold">Needs Confirmation</div>
         </div>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           {bookings.length === 0 && (
             <div className="text-center py-16">
-              <div className="text-green-400 text-4xl mb-4">All clear</div>
-              <div className="text-white font-semibold mb-1">Nothing needs attention</div>
-              <div className="text-muted-foreground/60 text-sm">No bookings need urgent confirmation</div>
+              <div className="text-success text-4xl mb-4">All clear</div>
+              <div className="text-foreground font-semibold mb-1">Nothing needs attention</div>
+              <div className="text-subtle-foreground text-sm">No bookings need urgent confirmation</div>
             </div>
           )}
           <div className="flex flex-col gap-3">
@@ -62,10 +62,10 @@ export default function UrgentPage() {
                 : null
 
               return (
-                <div key={b.id} className="bg-card border border-border border-l-4 border-l-red-500 rounded-xl p-4">
+                <div key={b.id} className="bg-card border border-border border-l-4 border-l-destructive rounded-xl p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-white font-semibold">{b.venues?.name}</div>
+                      <div className="text-foreground font-semibold">{b.venues?.name}</div>
                       {b.event_name && <div className="text-muted-foreground/80 text-xs mt-0.5">{b.event_name}</div>}
                       <div className="flex gap-3 text-xs text-muted-foreground/80 mt-2 flex-wrap">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
@@ -75,12 +75,12 @@ export default function UrgentPage() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <span className="text-primary font-bold">GBP {(b.fee_venue || 0).toLocaleString()}</span>
-                      <span className="text-xs bg-red-900/30 text-red-400 px-2 py-0.5 rounded-full">Urgent</span>
+                      <span className="text-xs bg-destructive/15 text-destructive px-2 py-0.5 rounded-full">Urgent</span>
                     </div>
                   </div>
                   <div className="mt-3 pt-3 border-t border-border flex gap-2">
                     <button onClick={() => confirmBooking(b.id)} className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">Confirm now</button>
-                    <button onClick={() => router.push('/agency/bookings')} className="bg-secondary border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-white transition-colors">View booking</button>
+                    <button onClick={() => router.push('/agency/bookings')} className="bg-secondary border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-foreground transition-colors">View booking</button>
                   </div>
                 </div>
               )

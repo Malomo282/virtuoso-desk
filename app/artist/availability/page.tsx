@@ -95,21 +95,21 @@ export default function ArtistAvailabilityPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
-          <div className="text-white font-semibold">My Availability</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
+          <div className="text-foreground font-semibold">My Availability</div>
         </div>
 
-        <div className="p-8 max-w-xl">
+        <div className="p-4 md:p-8 max-w-xl">
           <div className="mb-6">
-            <h1 className="text-white text-xl font-semibold mb-1">Blackout dates</h1>
+            <h1 className="text-foreground text-xl font-semibold mb-1">Blackout dates</h1>
             <p className="text-muted-foreground/80 text-sm">
               Mark dates you are unavailable. The agency will avoid booking you on these dates.
             </p>
           </div>
 
           <form onSubmit={addDate} className="bg-card border border-border rounded-xl p-6 space-y-4 mb-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">Date</label>
                 <input
@@ -117,7 +117,7 @@ export default function ArtistAvailabilityPage() {
                   value={newDate}
                   onChange={e => setNewDate(e.target.value)}
                   required
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
@@ -127,13 +127,13 @@ export default function ArtistAvailabilityPage() {
                   value={newNote}
                   onChange={e => setNewNote(e.target.value)}
                   placeholder="e.g. Holiday"
-                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
+                  className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm">
+              <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm">
                 {error}
               </div>
             )}
@@ -148,7 +148,7 @@ export default function ArtistAvailabilityPage() {
           </form>
 
           {dates.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground/60 text-sm">
+            <div className="text-center py-10 text-subtle-foreground text-sm">
               No blackout dates added yet.
             </div>
           ) : (
@@ -159,7 +159,7 @@ export default function ArtistAvailabilityPage() {
                   className="flex items-center justify-between bg-card border border-border rounded-lg px-4 py-3"
                 >
                   <div>
-                    <div className="text-white text-sm font-semibold">
+                    <div className="text-foreground text-sm font-semibold">
                       {new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                     {d.note && <div className="text-muted-foreground/80 text-xs">{d.note}</div>}

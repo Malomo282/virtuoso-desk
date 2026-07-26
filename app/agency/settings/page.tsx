@@ -1,13 +1,96 @@
 'use client'
-import{useEffect,useState}from'react'
-import{supabase}from'@/lib/supabase'
-import{useRouter}from'next/navigation'
-import AgencySidebar from'@/components/AgencySidebar'
-export default function SettingsPage(){
-const router=useRouter()
-const[theme,setTheme]=useState('dark')
-const[loading,setLoading]=useState(true)
-useEffect(()=>{async function load(){const{data:{session}}=await supabase.auth.getSession();if(!session){router.push('/login');return};const saved=localStorage.getItem('ve-theme');if(saved)setTheme(saved);setLoading(false)};load()},[]);
-function switchTheme(t){setTheme(t);localStorage.setItem('ve-theme',t)}
-if(loading)return(<div className="min-h-screen bg-background flex items-center justify-center"><div className="text-primary text-4xl font-bold animate-pulse">VE</div></div>)
-return(<div className="min-h-screen bg-background flex"><AgencySidebar/><div className="flex-1 flex flex-col"><div className="bg-card border-b border-border px-8 h-14 flex items-center"><div className="text-white font-semibold">Settings</div></div><div className="p-8 max-w-2xl"><div className="bg-card border border-border rounded-xl p-6 mb-6"><h3 className="text-muted-foreground/80 text-xs uppercase tracking-widest mb-4 font-mono">Colour Scheme</h3><p className="text-muted-foreground/80 text-sm mb-4">Choose your preferred portal appearance. All schemes use the Virtuoso gold accent.</p><div className="grid grid-cols-1 gap-3">{[{id:'dark',label:'Dark — Modern Luxury',desc:'Deep charcoal and navy. The default premium look.',bg:'#0D0D12',surface:'#15151C'},{id:'midnight',label:'Midnight — Pure Black',desc:'Pure black surfaces. Maximum contrast.',bg:'#000000',surface:'#111111'},{id:'light',label:'Light — Clean & Bright',desc:'White and light grey surfaces. High readability.',bg:'#F5F5F5',surface:'#FFFFFF'},{id:'slate',label:'Slate — Softer Dark',desc:'Warm slate tones. Easier on the eyes.',bg:'#1E2330',surface:'#252D3D'}].map(({id,label,desc,bg,surface})=>(<div key={id} onClick={()=>switchTheme(id)} className={'flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all '+(theme===id?'border-primary bg-primary/5':'border-border hover:border-primary/50')}><div className="flex gap-1.5 flex-shrink-0">{[bg,surface,'#C8A94A'].map((c,i)=>(<div key={i} style={{background:c}} className="w-5 h-8 rounded"/>))}</div><div className="flex-1"><div className="text-white text-sm font-semibold">{label}</div><div className="text-muted-foreground/80 text-xs mt-0.5">{desc}</div></div>{theme===id&&<div className="text-primary text-lg">✓</div>}</div>))}</div><p className="text-muted-foreground/60 text-xs mt-4">Full theme switching coming in the next update. Selection is saved to your browser.</p></div><div className="bg-card border border-border rounded-xl p-6 mb-6"><h3 className="text-muted-foreground/80 text-xs uppercase tracking-widest mb-4 font-mono">Artist Management</h3><div className="flex items-center justify-between py-3 border-b border-border"><div><div className="text-white text-sm font-medium">Invite a new artist</div><div className="text-muted-foreground/80 text-xs mt-0.5">Send an email invite to join the Virtuoso platform</div></div><button onClick={()=>router.push('/agency/roster/invite')} className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">Invite artist</button></div><div className="flex items-center justify-between py-3"><div><div className="text-white text-sm font-medium">View full roster</div><div className="text-muted-foreground/80 text-xs mt-0.5">Manage all artists on your roster</div></div><button onClick={()=>router.push('/agency/roster')} className="bg-card border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-white transition-colors">View roster</button></div></div><div className="bg-card border border-border rounded-xl p-6"><h3 className="text-muted-foreground/80 text-xs uppercase tracking-widest mb-4 font-mono">Account</h3><div className="flex items-center justify-between py-3 border-b border-border"><div><div className="text-white text-sm font-medium">Change password</div><div className="text-muted-foreground/80 text-xs mt-0.5">Update your login password</div></div><button onClick={()=>router.push('/reset-password')} className="bg-card border border-border text-muted-foreground/80 text-xs px-4 py-2 rounded-lg hover:text-white transition-colors">Change</button></div><div className="flex items-center justify-between py-3"><div><div className="text-white text-sm font-medium">Sign out</div><div className="text-muted-foreground/80 text-xs mt-0.5">Sign out of the agency desk</div></div><button onClick={async()=>{await supabase.auth.signOut();window.location.href='/login'}} className="bg-red-900/20 border border-red-800 text-red-400 text-xs px-4 py-2 rounded-lg hover:bg-red-900/30 transition-colors">Sign out</button></div></div></div></div></div>)}
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import AgencySidebar from '@/components/AgencySidebar'
+import ThemePicker from '@/components/ThemePicker'
+
+export default function SettingsPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { router.push('/login'); return }
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
+      </div>
+    )
+  }
+
+  const row = 'flex items-center justify-between gap-4 py-3 flex-wrap'
+  const secondaryBtn =
+    'bg-secondary border border-border text-muted-foreground text-xs px-4 py-2 rounded-lg hover:text-foreground transition-colors'
+
+  return (
+    <div className="min-h-screen bg-background flex">
+      <AgencySidebar />
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
+          <div className="text-foreground font-semibold">Settings</div>
+        </div>
+
+        <div className="p-4 md:p-8 max-w-2xl">
+          <section className="bg-card border border-border rounded-xl p-6 mb-6">
+            <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Appearance</h2>
+            <ThemePicker />
+          </section>
+
+          <section className="bg-card border border-border rounded-xl p-6 mb-6">
+            <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Artist management</h2>
+            <div className={row + ' border-b border-border'}>
+              <div>
+                <div className="text-foreground text-sm font-medium">Invite a new artist</div>
+                <div className="text-muted-foreground text-xs mt-0.5">Send an email invite to join the roster</div>
+              </div>
+              <button
+                onClick={() => router.push('/agency/roster/invite')}
+                className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Invite artist
+              </button>
+            </div>
+            <div className={row}>
+              <div>
+                <div className="text-foreground text-sm font-medium">View full roster</div>
+                <div className="text-muted-foreground text-xs mt-0.5">Manage all artists and their paperwork</div>
+              </div>
+              <button onClick={() => router.push('/agency/roster')} className={secondaryBtn}>View roster</button>
+            </div>
+          </section>
+
+          <section className="bg-card border border-border rounded-xl p-6">
+            <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Account</h2>
+            <div className={row + ' border-b border-border'}>
+              <div>
+                <div className="text-foreground text-sm font-medium">Change password</div>
+                <div className="text-muted-foreground text-xs mt-0.5">Update your login password</div>
+              </div>
+              <button onClick={() => router.push('/reset-password')} className={secondaryBtn}>Change</button>
+            </div>
+            <div className={row}>
+              <div>
+                <div className="text-foreground text-sm font-medium">Sign out</div>
+                <div className="text-muted-foreground text-xs mt-0.5">Sign out of the agency desk</div>
+              </div>
+              <button
+                onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }}
+                className="bg-destructive/15 border border-destructive/40 text-destructive text-xs px-4 py-2 rounded-lg hover:bg-destructive/25 transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}

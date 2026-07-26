@@ -10,10 +10,10 @@ import { gigTitle } from '@/lib/gig-title'
 // green is a confirmed booking, and blue is reserved for completed gigs so it
 // never doubles as "available" the way it used to here.
 const STATUS = {
-  available: { label: 'Available (awaiting agency decision)', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-yellow-500' },
-  reviewing: { label: 'Being reviewed', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-yellow-500' },
-  confirmed: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
-  completed: { label: 'Completed / to be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
+  available: { label: 'Available (awaiting agency decision)', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-primary' },
+  reviewing: { label: 'Being reviewed', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-primary' },
+  confirmed: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-success' },
+  completed: { label: 'Completed / to be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-info' },
 }
 
 // available and reviewing share a colour, so the key lists one amber entry.
@@ -150,9 +150,9 @@ export default function ArtistCalendarPage() {
   return (
     <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
-          <div className="text-white font-semibold">My Calendar</div>
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+        <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center justify-between gap-3">
+          <div className="text-foreground font-semibold">My Calendar</div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setShowSubscribe(s => !s); setCopied(false) }}
@@ -168,7 +168,7 @@ export default function ArtistCalendarPage() {
             </button>
           </div>
         </div>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           {showSubscribe && (
             <div className="bg-card border border-primary/30 rounded-xl p-5 mb-6 max-w-2xl">
               <h2 className="text-foreground font-semibold mb-1">Subscribe to your gig calendar</h2>
@@ -183,7 +183,7 @@ export default function ArtistCalendarPage() {
                   readOnly
                   value={feedUrl}
                   onFocus={e => e.currentTarget.select()}
-                  className="flex-1 min-w-[240px] bg-secondary border border-border rounded-lg px-3 py-2 text-muted-foreground/80 text-xs font-mono focus:outline-none focus:border-primary"
+                  className="flex-1 min-w-[240px] bg-secondary border border-input-border rounded-lg px-3 py-2 text-muted-foreground/80 text-xs font-mono focus:outline-none focus:border-primary"
                 />
                 <button
                   onClick={async () => {
@@ -207,7 +207,7 @@ export default function ArtistCalendarPage() {
                 </a>
               </div>
 
-              <p className="text-muted-foreground/60 text-xs">
+              <p className="text-subtle-foreground text-xs">
                 Confirmed bookings appear as normal events; gigs you have accepted but the agency has
                 not confirmed yet show as tentative and marked &ldquo;pending&rdquo;.
               </p>
@@ -224,13 +224,13 @@ export default function ArtistCalendarPage() {
           </div>
 
           <div className="flex items-center gap-4 mb-4">
-            <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-card border border-border text-white px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Prev</button>
-            <div className="text-white font-semibold text-lg flex-1 text-center">{months[calM]} {calY}</div>
-            <button onClick={() => { if (calM === 11) { setCalM(0); setCalY(calY + 1) } else setCalM(calM + 1) }} className="bg-card border border-border text-white px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Next</button>
+            <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-card border border-border text-foreground px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Prev</button>
+            <div className="text-foreground font-semibold text-lg flex-1 text-center">{months[calM]} {calY}</div>
+            <button onClick={() => { if (calM === 11) { setCalM(0); setCalY(calY + 1) } else setCalM(calM + 1) }} className="bg-card border border-border text-foreground px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Next</button>
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {days.map(d => (<div key={d} className="text-center text-muted-foreground/60 text-xs uppercase tracking-widest py-2">{d}</div>))}
+            {days.map(d => (<div key={d} className="text-center text-subtle-foreground text-xs uppercase tracking-widest py-2">{d}</div>))}
           </div>
 
           <div className="grid grid-cols-7 gap-1">
@@ -265,9 +265,9 @@ export default function ArtistCalendarPage() {
             <div className="mt-6 bg-card border border-border rounded-xl p-5">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="text-white font-semibold text-lg">{selected.venue_name}</div>
+                  <div className="text-foreground font-semibold text-lg">{selected.venue_name}</div>
                   {selected.event_name && <div className="text-muted-foreground/80 text-sm">{selected.event_name}</div>}
-                  <div className="text-muted-foreground/60 text-xs mt-1">
+                  <div className="text-subtle-foreground text-xs mt-1">
                     {new Date(selected.starts_at).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
                 </div>
@@ -279,17 +279,17 @@ export default function ArtistCalendarPage() {
                     <div className="w-2 h-2 rounded-full" style={{ background: STATUS[selected.status as keyof typeof STATUS].color }} />
                     {STATUS[selected.status as keyof typeof STATUS].label}
                   </div>
-                  <button onClick={() => setSelected(null)} className="text-muted-foreground/60 hover:text-white">Close</button>
+                  <button onClick={() => setSelected(null)} className="text-subtle-foreground hover:text-foreground">Close</button>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                 <div>
-                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Time</div>
-                  <div className="text-white">{selectedTime}</div>
+                  <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Time</div>
+                  <div className="text-foreground">{selectedTime}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Fee</div>
+                  <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Fee</div>
                   <div className="text-primary font-bold">
                     GBP {((selected.fee_artist ?? selected.fee) || 0).toLocaleString()}
                   </div>
@@ -304,7 +304,7 @@ export default function ArtistCalendarPage() {
                   View full brief
                 </button>
               ) : (
-                <div className="text-muted-foreground/60 text-xs italic">
+                <div className="text-subtle-foreground text-xs italic">
                   You have expressed interest in this gig. The agency has not confirmed it yet.
                 </div>
               )}
