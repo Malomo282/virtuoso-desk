@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { generateICS, type IcsEvent } from '@/lib/ics'
 import { verifyCalendarToken } from '@/lib/calendar-token'
+import { gigTitle } from '@/lib/gig-title'
 
 // Subscribable calendar feed. Unlike the download button this stays current -
 // the client re-fetches periodically, so cancellations and reschedules flow
@@ -30,7 +31,7 @@ export async function GET(_request: Request, { params }: { params: { token: stri
       .order('starts_at', { ascending: true }),
     admin
       .from('gig_responses')
-      .select('gig_id, available_gigs(id, starts_at, ends_at, fee, status, venues(name, address))')
+      .select('gig_id, available_gigs(id, title, starts_at, ends_at, fee, status, venues(name, address))')
       .eq('artist_id', artistId)
       .eq('response', 'accepted'),
   ])
@@ -42,14 +43,13 @@ export async function GET(_request: Request, { params }: { params: { token: stri
     if (!b.starts_at || !b.ends_at) continue
     const venue = rel((b as any).venues)
     const parts: string[] = []
-    if (b.event_name) parts.push('Event: ' + b.event_name)
     if (b.fee_artist != null) parts.push('Fee: GBP ' + b.fee_artist)
     if (b.dress_code) parts.push('Dress code: ' + b.dress_code)
     if (b.contact_number) parts.push('Contact: ' + b.contact_number)
 
     events.push({
       uid: 'booking-' + b.id + '@virtuosoentertainment.co.uk',
-      summary: venue?.name || 'Gig',
+      summary: gigTitle(b.event_name, venue?.name),
       description: parts.join('\n'),
       location: venue?.address,
       start: b.starts_at,
@@ -68,7 +68,7 @@ export async function GET(_request: Request, { params }: { params: { token: stri
 
     events.push({
       uid: 'gig-' + gig.id + '@virtuosoentertainment.co.uk',
-      summary: (venue?.name || 'Gig') + ' (pending)',
+      summary: gigTitle(gig.title, venue?.name) + ' (pending)',
       description: parts.join('\n'),
       location: venue?.address,
       start: gig.starts_at,

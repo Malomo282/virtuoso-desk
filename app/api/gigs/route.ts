@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 import { notifyAgency } from '@/lib/notify'
 import { makeCalendarToken } from '@/lib/calendar-token'
+import { gigTitle } from '@/lib/gig-title'
 
 // Artist-facing view of open gigs, and their response to them.
 //
@@ -38,7 +39,7 @@ export async function GET() {
     const [{ data: gigs }, { data: responses }] = await Promise.all([
       admin
         .from('available_gigs')
-        .select('id, starts_at, ends_at, genre, fee, notes, status, venues(name, address)')
+        .select('id, title, starts_at, ends_at, genre, fee, notes, status, venues(name, address)')
         .eq('status', 'open')
         .order('starts_at', { ascending: true }),
       admin
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
 
     const { data: gig } = await admin
       .from('available_gigs')
-      .select('id, status, venues(name)')
+      .select('id, title, status, venues(name)')
       .eq('id', gigId)
       .maybeSingle()
     if (!gig) return NextResponse.json({ error: 'Gig not found' }, { status: 404 })
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
         message:
           (artist.stage_name || 'An artist') + ' is ' +
           (response === 'accepted' ? 'available for' : 'not available for') +
-          ' the gig at ' + (venueRel?.name || 'a venue') + '.',
+          ' the gig ' + gigTitle((gig as any).title, venueRel?.name) + '.',
       })
     }
 

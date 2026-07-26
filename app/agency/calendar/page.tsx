@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
+import { gigTitle } from '@/lib/gig-title'
 
 const BRAG: Record<string, { label: string; color: string; bg: string; cls: string }> = {
   B: { label: 'Completed / To be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
@@ -63,11 +64,10 @@ export default function CalendarPage() {
       if (b.artists?.stage_name) parts.push('Artist: ' + b.artists.stage_name)
       if (b.fee_venue) parts.push('Fee: GBP ' + b.fee_venue)
       if (b.dress_code) parts.push('Dress code: ' + b.dress_code)
-      if (b.event_name) parts.push('Event: ' + b.event_name)
       if (b.contact_number) parts.push('Contact: ' + b.contact_number)
       return {
         uid: b.id + '@virtuosoentertainment.co.uk',
-        summary: [b.venues?.name || 'Gig', b.artists?.stage_name].filter(Boolean).join(' - '),
+        summary: [gigTitle(b.event_name, b.venues?.name), b.artists?.stage_name].filter(Boolean).join(' - '),
         description: parts.join('\n'),
         location: b.venues?.address,
         start: b.starts_at,
@@ -162,8 +162,7 @@ export default function CalendarPage() {
             <div className="mt-6 bg-card border border-border rounded-xl p-5">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="text-white font-semibold text-lg">{selected.venues?.name}</div>
-                  {selected.event_name && <div className="text-muted-foreground/80 text-sm">{selected.event_name}</div>}
+                  <div className="text-white font-semibold text-lg">{gigTitle(selected.event_name, selected.venues?.name)}</div>
                   <div className="text-muted-foreground/60 text-xs mt-1">
                     {new Date(selected.starts_at).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>

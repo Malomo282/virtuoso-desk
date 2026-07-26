@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { gigTitle } from '@/lib/gig-title'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,16 +80,16 @@ export async function GET(request: Request) {
 
       const tierLabel = tier === 'reminder_24h' ? 'tomorrow' : 'in 2 days'
       const venueName = venue?.name || 'the venue'
-      const subject = 'Gig reminder: ' + venueName + ' ' + tierLabel + ' - ' + fmtDate(b.starts_at)
+      const subject = 'Gig reminder: ' + gigTitle(b.event_name, venueName) + ' ' + tierLabel + ' - ' + fmtDate(b.starts_at)
 
       const detailRow = (label: string, value: string) =>
         '<tr><td style="padding:6px 12px 6px 0;color:#8A96A8;font-size:13px;white-space:nowrap;vertical-align:top">' + label + '</td><td style="padding:6px 0;color:#ffffff;font-size:13px">' + value + '</td></tr>'
 
       let details = ''
+      details += detailRow('Gig', gigTitle(b.event_name, venueName))
       details += detailRow('Venue', venueName + (venue?.address ? ' — ' + venue.address : ''))
       details += detailRow('Date', fmtDate(b.starts_at))
       details += detailRow('Time', fmtTime(b.starts_at) + ' – ' + fmtTime(b.ends_at))
-      if (b.event_name) details += detailRow('Event', b.event_name)
       if (b.fee_artist != null) details += detailRow('Your fee', 'GBP ' + b.fee_artist.toLocaleString())
       if (b.dress_code) details += detailRow('Dress code', b.dress_code)
       if (b.contact_number) details += detailRow('Contact on the night', '<a href="tel:' + b.contact_number + '" style="color:#C8A94A">' + b.contact_number + '</a>')

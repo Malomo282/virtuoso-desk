@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import TimeSelect from '@/components/TimeSelect'
+import { gigTitle } from '@/lib/gig-title'
 
 const BRAG: Record<string, { label: string; color: string; border: string }> = {
   B: { label: 'Completed / To be paid', color: 'bg-blue-900/30 text-blue-400', border: 'border-l-blue-500' },
@@ -288,8 +289,7 @@ export default function BookingsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="text-white font-semibold">{b.venues?.name || 'Unknown venue'}</span>
-                        {b.event_name && <span className="text-xs bg-secondary text-muted-foreground/80 border border-border px-2 py-0.5 rounded">{b.event_name}</span>}
+                        <span className="text-white font-semibold">{gigTitle(b.event_name, b.venues?.name)}</span>
                       </div>
                       <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}

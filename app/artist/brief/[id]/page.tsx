@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import { gigTitle } from '@/lib/gig-title'
 
 export default function BriefPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -110,8 +111,7 @@ export default function BriefPage({ params }: { params: { id: string } }) {
         <div className="p-6 max-w-xl">
           <div className="mb-6">
             <div className="text-primary text-xs uppercase tracking-widest font-mono mb-2">Virtuoso Entertainment Ltd</div>
-            <h1 className="text-white text-2xl font-bold mb-1">{booking.venue_name}</h1>
-            {booking.event_name && <div className="text-muted-foreground/80 text-sm">{booking.event_name}</div>}
+            <h1 className="text-white text-2xl font-bold mb-1">{gigTitle(booking.event_name, booking.venue_name)}</h1>
           </div>
 
           <div className="bg-card border border-border rounded-xl p-5 mb-4">

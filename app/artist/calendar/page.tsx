@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
+import { gigTitle } from '@/lib/gig-title'
 
 // Mirrors the agency BRAG scheme: amber covers "available / under review",
 // green is a confirmed booking, and blue is reserved for completed gigs so it
@@ -62,6 +63,7 @@ export default function ArtistCalendarPage() {
         status: statusForBooking(b.brag_status),
         starts_at: b.starts_at,
         ends_at: b.ends_at,
+        title: b.event_name,
         venue_name: b.venue_name,
         venue_address: b.venue_address,
         event_name: b.event_name,
@@ -78,6 +80,7 @@ export default function ArtistCalendarPage() {
           status: 'available',
           starts_at: g.starts_at,
           ends_at: g.ends_at,
+          title: g.title,
           venue_name: g.venues?.name,
           venue_address: g.venues?.address,
           fee: g.fee,
@@ -107,7 +110,7 @@ export default function ArtistCalendarPage() {
 
         return {
           uid: e.id + '@virtuosoentertainment.co.uk',
-          summary: (e.venue_name || 'Gig') + (pipeline ? ' (pending)' : ''),
+          summary: gigTitle(e.title, e.venue_name) + (pipeline ? ' (pending)' : ''),
           description: parts.join('\n'),
           location: e.venue_address,
           start: e.starts_at,
@@ -249,7 +252,7 @@ export default function ArtistCalendarPage() {
                         className={'text-xs rounded px-1 py-0.5 mb-0.5 cursor-pointer truncate ' + st.cls}
                         style={{ background: st.bg }}
                       >
-                        {e.venue_name?.split(' ')[0] || 'Gig'}
+                        {e.title || e.venue_name?.split(' ')[0] || 'Gig'}
                       </div>
                     )
                   })}

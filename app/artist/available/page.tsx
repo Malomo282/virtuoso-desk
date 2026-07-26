@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import { gigTitle } from '@/lib/gig-title'
 
 export default function ArtistAvailableGigsPage() {
   const router = useRouter()
@@ -97,7 +98,7 @@ export default function ArtistAvailableGigsPage() {
                 <div key={gig.id} className="bg-card border border-border rounded-xl p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="text-white font-semibold mb-1">{gig.venues?.name || 'Unknown venue'}</div>
+                      <div className="text-white font-semibold mb-1">{gigTitle(gig.title, gig.venues?.name)}</div>
                       <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap font-mono">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
                         {timeStr && <span>{timeStr}</span>}

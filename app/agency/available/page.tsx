@@ -5,10 +5,12 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import TagInput from '@/components/TagInput'
+import { gigTitle } from '@/lib/gig-title'
 import TimeSelect from '@/components/TimeSelect'
 
 type Gig = {
   id: string
+  title: string
   starts_at: string
   ends_at: string
   genre: string
@@ -45,6 +47,7 @@ export default function AvailableGigsPage() {
   const [confirming, setConfirming] = useState(false)
   const [form, setForm] = useState({
     venue_id: '',
+    title: '',
     start_date: '',
     start_time: '',
     end_date: '',
@@ -126,6 +129,7 @@ export default function AvailableGigsPage() {
 
     const payload = {
       venue_id: form.venue_id,
+      title: form.title || null,
       starts_at: startsAt.toISOString(),
       ends_at: endsAt.toISOString(),
       genre: genreTags.join(', '),
@@ -157,7 +161,7 @@ export default function AvailableGigsPage() {
             userIds,
             type: 'gig_updated',
             message:
-              'The gig at ' + venueName + ' has been updated — it now starts ' +
+              'The gig ' + gigTitle(form.title, venueName) + ' has been updated — it now starts ' +
               startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) +
               ' at ' + startsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) +
               '. Please check the details still work for you.',
@@ -187,7 +191,7 @@ export default function AvailableGigsPage() {
             userIds,
             type: 'new_gig',
             message:
-              'New gig available: ' + venueName + ' on ' +
+              'New gig available: ' + gigTitle(form.title, venueName) + ' on ' +
               startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) +
               (payload.fee ? ' — GBP ' + payload.fee.toLocaleString() : '') +
               '. Let us know if you are interested.',
@@ -198,7 +202,7 @@ export default function AvailableGigsPage() {
 
     setShowForm(false)
     setEditingGigId('')
-    setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
+    setForm({ venue_id: '', title: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
     setGenreTags([])
     setSaving(false)
     loadAll()
@@ -206,7 +210,7 @@ export default function AvailableGigsPage() {
 
   function startAddGig() {
     setEditingGigId('')
-    setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
+    setForm({ venue_id: '', title: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
     setGenreTags([])
     setError('')
     setShowForm(true)
@@ -218,6 +222,7 @@ export default function AvailableGigsPage() {
     const pad = (n: number) => String(n).padStart(2, '0')
     setForm({
       venue_id: gig.venue_id,
+      title: gig.title || '',
       start_date: s.getFullYear() + '-' + pad(s.getMonth() + 1) + '-' + pad(s.getDate()),
       start_time: pad(s.getHours()) + ':' + pad(s.getMinutes()),
       end_date: e.getFullYear() + '-' + pad(e.getMonth() + 1) + '-' + pad(e.getDate()),
@@ -282,6 +287,7 @@ export default function AvailableGigsPage() {
     const { error: bookingError } = await supabase.from('bookings').insert({
       venue_id: gig.venue_id,
       artist_id: response.artist_id,
+      event_name: gig.title || null,
       starts_at: gig.starts_at,
       ends_at: gig.ends_at,
       fee_venue: gig.fee,
@@ -371,6 +377,20 @@ export default function AvailableGigsPage() {
                       ))}
                     </select>
                   </div>
+                  <div className="col-span-2">
+                    <label className={labelClass}>Gig title</label>
+                    <input
+                      type="text"
+                      value={form.title}
+                      onChange={e => update('title', e.target.value)}
+                      className={inputClass}
+                      placeholder="e.g. Saturday Residents, NYE Main Room, Summer Terrace"
+                    />
+                    <p className="text-muted-foreground/60 text-xs mt-1.5">
+                      Shown to artists as &ldquo;{gigTitle(form.title || 'Your title', venues.find(v => v.id === form.venue_id)?.name || 'Venue')}&rdquo;.
+                    </p>
+                  </div>
+
                   <div>
                     <label className={labelClass}>Genres / tags</label>
                     <TagInput
@@ -471,7 +491,7 @@ export default function AvailableGigsPage() {
                   <div className="flex items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="text-white font-semibold mb-1">
-                        {gig.venues?.name || 'Unknown venue'}
+                        {gigTitle(gig.title, gig.venues?.name)}
                       </div>
                       <div className="flex gap-4 text-xs text-muted-foreground/80 flex-wrap font-mono">
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
