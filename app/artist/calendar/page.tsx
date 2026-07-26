@@ -4,14 +4,26 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 
+// Mirrors the agency BRAG scheme: amber covers "available / under review",
+// green is a confirmed booking, and blue is reserved for completed gigs so it
+// never doubles as "available" the way it used to here.
 const STATUS = {
-  available: { label: 'Available (awaiting agency decision)', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
-  reviewing: { label: 'Being reviewed', color: '#C8A94A', bg: 'rgba(200,162,74,0.15)', cls: 'text-yellow-500' },
+  available: { label: 'Available (awaiting agency decision)', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-yellow-500' },
+  reviewing: { label: 'Being reviewed', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-yellow-500' },
   confirmed: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
+  completed: { label: 'Completed / to be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
 }
+
+// available and reviewing share a colour, so the key lists one amber entry.
+const LEGEND = [
+  { color: '#C8A94A', label: 'Available / under review' },
+  { color: '#4BAF7A', label: 'Confirmed' },
+  { color: '#5B8DEF', label: 'Completed / to be paid' },
+]
 
 function statusForBooking(bragStatus: string) {
   if (bragStatus === 'A') return 'reviewing'
+  if (bragStatus === 'B') return 'completed'
   return 'confirmed'
 }
 
@@ -112,10 +124,10 @@ export default function ArtistCalendarPage() {
         </div>
         <div className="p-8">
           <div className="flex flex-wrap items-center gap-4 mb-4">
-            {Object.entries(STATUS).map(([k, v]) => (
-              <div key={k} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: v.color }} />
-                <span className="text-muted-foreground/80 text-xs">{v.label}</span>
+            {LEGEND.map(({ color, label }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
+                <span className="text-muted-foreground/80 text-xs">{label}</span>
               </div>
             ))}
           </div>
