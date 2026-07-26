@@ -25,6 +25,59 @@ export default function RosterPage() {
   const [search, setSearch] = useState('')
   const [docsFor, setDocsFor] = useState<{ artist: Artist; docs: Record<string, any> } | null>(null)
   const [docsLoading, setDocsLoading] = useState('')
+  const [editing, setEditing] = useState<Artist | null>(null)
+  const [editForm, setEditForm] = useState({ stageName: '', genres: '', minFee: '', bio: '', photoUrl: '' })
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
+
+  function startEdit(a: Artist) {
+    setEditing(a)
+    setEditForm({
+      stageName: a.stage_name || '',
+      genres: (a.genres || []).join(', '),
+      minFee: a.min_fee != null ? String(a.min_fee) : '',
+      bio: a.bio || '',
+      photoUrl: a.photo_url || '',
+    })
+    setEditError('')
+  }
+
+  async function saveArtist(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editing) return
+    setEditSaving(true)
+    setEditError('')
+
+    const minFee = editForm.minFee.trim() === '' ? null : Number(editForm.minFee)
+    if (minFee != null && Number.isNaN(minFee)) {
+      setEditError('Minimum fee must be a number')
+      setEditSaving(false)
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('artists')
+      .update({
+        stage_name: editForm.stageName,
+        genres: editForm.genres ? editForm.genres.split(',').map(g => g.trim()).filter(Boolean) : [],
+        min_fee: minFee,
+        bio: editForm.bio,
+        photo_url: editForm.photoUrl,
+      })
+      .eq('id', editing.id)
+      .select()
+      .single()
+
+    if (error) {
+      setEditError(error.message)
+      setEditSaving(false)
+      return
+    }
+
+    setArtists(prev => prev.map(a => (a.id === editing.id ? { ...a, ...data } : a)))
+    setEditing(null)
+    setEditSaving(false)
+  }
 
   useEffect(() => {
     async function load() {
@@ -197,15 +250,23 @@ export default function RosterPage() {
                       >
                         {complete ? 'Right to work ✓' : held.length > 0 ? 'Docs incomplete' : 'Docs missing'}
                       </span>
-                      {held.length > 0 && (
+                      <div className="flex items-center gap-3">
+                        {held.length > 0 && (
+                          <button
+                            onClick={e => { e.stopPropagation(); viewDocuments(artist) }}
+                            disabled={docsLoading === artist.id}
+                            className="text-xs text-primary hover:underline disabled:opacity-50"
+                          >
+                            {docsLoading === artist.id ? 'Opening...' : 'Docs'}
+                          </button>
+                        )}
                         <button
-                          onClick={e => { e.stopPropagation(); viewDocuments(artist) }}
-                          disabled={docsLoading === artist.id}
-                          className="text-xs text-primary hover:underline disabled:opacity-50"
+                          onClick={e => { e.stopPropagation(); startEdit(artist) }}
+                          className="text-xs text-primary hover:underline"
                         >
-                          {docsLoading === artist.id ? 'Opening...' : 'View'}
+                          Edit
                         </button>
-                      )}
+                      </div>
                     </div>
                   )
                 })()}
@@ -214,6 +275,98 @@ export default function RosterPage() {
           </div>
 
         </div>
+
+        {editing && (
+          <div
+            className="fixed inset-0 bg-black/70 flex items-center justify-center p-6 z-50"
+            onClick={() => setEditing(null)}
+          >
+            <form
+              onSubmit={saveArtist}
+              className="bg-card border border-border rounded-xl p-6 max-w-md w-full space-y-4"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-foreground font-semibold">Edit artist</div>
+                  <div className="text-muted-foreground/60 text-xs">{editing.full_name || editing.stage_name}</div>
+                </div>
+                <button type="button" onClick={() => setEditing(null)} className="text-muted-foreground/60 hover:text-foreground text-sm">
+                  Close
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Stage name</label>
+                <input
+                  type="text"
+                  value={editForm.stageName}
+                  onChange={e => setEditForm(p => ({ ...p, stageName: e.target.value }))}
+                  required
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Genres</label>
+                  <input
+                    type="text"
+                    value={editForm.genres}
+                    onChange={e => setEditForm(p => ({ ...p, genres: e.target.value }))}
+                    placeholder="House, Afrobeats"
+                    className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Min fee (GBP)</label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={editForm.minFee}
+                    onChange={e => setEditForm(p => ({ ...p, minFee: e.target.value }))}
+                    placeholder="250"
+                    className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Photo URL</label>
+                <input
+                  type="text"
+                  value={editForm.photoUrl}
+                  onChange={e => setEditForm(p => ({ ...p, photoUrl: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Bio</label>
+                <textarea
+                  value={editForm.bio}
+                  onChange={e => setEditForm(p => ({ ...p, bio: e.target.value }))}
+                  rows={3}
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary resize-none"
+                />
+              </div>
+
+              {editError && (
+                <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm">{editError}</div>
+              )}
+
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setEditing(null)} className="px-5 py-2.5 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-foreground transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={editSaving} className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors">
+                  {editSaving ? 'Saving...' : 'Save changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {docsFor && (
           <div

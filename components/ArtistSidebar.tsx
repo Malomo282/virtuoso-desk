@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Available gigs', href: '/artist/available', icon: 'music' },
   { label: 'My availability', href: '/artist/availability', icon: 'calendarOff' },
   { label: 'Notifications', href: '/artist/notifications', icon: 'bell' },
+  { label: 'My documents', href: '/artist/documents', icon: 'file' },
   { label: 'My profile', href: '/artist/profile', icon: 'user' },
 ]
 

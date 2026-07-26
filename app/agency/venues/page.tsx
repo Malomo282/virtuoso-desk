@@ -25,11 +25,45 @@ export default function VenuesPage() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Venue | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState('')
+  const [error, setError] = useState('')
   const [form, setForm] = useState({
     name: '', address: '', type: 'Club',
     capacity: '', contact: '', contactPhone: '', notes: '', genres: ''
   })
   const [saving, setSaving] = useState(false)
+
+  const emptyForm = { name: '', address: '', type: 'Club', capacity: '', contact: '', contactPhone: '', notes: '', genres: '' }
+
+  function startAdd() {
+    setEditingId('')
+    setForm(emptyForm)
+    setError('')
+    setShowForm(true)
+  }
+
+  function startEdit(v: Venue) {
+    setEditingId(v.id)
+    setForm({
+      name: v.name || '',
+      address: v.address || '',
+      type: v.type || 'Club',
+      capacity: v.capacity != null ? String(v.capacity) : '',
+      contact: v.contact || '',
+      contactPhone: v.contact_phone || '',
+      notes: v.notes || '',
+      genres: (v.genres || []).join(', '),
+    })
+    setError('')
+    setShowForm(true)
+  }
+
+  function closeForm() {
+    setShowForm(false)
+    setEditingId('')
+    setForm(emptyForm)
+    setError('')
+  }
 
   useEffect(() => {
     async function load() {
@@ -57,8 +91,9 @@ export default function VenuesPage() {
   async function saveVenue(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
+    setError('')
 
-    const { data, error } = await supabase.from('venues').insert({
+    const payload = {
       name: form.name,
       address: form.address,
       type: form.type,
@@ -66,13 +101,36 @@ export default function VenuesPage() {
       contact: form.contact,
       contact_phone: form.contactPhone,
       notes: form.notes,
-      genres: form.genres ? form.genres.split(',').map(g => g.trim()) : [],
-    }).select().single()
+      genres: form.genres ? form.genres.split(',').map(g => g.trim()).filter(Boolean) : [],
+    }
 
-    if (!error && data) {
+    if (editingId) {
+      const { data, error: updateError } = await supabase
+        .from('venues')
+        .update(payload)
+        .eq('id', editingId)
+        .select()
+        .single()
+
+      if (updateError) {
+        setError(updateError.message)
+        setSaving(false)
+        return
+      }
+      setVenues(prev => prev.map(v => (v.id === editingId ? data : v)).sort((a, b) => a.name.localeCompare(b.name)))
+      // keep the expanded card in sync if it is the one just edited
+      setSelected(prev => (prev?.id === editingId ? data : prev))
+      closeForm()
+    } else {
+      const { data, error: insertError } = await supabase.from('venues').insert(payload).select().single()
+
+      if (insertError) {
+        setError(insertError.message)
+        setSaving(false)
+        return
+      }
       setVenues(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)))
-      setShowForm(false)
-      setForm({ name: '', address: '', type: 'Club', capacity: '', contact: '', contactPhone: '', notes: '', genres: '' })
+      closeForm()
     }
     setSaving(false)
   }
@@ -102,7 +160,7 @@ export default function VenuesPage() {
         <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">Venues</div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={startAdd}
             className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
           >
             + Add venue
@@ -123,7 +181,7 @@ export default function VenuesPage() {
           {/* Add venue form */}
           {showForm && (
             <div className="bg-card border border-primary/30 rounded-xl p-6 mb-6">
-              <h2 className="text-white font-semibold mb-4">Add new venue</h2>
+              <h2 className="text-foreground font-semibold mb-4">{editingId ? 'Edit venue' : 'Add new venue'}</h2>
               <form onSubmit={saveVenue} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -169,9 +227,12 @@ export default function VenuesPage() {
                   <label className={labelClass}>Notes</label>
                   <textarea value={form.notes} onChange={e => setForm(p => ({...p, notes: e.target.value}))} className={inputClass} rows={3} placeholder="Equipment, parking, load-in, access notes..." />
                 </div>
+                {error && (
+                  <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm">{error}</div>
+                )}
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-white transition-colors">Cancel</button>
-                  <button type="submit" disabled={saving} className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors">{saving ? 'Saving...' : 'Save venue'}</button>
+                  <button type="button" onClick={closeForm} className="px-5 py-2.5 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-foreground transition-colors">Cancel</button>
+                  <button type="submit" disabled={saving} className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors">{saving ? 'Saving...' : editingId ? 'Update venue' : 'Save venue'}</button>
                 </div>
               </form>
             </div>
@@ -242,12 +303,20 @@ export default function VenuesPage() {
                         <div className="text-muted-foreground/80 text-sm leading-relaxed">{v.notes}</div>
                       </div>
                     )}
-                    <button
-                      onClick={e => { e.stopPropagation(); router.push(`/agency/bookings/new`) }}
-                      className="mt-2 text-xs bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
-                    >
-                      + New booking for this venue
-                    </button>
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                      <button
+                        onClick={e => { e.stopPropagation(); startEdit(v); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                        className="text-xs bg-secondary border border-border text-primary px-3 py-1.5 rounded-lg hover:border-primary transition-colors"
+                      >
+                        Edit venue
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); router.push(`/agency/bookings/new`) }}
+                        className="text-xs bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
+                      >
+                        + New booking for this venue
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
