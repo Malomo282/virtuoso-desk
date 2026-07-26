@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import TagInput from '@/components/TagInput'
 
 export default function ArtistProfilePage() {
   const router = useRouter()
@@ -11,9 +12,6 @@ export default function ArtistProfilePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [artistId, setArtistId] = useState('')
-  const [documents, setDocuments] = useState<Record<string, any>>({})
-  const [docUploading, setDocUploading] = useState('')
-  const [docError, setDocError] = useState('')
   const [form, setForm] = useState({
     stageName: '',
     bio: '',
@@ -47,40 +45,10 @@ export default function ArtistProfilePage() {
         photoUrl: data.photo_url || '',
         minFee: data.min_fee != null ? String(data.min_fee) : '',
       })
-      loadDocuments()
       setLoading(false)
     }
     load()
   }, [])
-
-  async function loadDocuments() {
-    const res = await fetch('/api/artist-documents')
-    if (res.ok) {
-      const json = await res.json()
-      setDocuments(json.documents || {})
-    }
-  }
-
-  async function uploadDocument(docType: string, file: File) {
-    setDocUploading(docType)
-    setDocError('')
-
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('docType', docType)
-
-    const res = await fetch('/api/artist-documents', { method: 'POST', body: formData })
-    const json = await res.json()
-
-    if (!res.ok) {
-      setDocError(json.error || 'Upload failed')
-      setDocUploading('')
-      return
-    }
-
-    setDocUploading('')
-    loadDocuments()
-  }
 
   function update(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -186,14 +154,12 @@ export default function ArtistProfilePage() {
 
             <div>
               <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-2">
-                Genres
+                Genres / tags
               </label>
-              <input
-                type="text"
-                value={form.genres}
-                onChange={e => update('genres', e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-primary"
-                placeholder="e.g. House, Afrobeats, Hip-Hop (comma separated)"
+              <TagInput
+                value={form.genres ? form.genres.split(',').map(g => g.trim()).filter(Boolean) : []}
+                onChange={tags => update('genres', tags.join(', '))}
+                placeholder="Type a genre, press Enter"
               />
             </div>
 
@@ -246,74 +212,17 @@ export default function ArtistProfilePage() {
           </form>
 
           <div className="mt-8 bg-card border border-border rounded-xl p-6">
-            <h2 className="text-foreground font-semibold mb-1">Right to work</h2>
-            <p className="text-muted-foreground/80 text-xs mb-5">
-              UK law requires the agency to verify your identity and right to work before you can be
-              booked. These files are stored privately and are only visible to Virtuoso Entertainment.
+            <h2 className="text-foreground font-semibold mb-1">Documents</h2>
+            <p className="text-muted-foreground/80 text-xs mb-4">
+              Your agency agreement, photo ID and right-to-work documents now live in one place.
             </p>
-
-            <div className="space-y-4">
-              {[
-                { type: 'id', label: 'Photo ID', hint: 'Passport or driving licence' },
-                { type: 'right_to_work', label: 'Right to work', hint: 'Share code, visa, or BRP' },
-              ].map(({ type, label, hint }) => {
-                const doc = documents[type]
-                return (
-                  <div key={type} className="border border-border rounded-lg p-4">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div>
-                        <div className="text-foreground text-sm font-medium">{label}</div>
-                        <div className="text-muted-foreground/60 text-xs">{hint}</div>
-                      </div>
-                      {doc ? (
-                        <span className="text-xs bg-success/15 text-success px-2.5 py-1 rounded-full font-semibold flex-shrink-0">
-                          Uploaded
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-destructive/15 text-destructive px-2.5 py-1 rounded-full font-semibold flex-shrink-0">
-                          Required
-                        </span>
-                      )}
-                    </div>
-
-                    {doc && (
-                      <div className="flex items-center justify-between gap-3 mb-3 text-xs">
-                        <span className="text-muted-foreground/80 truncate">{doc.fileName}</span>
-                        <a
-                          href={doc.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-primary hover:underline flex-shrink-0"
-                        >
-                          View
-                        </a>
-                      </div>
-                    )}
-
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      disabled={docUploading === type}
-                      onChange={e => {
-                        const file = e.target.files?.[0]
-                        if (file) uploadDocument(type, file)
-                        e.target.value = ''
-                      }}
-                      className="text-xs text-muted-foreground/80 file:mr-3 file:bg-secondary file:border file:border-border file:text-muted-foreground/80 file:text-xs file:px-3 file:py-1.5 file:rounded-lg file:cursor-pointer disabled:opacity-50"
-                    />
-                    {docUploading === type && (
-                      <div className="text-primary text-xs mt-2">Uploading...</div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {docError && (
-              <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm mt-4">
-                {docError}
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => router.push('/artist/documents')}
+              className="text-primary text-sm hover:underline"
+            >
+              Go to My documents &rarr;
+            </button>
           </div>
         </div>
       </div>

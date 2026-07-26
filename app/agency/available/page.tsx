@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import TagInput from '@/components/TagInput'
 
 type Gig = {
   id: string
@@ -34,6 +35,8 @@ export default function AvailableGigsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [venues, setVenues] = useState<any[]>([])
+  const [genreTags, setGenreTags] = useState<string[]>([])
+  const [genreSuggestions, setGenreSuggestions] = useState<string[]>([])
   const [expandedGig, setExpandedGig] = useState('')
   const [confirmingResponse, setConfirmingResponse] = useState('')
   const [confirmFee, setConfirmFee] = useState('')
@@ -73,6 +76,19 @@ export default function AvailableGigsPage() {
     if (gigData) setGigs(gigData)
     if (venueData) setVenues(venueData)
     if (responseData) setResponses(responseData)
+
+    // Offer whatever genres are already in play across gigs, artists and venues
+    const { data: artistGenres } = await supabase.from('artists').select('genres')
+    const { data: venueGenres } = await supabase.from('venues').select('genres')
+    const pool = new Set<string>()
+    ;(gigData || []).forEach((g: any) =>
+      String(g.genre || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => pool.add(s))
+    )
+    ;[...(artistGenres || []), ...(venueGenres || [])].forEach((row: any) =>
+      (row.genres || []).forEach((g: string) => g && pool.add(g))
+    )
+    setGenreSuggestions(Array.from(pool).sort((a, b) => a.localeCompare(b)))
+
     setLoading(false)
   }
 
@@ -112,7 +128,7 @@ export default function AvailableGigsPage() {
         venue_id: form.venue_id,
         starts_at: startsAt.toISOString(),
         ends_at: endsAt.toISOString(),
-        genre: form.genre,
+        genre: genreTags.join(', '),
         fee: form.fee ? parseInt(form.fee) : null,
         notes: form.notes,
         status: 'open',
@@ -126,6 +142,7 @@ export default function AvailableGigsPage() {
 
     setShowForm(false)
     setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
+    setGenreTags([])
     setSaving(false)
     loadAll()
   }
@@ -270,13 +287,12 @@ export default function AvailableGigsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>Genre</label>
-                    <input
-                      type="text"
-                      value={form.genre}
-                      onChange={e => update('genre', e.target.value)}
-                      className={inputClass}
-                      placeholder="e.g. House / Afrobeats"
+                    <label className={labelClass}>Genres / tags</label>
+                    <TagInput
+                      value={genreTags}
+                      onChange={setGenreTags}
+                      suggestions={genreSuggestions}
+                      placeholder="Type a genre, press Enter"
                     />
                   </div>
                 </div>

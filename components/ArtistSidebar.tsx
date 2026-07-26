@@ -2,6 +2,7 @@
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import NavIcon from '@/components/NavIcon'
+import { useUnreadNotifications } from '@/lib/use-unread'
 
 const navItems = [
   { label: 'Dashboard', href: '/artist/dashboard', icon: 'dashboard' },
@@ -16,6 +17,7 @@ const navItems = [
 export default function ArtistSidebar() {
   const router = useRouter()
   const pathname = usePathname()
+  const unread = useUnreadNotifications()
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -32,6 +34,7 @@ export default function ArtistSidebar() {
       <nav className="py-2 px-3 overflow-y-auto flex-1">
         {navItems.map((item, i) => {
           const isActive = pathname === item.href
+          const showUnread = item.href === '/artist/notifications' && unread > 0
           return (
             <div
               key={i}
@@ -40,11 +43,18 @@ export default function ArtistSidebar() {
                 'flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer text-xs uppercase tracking-wider font-medium mb-0.5 transition-all ' +
                 (isActive
                   ? 'bg-accent border-l-2 border-primary text-primary pl-[10px]'
-                  : 'text-muted-foreground/80 hover:bg-card hover:text-foreground')
+                  : showUnread
+                    ? 'text-primary hover:bg-card'
+                    : 'text-muted-foreground/80 hover:bg-card hover:text-foreground')
               }
             >
               <NavIcon name={item.icon} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {showUnread && (
+                <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
             </div>
           )
         })}

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
+import { sendNotifications } from '@/lib/notify'
 
 export async function POST(request: Request) {
   try {
@@ -18,16 +19,11 @@ export async function POST(request: Request) {
     if (!url || !key) return NextResponse.json({ error: 'Missing env vars' }, { status: 500 })
     const supabaseAdmin = createServiceClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 
-    const { error } = await supabaseAdmin.from('notifications').insert(
-      userIds.map((userId: string) => ({
-        user_id: userId,
-        type: type || 'general',
-        message,
-        booking_id: bookingId || null,
-        read: false,
-      }))
-    )
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    await sendNotifications(supabaseAdmin, userIds, {
+      type: type || 'general',
+      message,
+      bookingId,
+    })
 
     return NextResponse.json({ success: true })
   } catch (e: any) {

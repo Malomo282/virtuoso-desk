@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import TagInput from '@/components/TagInput'
+import NavIcon from '@/components/NavIcon'
 
 type Venue = {
   id: string
@@ -27,6 +29,7 @@ export default function VenuesPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState('')
   const [error, setError] = useState('')
+  const [genreSuggestions, setGenreSuggestions] = useState<string[]>([])
   const [form, setForm] = useState({
     name: '', address: '', type: 'Club',
     capacity: '', contact: '', contactPhone: '', notes: '', genres: ''
@@ -75,7 +78,12 @@ export default function VenuesPage() {
         supabase.from('bookings').select('venue_id'),
       ])
 
-      if (venueData) setVenues(venueData)
+      if (venueData) {
+        setVenues(venueData)
+        const pool = new Set<string>()
+        venueData.forEach((v: any) => (v.genres || []).forEach((g: string) => g && pool.add(g)))
+        setGenreSuggestions(Array.from(pool).sort((a, b) => a.localeCompare(b)))
+      }
       if (bookingData) {
         const counts: Record<string, number> = {}
         bookingData.forEach(b => {
@@ -220,8 +228,13 @@ export default function VenuesPage() {
                   </div>
                 </div>
                 <div>
-                  <label className={labelClass}>Genres (comma separated)</label>
-                  <input type="text" value={form.genres} onChange={e => setForm(p => ({...p, genres: e.target.value}))} className={inputClass} placeholder="e.g. House, Techno, Afrobeats" />
+                  <label className={labelClass}>Genres / tags</label>
+                  <TagInput
+                    value={form.genres ? form.genres.split(',').map(g => g.trim()).filter(Boolean) : []}
+                    onChange={tags => setForm(p => ({ ...p, genres: tags.join(', ') }))}
+                    suggestions={genreSuggestions}
+                    placeholder="Type a genre, press Enter"
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Notes</label>
@@ -263,7 +276,7 @@ export default function VenuesPage() {
                 </div>
 
                 {v.address && (
-                  <div className="text-muted-foreground/60 text-xs font-mono mb-3">📍 {v.address}</div>
+                  <div className="text-muted-foreground/60 text-xs font-mono mb-3 inline-flex items-center gap-1.5"><NavIcon name="pin" className="w-3.5 h-3.5"/>{v.address}</div>
                 )}
 
                 {v.genres && v.genres.length > 0 && (

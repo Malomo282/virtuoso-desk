@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import NavIcon from '@/components/NavIcon'
 
 export default function DocumentsPage() {
   const router = useRouter()
@@ -167,7 +168,7 @@ export default function DocumentsPage() {
             {filteredBriefs.map(b => (
               <div key={b.id} className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-colors">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-lg">📄</div>
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary"><NavIcon name="file" className="w-5 h-5"/></div>
                   <span className="text-xs bg-secondary text-muted-foreground/80 border border-border px-2 py-0.5 rounded">Brief</span>
                 </div>
                 <div className="text-white font-semibold text-sm mb-0.5">{b.venues?.name}</div>

@@ -2,6 +2,7 @@
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import NavIcon from '@/components/NavIcon'
+import { useUnreadNotifications } from '@/lib/use-unread'
 
 type NavEntry = { label: string; href: string; icon: string } | { divider: string }
 
@@ -27,6 +28,7 @@ export default function AgencySidebar() {
   const router = useRouter()
   const pathname = usePathname()
   const isArtistView = pathname === '/agency/view-as'
+  const unread = useUnreadNotifications()
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -74,6 +76,7 @@ export default function AgencySidebar() {
             )
           }
           const isActive = pathname === item.href
+          const showUnread = item.href === '/agency/notifications' && unread > 0
           return (
             <div
               key={i}
@@ -82,11 +85,18 @@ export default function AgencySidebar() {
                 'flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer text-xs uppercase tracking-wider font-medium mb-0.5 transition-all ' +
                 (isActive
                   ? 'bg-accent border-l-2 border-primary text-primary pl-[10px]'
-                  : 'text-muted-foreground/80 hover:bg-card hover:text-foreground')
+                  : showUnread
+                    ? 'text-primary hover:bg-card'
+                    : 'text-muted-foreground/80 hover:bg-card hover:text-foreground')
               }
             >
               <NavIcon name={item.icon} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {showUnread && (
+                <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
             </div>
           )
         })}

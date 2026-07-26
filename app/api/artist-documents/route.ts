@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
-import { notifyAgency } from '@/lib/notify-agency'
+import { notifyAgency } from '@/lib/notify'
 
 const BUCKET = 'artist-documents'
 const DOC_TYPES = ['id', 'right_to_work', 'agency_agreement']

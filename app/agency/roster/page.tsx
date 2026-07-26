@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import TagInput from '@/components/TagInput'
 
 type Artist = {
   id: string
@@ -355,13 +356,12 @@ export default function RosterPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Genres</label>
-                  <input
-                    type="text"
-                    value={editForm.genres}
-                    onChange={e => setEditForm(p => ({ ...p, genres: e.target.value }))}
-                    placeholder="House, Afrobeats"
-                    className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary"
+                  <label className="block text-muted-foreground text-xs uppercase tracking-widest mb-1.5">Genres / tags</label>
+                  <TagInput
+                    value={editForm.genres ? editForm.genres.split(',').map(g => g.trim()).filter(Boolean) : []}
+                    onChange={tags => setEditForm(p => ({ ...p, genres: tags.join(', ') }))}
+                    suggestions={Array.from(new Set(artists.flatMap(a => a.genres || []))).sort()}
+                    placeholder="Type a genre, press Enter"
                   />
                 </div>
                 <div>
