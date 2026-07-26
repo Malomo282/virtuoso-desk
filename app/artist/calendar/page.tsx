@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
 
 // Mirrors the agency BRAG scheme: amber covers "available / under review",
 // green is a confirmed booking, and blue is reserved for completed gigs so it
@@ -40,24 +41,15 @@ export default function ArtistCalendarPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
 
-      const { data: artist } = await supabase
-        .from('artists')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .maybeSingle()
-
-      const [{ data: bookingData }, gigResult] = await Promise.all([
+      // Gigs come via the API: gig_responses/available_gigs are RLS-locked, so
+      // reading them from the browser returned nothing and pipeline gigs never
+      // appeared on this calendar.
+      const [{ data: bookingData }, gigRes] = await Promise.all([
         supabase
           .from('artist_booking_view')
           .select('*')
           .order('starts_at', { ascending: true }),
-        artist
-          ? supabase
-              .from('gig_responses')
-              .select('gig_id, available_gigs(id, starts_at, ends_at, fee, genre, status, venues(name, address))')
-              .eq('artist_id', artist.id)
-              .eq('response', 'accepted')
-          : Promise.resolve({ data: [] as any[] }),
+        fetch('/api/gigs').then(r => (r.ok ? r.json() : { gigs: [], responses: {} })).catch(() => ({ gigs: [], responses: {} })),
       ])
 
       const bookingEvents = (bookingData || []).map((b: any) => ({
@@ -74,18 +66,18 @@ export default function ArtistCalendarPage() {
         dress_code: b.dress_code,
       }))
 
-      const gigResponses = (gigResult && (gigResult as any).data) || []
-      const availableEvents = gigResponses
-        .filter((r: any) => r.available_gigs && r.available_gigs.status !== 'filled' && r.available_gigs.status !== 'cancelled')
-        .map((r: any) => ({
-          id: 'gig-' + r.gig_id,
+      // Only gigs this artist has put their hand up for - not the whole open list.
+      const availableEvents = (gigRes.gigs || [])
+        .filter((g: any) => gigRes.responses?.[g.id] === 'accepted')
+        .map((g: any) => ({
+          id: 'gig-' + g.id,
           kind: 'available_gig',
           status: 'available',
-          starts_at: r.available_gigs.starts_at,
-          ends_at: r.available_gigs.ends_at,
-          venue_name: r.available_gigs.venues?.name,
-          venue_address: r.available_gigs.venues?.address,
-          fee: r.available_gigs.fee,
+          starts_at: g.starts_at,
+          ends_at: g.ends_at,
+          venue_name: g.venues?.name,
+          venue_address: g.venues?.address,
+          fee: g.fee,
         }))
 
       setEvents([...bookingEvents, ...availableEvents])
@@ -93,6 +85,36 @@ export default function ArtistCalendarPage() {
     }
     load()
   }, [])
+
+  function handleExportICS() {
+    const exportable: IcsEvent[] = events
+      .filter(e => e.starts_at && e.ends_at)
+      .map(e => {
+        const pipeline = e.kind === 'available_gig'
+        const parts: string[] = []
+        if (pipeline) parts.push('Status: awaiting agency confirmation')
+        if (e.event_name) parts.push('Event: ' + e.event_name)
+        const fee = pipeline ? e.fee : e.fee_artist
+        if (fee != null) parts.push('Fee: GBP ' + fee)
+        if (e.dress_code) parts.push('Dress code: ' + e.dress_code)
+
+        return {
+          uid: e.id + '@virtuosoentertainment.co.uk',
+          summary: (e.venue_name || 'Gig') + (pipeline ? ' (pending)' : ''),
+          description: parts.join('\n'),
+          location: e.venue_address,
+          start: e.starts_at,
+          end: e.ends_at,
+          status: pipeline ? 'TENTATIVE' : 'CONFIRMED',
+        } as IcsEvent
+      })
+
+    if (exportable.length === 0) {
+      alert('Nothing to export yet.')
+      return
+    }
+    downloadICS('virtuoso-my-gigs.ics', generateICS(exportable))
+  }
 
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -119,8 +141,14 @@ export default function ArtistCalendarPage() {
     <div className="min-h-screen bg-background flex">
       <ArtistSidebar />
       <div className="flex-1 flex flex-col">
-        <div className="bg-card border-b border-border px-8 h-14 flex items-center">
+        <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">My Calendar</div>
+          <button
+            onClick={handleExportICS}
+            className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
+          >
+            Export .ics
+          </button>
         </div>
         <div className="p-8">
           <div className="flex flex-wrap items-center gap-4 mb-4">

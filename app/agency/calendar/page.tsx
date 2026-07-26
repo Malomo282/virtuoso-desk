@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
 
 const BRAG: Record<string, { label: string; color: string; bg: string; cls: string }> = {
   B: { label: 'Completed / To be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-blue-400' },
@@ -11,73 +12,6 @@ const BRAG: Record<string, { label: string; color: string; bg: string; cls: stri
   G: { label: 'Booking confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-green-400' },
 }
 
-function toICSDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
-}
-
-function foldLine(line: string) {
-  if (line.length <= 75) return line
-  let result = ''
-  let rest = line
-  let first = true
-  while (rest.length > 0) {
-    const chunkSize = first ? 75 : 74
-    const chunk = rest.slice(0, chunkSize)
-    result += (first ? '' : '\r\n ') + chunk
-    rest = rest.slice(chunkSize)
-    first = false
-  }
-  return result
-}
-
-function escapeICSText(text: string) {
-  return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n')
-}
-
-function generateICS(bookings: any[]) {
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Virtuoso Entertainment//Booking Calendar//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-  ]
-
-  bookings.forEach(b => {
-    if (!b.starts_at || !b.ends_at) return
-
-    const uid = b.id + '@virtuosoentertainment.co.uk'
-    const venueName = b.venues?.name || 'Gig'
-    const summaryParts = [venueName]
-    if (b.artists?.stage_name) summaryParts.push(b.artists.stage_name)
-    const summary = summaryParts.join(' - ')
-
-    const descriptionParts = []
-    if (b.artists?.stage_name) descriptionParts.push('Artist: ' + b.artists.stage_name)
-    if (b.fee_venue) descriptionParts.push('Fee: GBP ' + b.fee_venue)
-    if (b.dress_code) descriptionParts.push('Dress code: ' + b.dress_code)
-    if (b.event_name) descriptionParts.push('Event: ' + b.event_name)
-    const description = descriptionParts.join('\n')
-
-    lines.push('BEGIN:VEVENT')
-    lines.push('UID:' + uid)
-    lines.push('DTSTAMP:' + toICSDate(new Date().toISOString()))
-    lines.push('DTSTART:' + toICSDate(b.starts_at))
-    lines.push('DTEND:' + toICSDate(b.ends_at))
-    lines.push(foldLine('SUMMARY:' + escapeICSText(summary)))
-    if (b.venues?.address) {
-      lines.push(foldLine('LOCATION:' + escapeICSText(b.venues.address)))
-    }
-    if (description) {
-      lines.push(foldLine('DESCRIPTION:' + escapeICSText(description)))
-    }
-    lines.push('END:VEVENT')
-  })
-
-  lines.push('END:VCALENDAR')
-  return lines.join('\r\n')
-}
 
 export default function CalendarPage() {
   const router = useRouter()
@@ -124,16 +58,23 @@ export default function CalendarPage() {
       alert('No bookings with valid dates to export.')
       return
     }
-    const ics = generateICS(exportable)
-    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'virtuoso-bookings.ics'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    const events: IcsEvent[] = exportable.map(b => {
+      const parts: string[] = []
+      if (b.artists?.stage_name) parts.push('Artist: ' + b.artists.stage_name)
+      if (b.fee_venue) parts.push('Fee: GBP ' + b.fee_venue)
+      if (b.dress_code) parts.push('Dress code: ' + b.dress_code)
+      if (b.event_name) parts.push('Event: ' + b.event_name)
+      if (b.contact_number) parts.push('Contact: ' + b.contact_number)
+      return {
+        uid: b.id + '@virtuosoentertainment.co.uk',
+        summary: [b.venues?.name || 'Gig', b.artists?.stage_name].filter(Boolean).join(' - '),
+        description: parts.join('\n'),
+        location: b.venues?.address,
+        start: b.starts_at,
+        end: b.ends_at,
+      }
+    })
+    downloadICS('virtuoso-bookings.ics', generateICS(events))
   }
 
   if (loading) {
