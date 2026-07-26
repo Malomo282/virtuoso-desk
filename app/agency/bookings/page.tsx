@@ -205,6 +205,7 @@ export default function BookingsPage() {
       brief_text: booking.brief_text,
       internal_notes: booking.internal_notes,
       brief_doc_url: booking.brief_doc_url,
+      contact_number: booking.contact_number,
     })
 
     if (insertError) {

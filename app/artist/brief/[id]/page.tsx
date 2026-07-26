@@ -134,6 +134,14 @@ export default function BriefPage({ params }: { params: { id: string } }) {
                   <div className="text-white text-sm">{booking.venue_address}</div>
                 </div>
               )}
+              {booking.contact_number && (
+                <div className="col-span-2">
+                  <div className="text-muted-foreground/60 text-xs uppercase tracking-widest mb-1">Contact on the night</div>
+                  <a href={'tel:' + booking.contact_number} className="text-primary text-sm font-medium hover:underline">
+                    {booking.contact_number}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 

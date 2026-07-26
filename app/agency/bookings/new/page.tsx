@@ -5,18 +5,19 @@ import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 
 type Item = { id: string; name: string }
+type Venue = Item & { contact_phone?: string | null }
 
 export default function NewBookingPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [venues, setVenues] = useState<Item[]>([])
+  const [venues, setVenues] = useState<Venue[]>([])
   const [artists, setArtists] = useState<Item[]>([])
   const [form, setForm] = useState({
     venue_id: '', artist_id: '', event_name: '',
     start_date: '', start_time: '', end_date: '', end_time: '',
     fee_venue: '', fee_artist: '', dress_code: 'Smart casual', brag_status: 'A',
-    brief_text: '', internal_notes: '', brief_doc_url: ''
+    brief_text: '', internal_notes: '', brief_doc_url: '', contact_number: ''
   })
 
   useEffect(() => {
@@ -24,10 +25,10 @@ export default function NewBookingPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
       const [{ data: v }, { data: a }] = await Promise.all([
-        supabase.from('venues').select('id,name').order('name'),
+        supabase.from('venues').select('id,name,contact_phone').order('name'),
         supabase.from('artists').select('id,stage_name').order('stage_name'),
       ])
-      if (v) setVenues(v as Item[])
+      if (v) setVenues(v as Venue[])
       if (a) setArtists(a.map((x: any) => ({ id: x.id, name: x.stage_name })))
     }
     load()
@@ -38,6 +39,11 @@ export default function NewBookingPage() {
     // if end date is blank, default it to match start date (covers same-day gigs automatically)
     if (f === 'start_date' && !form.end_date) {
       setForm(p => ({ ...p, start_date: v, end_date: v }))
+    }
+    // offer the venue's own number as a starting point; still fully editable
+    if (f === 'venue_id' && !form.contact_number) {
+      const venuePhone = venues.find(x => x.id === v)?.contact_phone
+      if (venuePhone) setForm(p => ({ ...p, venue_id: v, contact_number: venuePhone }))
     }
   }
 
@@ -104,6 +110,7 @@ export default function NewBookingPage() {
       brief_text: form.brief_text,
       internal_notes: form.internal_notes,
       brief_doc_url: form.brief_doc_url,
+      contact_number: form.contact_number || null,
     })
 
     if (error) {
@@ -192,6 +199,14 @@ export default function NewBookingPage() {
                   <option value="R">Red - Urgent</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className={lbl}>Contact number</label>
+              <input type="tel" value={form.contact_number} onChange={e => update('contact_number', e.target.value)} className={inp} placeholder="e.g. 07123 456789" />
+              <p className="text-muted-foreground/60 text-xs mt-1.5">
+                Shown to the artist on their brief as the contact for this gig. Prefilled from the venue when you pick one &mdash; overwrite it with your own number if you want them to call you.
+              </p>
             </div>
 
             <div>

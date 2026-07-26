@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     // Confirmed (G) or urgent (R) gigs starting within the next 48 hours
     const { data: bookings, error: bookingsError } = await supabase
       .from('bookings')
-      .select('id, event_name, starts_at, ends_at, fee_artist, dress_code, brief_text, brief_doc_url, artists(stage_name, user_id), venues(name, address)')
+      .select('id, event_name, starts_at, ends_at, fee_artist, dress_code, brief_text, brief_doc_url, contact_number, artists(stage_name, user_id), venues(name, address)')
       .is('cancelled_at', null)
       .in('brag_status', ['G', 'R'])
       .gte('starts_at', nowIso)
@@ -91,6 +91,7 @@ export async function GET(request: Request) {
       if (b.event_name) details += detailRow('Event', b.event_name)
       if (b.fee_artist != null) details += detailRow('Your fee', 'GBP ' + b.fee_artist.toLocaleString())
       if (b.dress_code) details += detailRow('Dress code', b.dress_code)
+      if (b.contact_number) details += detailRow('Contact on the night', '<a href="tel:' + b.contact_number + '" style="color:#C8A94A">' + b.contact_number + '</a>')
       if (b.brief_text) details += detailRow('Brief', b.brief_text)
 
       const html =
