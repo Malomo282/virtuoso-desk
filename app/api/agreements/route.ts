@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
+import { notifyAgency } from '@/lib/notify-agency'
 
 const BUCKET = 'Agreements'
 
@@ -75,6 +76,31 @@ export async function POST(request: Request) {
         uploaded_at: new Date().toISOString(),
       })
       if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
+    }
+
+    // Only when the artist uploads - the agency does not need telling about
+    // documents it just uploaded itself.
+    if (auth.role === 'artist') {
+      const { data: context } = await admin
+        .from('bookings')
+        .select('starts_at, artists(stage_name), venues(name)')
+        .eq('id', bookingId)
+        .maybeSingle()
+
+      const artistRel: any = Array.isArray((context as any)?.artists) ? (context as any).artists[0] : (context as any)?.artists
+      const venueRel: any = Array.isArray((context as any)?.venues) ? (context as any).venues[0] : (context as any)?.venues
+      const when = context?.starts_at
+        ? new Date(context.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        : null
+
+      await notifyAgency(admin, {
+        type: 'agreement_uploaded',
+        message:
+          (artistRel?.stage_name || 'An artist') +
+          ' uploaded their contract/rider for ' + (venueRel?.name || 'a booking') +
+          (when ? ' on ' + when : '') + '.',
+        bookingId,
+      })
     }
 
     return NextResponse.json({ success: true })

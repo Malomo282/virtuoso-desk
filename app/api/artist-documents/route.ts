@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
+import { notifyAgency } from '@/lib/notify-agency'
 
 const BUCKET = 'artist-documents'
 const DOC_TYPES = ['id', 'right_to_work']
+const DOC_LABELS: Record<string, string> = { id: 'photo ID', right_to_work: 'right to work' }
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -84,6 +86,21 @@ export async function POST(request: Request) {
       })
       if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
+
+    // Let the agency know the paperwork is in and ready to check.
+    const { data: artist } = await admin
+      .from('artists')
+      .select('stage_name')
+      .eq('id', caller.artistId)
+      .maybeSingle()
+
+    await notifyAgency(admin, {
+      type: 'document_uploaded',
+      message:
+        (artist?.stage_name || 'An artist') +
+        ' uploaded their ' + (DOC_LABELS[docType] || docType) + ' document' +
+        (existing ? ' (replacing the previous one)' : '') + '.',
+    })
 
     return NextResponse.json({ success: true })
   } catch (e: any) {
