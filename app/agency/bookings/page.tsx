@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import TimeSelect from '@/components/TimeSelect'
 
 const BRAG: Record<string, { label: string; color: string; border: string }> = {
   B: { label: 'Completed / To be paid', color: 'bg-blue-900/30 text-blue-400', border: 'border-l-blue-500' },
@@ -136,11 +137,15 @@ export default function BookingsPage() {
   function startReschedule(booking: any) {
     const startsAt = new Date(booking.starts_at)
     const endsAt = new Date(booking.ends_at)
+    // Prefill in local time - toISOString() would shift a 20:00 BST gig to 19:00.
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dateOf = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+    const timeOf = (d: Date) => pad(d.getHours()) + ':' + pad(d.getMinutes())
     setRescheduleForm({
-      start_date: startsAt.toISOString().slice(0, 10),
-      start_time: startsAt.toISOString().slice(11, 16),
-      end_date: endsAt.toISOString().slice(0, 10),
-      end_time: endsAt.toISOString().slice(11, 16),
+      start_date: dateOf(startsAt),
+      start_time: timeOf(startsAt),
+      end_date: dateOf(endsAt),
+      end_time: timeOf(endsAt),
     })
     setRescheduling(booking.id)
     setActionError('')
@@ -371,9 +376,9 @@ export default function BookingsPage() {
                           <div className="text-white text-sm font-semibold mb-3">Reschedule this booking</div>
                           <div className="flex items-center gap-2 flex-wrap mb-3">
                             <input type="date" value={rescheduleForm.start_date} onChange={e => setRescheduleForm(p => ({ ...p, start_date: e.target.value }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" />
-                            <input type="time" value={rescheduleForm.start_time} onChange={e => setRescheduleForm(p => ({ ...p, start_time: e.target.value }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" />
+                            <TimeSelect value={rescheduleForm.start_time} onChange={v => setRescheduleForm(p => ({ ...p, start_time: v }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" aria-label="New start time" />
                             <span className="text-muted-foreground/60 text-xs">to</span>
-                            <input type="time" value={rescheduleForm.end_time} onChange={e => setRescheduleForm(p => ({ ...p, end_time: e.target.value }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" />
+                            <TimeSelect value={rescheduleForm.end_time} onChange={v => setRescheduleForm(p => ({ ...p, end_time: v }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" aria-label="New end time" />
                             <input type="date" value={rescheduleForm.end_date} onChange={e => setRescheduleForm(p => ({ ...p, end_date: e.target.value }))} className="bg-background border border-border rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" />
                           </div>
                           <p className="text-muted-foreground/60 text-xs mb-3">This cancels the current booking and creates a new one at the new date/time (status reset to Pending), preserving the original in Cancelled history.</p>

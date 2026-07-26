@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import TimeSelect from '@/components/TimeSelect'
 
 type Item = { id: string; name: string }
 type Venue = Item & { contact_phone?: string | null }
@@ -160,9 +161,9 @@ export default function NewBookingPage() {
               <div className="text-muted-foreground text-xs uppercase tracking-widest mb-3">Date and time</div>
               <div className="flex items-center gap-3 flex-wrap">
                 <input type="date" value={form.start_date} onChange={e => update('start_date', e.target.value)} className={inp + ' w-auto flex-1 min-w-[140px]'} required />
-                <input type="time" value={form.start_time} onChange={e => update('start_time', e.target.value)} className={inp + ' w-auto flex-1 min-w-[100px]'} required />
+                <TimeSelect value={form.start_time} onChange={v => update('start_time', v)} className={inp + ' w-auto flex-1 min-w-[110px]'} required aria-label="Start time" />
                 <span className="text-muted-foreground/60 text-sm px-1">to</span>
-                <input type="time" value={form.end_time} onChange={e => update('end_time', e.target.value)} className={inp + ' w-auto flex-1 min-w-[100px]'} required />
+                <TimeSelect value={form.end_time} onChange={v => update('end_time', v)} className={inp + ' w-auto flex-1 min-w-[110px]'} required aria-label="End time" />
                 <input type="date" value={form.end_date} onChange={e => update('end_date', e.target.value)} className={inp + ' w-auto flex-1 min-w-[140px]'} required />
               </div>
               <p className="text-muted-foreground/60 text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>

@@ -7,95 +7,51 @@ import ArtistSidebar from '@/components/ArtistSidebar'
 export default function ArtistAvailableGigsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [artistId, setArtistId] = useState('')
-  const [artistName, setArtistName] = useState('')
-  const [agencyUserIds, setAgencyUserIds] = useState<string[]>([])
   const [gigs, setGigs] = useState<any[]>([])
   const [responses, setResponses] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState<string>('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
-
-      const { data: artist } = await supabase
-        .from('artists')
-        .select('id, stage_name')
-        .eq('user_id', session.user.id)
-        .maybeSingle()
-
-      if (!artist) { setLoading(false); return }
-      setArtistId(artist.id)
-      setArtistName(artist.stage_name)
-
-      const { data: agencyProfiles } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('role', 'agency')
-      if (agencyProfiles) setAgencyUserIds(agencyProfiles.map((p: any) => p.id))
-
-      const [{ data: gigData }, { data: responseData }] = await Promise.all([
-        supabase
-          .from('available_gigs')
-          .select('*, venues(name, address)')
-          .eq('status', 'open')
-          .order('starts_at', { ascending: true }),
-        supabase
-          .from('gig_responses')
-          .select('gig_id, response')
-          .eq('artist_id', artist.id),
-      ])
-
-      if (gigData) setGigs(gigData)
-      if (responseData) {
-        const map: Record<string, string> = {}
-        responseData.forEach((r: any) => { map[r.gig_id] = r.response })
-        setResponses(map)
-      }
+      await refresh()
       setLoading(false)
     }
     load()
   }, [])
 
+  async function refresh() {
+    const res = await fetch('/api/gigs')
+    const json = await res.json()
+    if (!res.ok) {
+      setError(json.error || 'Could not load gigs')
+      return
+    }
+    setGigs(json.gigs || [])
+    setResponses(json.responses || {})
+  }
+
   async function respond(gigId: string, response: string) {
     setSubmitting(gigId)
+    setError('')
 
-    const { data: existing } = await supabase
-      .from('gig_responses')
-      .select('id')
-      .eq('gig_id', gigId)
-      .eq('artist_id', artistId)
-      .maybeSingle()
+    const res = await fetch('/api/gigs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gigId, response }),
+    })
+    const json = await res.json()
 
-    let error
-    if (existing) {
-      const result = await supabase
-        .from('gig_responses')
-        .update({ response, responded_at: new Date().toISOString() })
-        .eq('id', existing.id)
-      error = result.error
-    } else {
-      const result = await supabase
-        .from('gig_responses')
-        .insert({ gig_id: gigId, artist_id: artistId, response, responded_at: new Date().toISOString() })
-      error = result.error
+    if (!res.ok) {
+      // Previously this failure was swallowed and the button just did nothing.
+      setError(json.error || 'Could not save your response. Please try again.')
+      setSubmitting('')
+      return
     }
 
-    if (!error) {
-      setResponses(prev => ({ ...prev, [gigId]: response }))
-
-      if (agencyUserIds.length > 0) {
-        const gig = gigs.find(g => g.id === gigId)
-        const venueName = gig?.venues?.name || 'a venue'
-        const message = (artistName || 'An artist') + ' ' + (response === 'interested' ? 'is interested in' : 'declined') + ' the gig at ' + venueName
-        await fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userIds: agencyUserIds, type: 'gig_response', message }),
-        })
-      }
-    }
+    setResponses(prev => ({ ...prev, [gigId]: response }))
     setSubmitting('')
   }
 
@@ -116,6 +72,12 @@ export default function ArtistAvailableGigsPage() {
         </div>
 
         <div className="p-8 max-w-2xl">
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm mb-6">
+              {error}
+            </div>
+          )}
+
           {gigs.length === 0 && (
             <div className="text-center py-16 text-muted-foreground/60 text-sm">
               No open gigs at the moment. Check back soon.
@@ -151,7 +113,7 @@ export default function ArtistAvailableGigsPage() {
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
-                    {myResponse === 'interested' ? (
+                    {myResponse === 'accepted' ? (
                       <div className="flex items-center gap-2">
                         <span className="text-xs bg-green-900/30 text-green-400 px-3 py-1.5 rounded-full font-semibold">You are interested</span>
                         <button
@@ -166,7 +128,7 @@ export default function ArtistAvailableGigsPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs bg-secondary text-muted-foreground/80 px-3 py-1.5 rounded-full">Declined</span>
                         <button
-                          onClick={() => respond(gig.id, 'interested')}
+                          onClick={() => respond(gig.id, 'accepted')}
                           disabled={submitting === gig.id}
                           className="text-xs text-primary hover:underline transition-colors"
                         >
@@ -176,7 +138,7 @@ export default function ArtistAvailableGigsPage() {
                     ) : (
                       <>
                         <button
-                          onClick={() => respond(gig.id, 'interested')}
+                          onClick={() => respond(gig.id, 'accepted')}
                           disabled={submitting === gig.id}
                           className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                         >

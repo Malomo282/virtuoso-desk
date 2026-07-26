@@ -56,7 +56,7 @@ export default function ArtistCalendarPage() {
               .from('gig_responses')
               .select('gig_id, available_gigs(id, starts_at, ends_at, fee, genre, status, venues(name, address))')
               .eq('artist_id', artist.id)
-              .eq('response', 'interested')
+              .eq('response', 'accepted')
           : Promise.resolve({ data: [] as any[] }),
       ])
 

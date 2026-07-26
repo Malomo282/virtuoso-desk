@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import TagInput from '@/components/TagInput'
+import TimeSelect from '@/components/TimeSelect'
 
 type Gig = {
   id: string
@@ -36,6 +37,7 @@ export default function AvailableGigsPage() {
   const [error, setError] = useState('')
   const [venues, setVenues] = useState<any[]>([])
   const [genreTags, setGenreTags] = useState<string[]>([])
+  const [editingGigId, setEditingGigId] = useState('')
   const [genreSuggestions, setGenreSuggestions] = useState<string[]>([])
   const [expandedGig, setExpandedGig] = useState('')
   const [confirmingResponse, setConfirmingResponse] = useState('')
@@ -70,7 +72,7 @@ export default function AvailableGigsPage() {
       supabase
         .from('gig_responses')
         .select('*, artists(stage_name, user_id)')
-        .eq('response', 'interested'),
+        .eq('response', 'accepted'),
     ])
 
     if (gigData) setGigs(gigData)
@@ -122,29 +124,113 @@ export default function AvailableGigsPage() {
       return
     }
 
-    const { error: saveError } = await supabase
-      .from('available_gigs')
-      .insert({
-        venue_id: form.venue_id,
-        starts_at: startsAt.toISOString(),
-        ends_at: endsAt.toISOString(),
-        genre: genreTags.join(', '),
-        fee: form.fee ? parseInt(form.fee) : null,
-        notes: form.notes,
-        status: 'open',
-      })
+    const payload = {
+      venue_id: form.venue_id,
+      starts_at: startsAt.toISOString(),
+      ends_at: endsAt.toISOString(),
+      genre: genreTags.join(', '),
+      fee: form.fee ? parseInt(form.fee) : null,
+      notes: form.notes,
+    }
 
-    if (saveError) {
-      setError(saveError.message)
-      setSaving(false)
-      return
+    if (editingGigId) {
+      const { error: updateError } = await supabase
+        .from('available_gigs')
+        .update(payload)
+        .eq('id', editingGigId)
+
+      if (updateError) {
+        setError(updateError.message)
+        setSaving(false)
+        return
+      }
+
+      // Anyone who already put their hand up needs to know it moved.
+      const interested = responses.filter(r => r.gig_id === editingGigId)
+      const userIds = interested.map(r => r.artists?.user_id).filter(Boolean)
+      if (userIds.length) {
+        const venueName = venues.find(v => v.id === form.venue_id)?.name || 'a venue'
+        await fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userIds,
+            type: 'gig_updated',
+            message:
+              'The gig at ' + venueName + ' has been updated — it now starts ' +
+              startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) +
+              ' at ' + startsAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) +
+              '. Please check the details still work for you.',
+          }),
+        })
+      }
+    } else {
+      const { error: saveError } = await supabase
+        .from('available_gigs')
+        .insert({ ...payload, status: 'open' })
+
+      if (saveError) {
+        setError(saveError.message)
+        setSaving(false)
+        return
+      }
+
+      // Tell the roster a new gig is up for grabs.
+      const { data: roster } = await supabase.from('artists').select('user_id')
+      const userIds = (roster || []).map((a: any) => a.user_id).filter(Boolean)
+      if (userIds.length) {
+        const venueName = venues.find(v => v.id === form.venue_id)?.name || 'a venue'
+        await fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userIds,
+            type: 'new_gig',
+            message:
+              'New gig available: ' + venueName + ' on ' +
+              startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) +
+              (payload.fee ? ' — GBP ' + payload.fee.toLocaleString() : '') +
+              '. Let us know if you are interested.',
+          }),
+        })
+      }
     }
 
     setShowForm(false)
+    setEditingGigId('')
     setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
     setGenreTags([])
     setSaving(false)
     loadAll()
+  }
+
+  function startAddGig() {
+    setEditingGigId('')
+    setForm({ venue_id: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
+    setGenreTags([])
+    setError('')
+    setShowForm(true)
+  }
+
+  function startEditGig(gig: Gig) {
+    const s = new Date(gig.starts_at)
+    const e = new Date(gig.ends_at)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    setForm({
+      venue_id: gig.venue_id,
+      start_date: s.getFullYear() + '-' + pad(s.getMonth() + 1) + '-' + pad(s.getDate()),
+      start_time: pad(s.getHours()) + ':' + pad(s.getMinutes()),
+      end_date: e.getFullYear() + '-' + pad(e.getMonth() + 1) + '-' + pad(e.getDate()),
+      end_time: pad(e.getHours()) + ':' + pad(e.getMinutes()),
+      genre: '',
+      fee: gig.fee != null ? String(gig.fee) : '',
+      notes: gig.notes || '',
+    })
+    setGenreTags(String(gig.genre || '').split(',').map(g => g.trim()).filter(Boolean))
+    setEditingGigId(gig.id)
+    setError('')
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   async function cancelGig(gigId: string) {
@@ -212,7 +298,6 @@ export default function AvailableGigsPage() {
     }
 
     await supabase.from('available_gigs').update({ status: 'filled' }).eq('id', gig.id)
-    await supabase.from('gig_responses').update({ response: 'confirmed' }).eq('id', response.id)
 
     const otherResponses = responses.filter(r => r.gig_id === gig.id && r.id !== response.id)
     if (otherResponses.length > 0) {
@@ -258,7 +343,7 @@ export default function AvailableGigsPage() {
         <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">Available Gigs</div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={startAddGig}
             className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
           >
             + Create gig
@@ -269,7 +354,7 @@ export default function AvailableGigsPage() {
 
           {showForm && (
             <div className="bg-card border border-primary/30 rounded-xl p-6 mb-6">
-              <h2 className="text-white font-semibold mb-4">New available gig</h2>
+              <h2 className="text-foreground font-semibold mb-4">{editingGigId ? 'Edit gig' : 'New available gig'}</h2>
               <form onSubmit={saveGig} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -301,9 +386,9 @@ export default function AvailableGigsPage() {
                   <div className="text-muted-foreground text-xs uppercase tracking-widest mb-3">Date and time</div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <input type="date" value={form.start_date} onChange={e => update('start_date', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[140px]'} required />
-                    <input type="time" value={form.start_time} onChange={e => update('start_time', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[100px]'} required />
+                    <TimeSelect value={form.start_time} onChange={v => update('start_time', v)} className={inputClass + ' w-auto flex-1 min-w-[110px]'} required aria-label="Start time" />
                     <span className="text-muted-foreground/60 text-sm px-1">to</span>
-                    <input type="time" value={form.end_time} onChange={e => update('end_time', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[100px]'} required />
+                    <TimeSelect value={form.end_time} onChange={v => update('end_time', v)} className={inputClass + ' w-auto flex-1 min-w-[110px]'} required aria-label="End time" />
                     <input type="date" value={form.end_date} onChange={e => update('end_date', e.target.value)} className={inputClass + ' w-auto flex-1 min-w-[140px]'} required />
                   </div>
                   <p className="text-muted-foreground/60 text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
@@ -339,7 +424,7 @@ export default function AvailableGigsPage() {
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setShowForm(false)}
+                    onClick={() => { setShowForm(false); setEditingGigId('') }}
                     className="px-5 py-2.5 bg-secondary border border-border text-muted-foreground/80 text-sm rounded-lg hover:text-white transition-colors"
                   >
                     Cancel
@@ -349,7 +434,7 @@ export default function AvailableGigsPage() {
                     disabled={saving}
                     className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                   >
-                    {saving ? 'Saving...' : 'Create gig'}
+                    {saving ? 'Saving...' : editingGigId ? 'Update gig' : 'Create gig'}
                   </button>
                 </div>
               </form>
@@ -360,7 +445,7 @@ export default function AvailableGigsPage() {
             <div className="text-center py-16">
               <div className="text-muted-foreground/60 text-sm mb-2">No open gigs at the moment</div>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={startAddGig}
                 className="text-primary text-sm hover:underline"
               >
                 Create your first available gig
@@ -405,6 +490,12 @@ export default function AvailableGigsPage() {
                         className="bg-secondary border border-border text-white text-xs font-semibold px-3 py-2 rounded-lg hover:border-primary transition-colors"
                       >
                         {gigResponses.length} interested
+                      </button>
+                      <button
+                        onClick={() => startEditGig(gig)}
+                        className="bg-secondary border border-border text-primary text-xs font-semibold px-3 py-2 rounded-lg hover:border-primary transition-colors"
+                      >
+                        Edit
                       </button>
                       <button
                         onClick={() => cancelGig(gig.id)}
