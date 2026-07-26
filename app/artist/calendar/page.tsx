@@ -35,6 +35,9 @@ export default function ArtistCalendarPage() {
   const [calY, setCalY] = useState(new Date().getFullYear())
   const [calM, setCalM] = useState(new Date().getMonth())
   const [selected, setSelected] = useState<any>(null)
+  const [feedUrl, setFeedUrl] = useState('')
+  const [showSubscribe, setShowSubscribe] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -79,6 +82,10 @@ export default function ArtistCalendarPage() {
           venue_address: g.venues?.address,
           fee: g.fee,
         }))
+
+      if (gigRes.calendarToken) {
+        setFeedUrl(window.location.origin + '/api/calendar/' + gigRes.calendarToken + '.ics')
+      }
 
       setEvents([...bookingEvents, ...availableEvents])
       setLoading(false)
@@ -143,14 +150,67 @@ export default function ArtistCalendarPage() {
       <div className="flex-1 flex flex-col">
         <div className="bg-card border-b border-border px-8 h-14 flex items-center justify-between">
           <div className="text-white font-semibold">My Calendar</div>
-          <button
-            onClick={handleExportICS}
-            className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
-          >
-            Export .ics
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setShowSubscribe(s => !s); setCopied(false) }}
+              className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-primary/90 transition-colors"
+            >
+              Subscribe
+            </button>
+            <button
+              onClick={handleExportICS}
+              className="bg-secondary border border-border text-muted-foreground/80 text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:text-foreground transition-colors"
+            >
+              Download .ics
+            </button>
+          </div>
         </div>
         <div className="p-8">
+          {showSubscribe && (
+            <div className="bg-card border border-primary/30 rounded-xl p-5 mb-6 max-w-2xl">
+              <h2 className="text-foreground font-semibold mb-1">Subscribe to your gig calendar</h2>
+              <p className="text-muted-foreground/80 text-xs mb-4">
+                Add this link to Google, Apple, Outlook or Samsung Calendar and your gigs stay up to
+                date automatically — reschedules and cancellations come through on their own, with no
+                duplicates. Keep it private: anyone with the link can see your schedule.
+              </p>
+
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                <input
+                  readOnly
+                  value={feedUrl}
+                  onFocus={e => e.currentTarget.select()}
+                  className="flex-1 min-w-[240px] bg-secondary border border-border rounded-lg px-3 py-2 text-muted-foreground/80 text-xs font-mono focus:outline-none focus:border-primary"
+                />
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(feedUrl)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    } catch {
+                      setCopied(false)
+                    }
+                  }}
+                  className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  {copied ? 'Copied' : 'Copy link'}
+                </button>
+                <a
+                  href={feedUrl.replace(/^https?:\/\//, 'webcal://')}
+                  className="bg-secondary border border-border text-primary text-xs font-bold px-4 py-2 rounded-lg hover:border-primary transition-colors"
+                >
+                  Add to calendar
+                </a>
+              </div>
+
+              <p className="text-muted-foreground/60 text-xs">
+                Confirmed bookings appear as normal events; gigs you have accepted but the agency has
+                not confirmed yet show as tentative and marked &ldquo;pending&rdquo;.
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-wrap items-center gap-4 mb-4">
             {LEGEND.map(({ color, label }) => (
               <div key={label} className="flex items-center gap-1.5">

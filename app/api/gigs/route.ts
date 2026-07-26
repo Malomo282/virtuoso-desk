@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 import { notifyAgency } from '@/lib/notify'
+import { makeCalendarToken } from '@/lib/calendar-token'
 
 // Artist-facing view of open gigs, and their response to them.
 //
@@ -49,7 +50,11 @@ export async function GET() {
     const mine: Record<string, string> = {}
     ;(responses || []).forEach((r: any) => { mine[r.gig_id] = r.response })
 
-    return NextResponse.json({ gigs: gigs || [], responses: mine })
+    return NextResponse.json({
+      gigs: gigs || [],
+      responses: mine,
+      calendarToken: makeCalendarToken(artist.id),
+    })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
