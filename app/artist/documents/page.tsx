@@ -136,6 +136,57 @@ export default function ArtistDocumentsPage() {
             </div>
           )}
 
+          {/* Agency agreement: one-off, signed once to work with the agency */}
+          <div className="mb-10">
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="text-foreground font-semibold">Agency agreement</h2>
+              <span
+                className={
+                  'text-xs px-2.5 py-1 rounded-full font-semibold ' +
+                  (documents.agency_agreement ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive')
+                }
+              >
+                {documents.agency_agreement ? 'Signed' : 'Not signed'}
+              </span>
+            </div>
+            <p className="text-muted-foreground/80 text-xs mb-5">
+              Your signed agreement to work with Virtuoso Entertainment. This is a one-off &mdash; you
+              do not need to sign anything per booking.
+            </p>
+
+            <div className="bg-card border border-border rounded-lg p-4">
+              {documents.agency_agreement ? (
+                <div className="flex items-center justify-between gap-3 mb-3 text-xs">
+                  <span className="text-muted-foreground/80 truncate">{documents.agency_agreement.fileName}</span>
+                  <a
+                    href={documents.agency_agreement.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary hover:underline flex-shrink-0"
+                  >
+                    View
+                  </a>
+                </div>
+              ) : (
+                <p className="text-muted-foreground/60 text-xs mb-3">
+                  Upload your signed copy once the agency has sent it to you.
+                </p>
+              )}
+              <input
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg"
+                disabled={uploading === 'rtw:agency_agreement'}
+                onChange={e => {
+                  const f = e.target.files?.[0]
+                  if (f) uploadRightToWork('agency_agreement', f)
+                  e.target.value = ''
+                }}
+                className={fileInputClass}
+              />
+              {uploading === 'rtw:agency_agreement' && <div className="text-primary text-xs mt-2">Uploading...</div>}
+            </div>
+          </div>
+
           {/* Right to work */}
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-1">

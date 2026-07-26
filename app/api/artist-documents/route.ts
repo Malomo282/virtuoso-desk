@@ -4,8 +4,16 @@ import { createClient as createServerClient } from '@/lib/supabase-server'
 import { notifyAgency } from '@/lib/notify-agency'
 
 const BUCKET = 'artist-documents'
-const DOC_TYPES = ['id', 'right_to_work']
-const DOC_LABELS: Record<string, string> = { id: 'photo ID', right_to_work: 'right to work' }
+const DOC_TYPES = ['id', 'right_to_work', 'agency_agreement']
+const DOC_LABELS: Record<string, string> = {
+  id: 'photo ID',
+  right_to_work: 'right to work',
+  agency_agreement: 'signed agency agreement',
+}
+// The agency may file the signed representation agreement (it is a document
+// between the two parties, so either side can hold the signed copy). Identity
+// documents stay artist-only.
+const AGENCY_UPLOADABLE = ['agency_agreement']
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -37,21 +45,33 @@ export async function POST(request: Request) {
 
     const caller = await resolveCaller(session.user.id, admin)
     if (!caller) return NextResponse.json({ error: 'No artist profile found' }, { status: 403 })
-    // Only the artist themselves may upload their identity documents.
-    if (caller.role !== 'artist') {
-      return NextResponse.json({ error: 'Only the artist can upload their own documents' }, { status: 403 })
-    }
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const docType = formData.get('docType') as string | null
+    const requestedArtistId = formData.get('artistId') as string | null
 
     if (!file || !docType) return NextResponse.json({ error: 'file and docType are required' }, { status: 400 })
     if (!DOC_TYPES.includes(docType)) return NextResponse.json({ error: 'Invalid docType' }, { status: 400 })
     if (file.size > 4 * 1024 * 1024) return NextResponse.json({ error: 'File must be under 4MB' }, { status: 400 })
 
+    // Work out whose folder this lands in. An artist is always pinned to their
+    // own id; the agency must name the artist and may only file the agreement.
+    let targetArtistId: string
+    if (caller.role === 'agency') {
+      if (!AGENCY_UPLOADABLE.includes(docType)) {
+        return NextResponse.json({ error: 'Only the artist can upload their own identity documents' }, { status: 403 })
+      }
+      if (!requestedArtistId) return NextResponse.json({ error: 'artistId is required' }, { status: 400 })
+      const { data: exists } = await admin.from('artists').select('id').eq('id', requestedArtistId).maybeSingle()
+      if (!exists) return NextResponse.json({ error: 'Artist not found' }, { status: 404 })
+      targetArtistId = requestedArtistId
+    } else {
+      targetArtistId = caller.artistId
+    }
+
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-    const path = caller.artistId + '/' + docType + '/' + Date.now() + '-' + safeName
+    const path = targetArtistId + '/' + docType + '/' + Date.now() + '-' + safeName
     const buffer = Buffer.from(await file.arrayBuffer())
 
     const { error: uploadError } = await admin.storage
@@ -62,7 +82,7 @@ export async function POST(request: Request) {
     const { data: existing } = await admin
       .from('artist_documents')
       .select('id, file_url')
-      .eq('artist_id', caller.artistId)
+      .eq('artist_id', targetArtistId)
       .eq('doc_type', docType)
       .maybeSingle()
 
@@ -77,7 +97,7 @@ export async function POST(request: Request) {
       }
     } else {
       const { error: insertError } = await admin.from('artist_documents').insert({
-        artist_id: caller.artistId,
+        artist_id: targetArtistId,
         doc_type: docType,
         file_url: path,
         file_name: file.name,
@@ -87,20 +107,23 @@ export async function POST(request: Request) {
       if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    // Let the agency know the paperwork is in and ready to check.
-    const { data: artist } = await admin
-      .from('artists')
-      .select('stage_name')
-      .eq('id', caller.artistId)
-      .maybeSingle()
+    // Let the agency know the paperwork is in - but not when the agency is the
+    // one who just filed it.
+    if (caller.role === 'artist') {
+      const { data: artist } = await admin
+        .from('artists')
+        .select('stage_name')
+        .eq('id', targetArtistId)
+        .maybeSingle()
 
-    await notifyAgency(admin, {
-      type: 'document_uploaded',
-      message:
-        (artist?.stage_name || 'An artist') +
-        ' uploaded their ' + (DOC_LABELS[docType] || docType) + ' document' +
-        (existing ? ' (replacing the previous one)' : '') + '.',
-    })
+      await notifyAgency(admin, {
+        type: 'document_uploaded',
+        message:
+          (artist?.stage_name || 'An artist') +
+          ' uploaded their ' + (DOC_LABELS[docType] || docType) + ' document' +
+          (existing ? ' (replacing the previous one)' : '') + '.',
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (e: any) {

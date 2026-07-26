@@ -25,6 +25,8 @@ export default function RosterPage() {
   const [search, setSearch] = useState('')
   const [docsFor, setDocsFor] = useState<{ artist: Artist; docs: Record<string, any> } | null>(null)
   const [docsLoading, setDocsLoading] = useState('')
+  const [agreementUploading, setAgreementUploading] = useState(false)
+  const [agreementError, setAgreementError] = useState('')
   const [editing, setEditing] = useState<Artist | null>(null)
   const [editForm, setEditForm] = useState({ stageName: '', genres: '', minFee: '', bio: '', photoUrl: '' })
   const [editSaving, setEditSaving] = useState(false)
@@ -129,10 +131,42 @@ export default function RosterPage() {
 
   async function viewDocuments(artist: Artist) {
     setDocsLoading(artist.id)
+    setAgreementError('')
     const res = await fetch('/api/artist-documents?artistId=' + artist.id)
     const json = await res.json()
     if (res.ok) setDocsFor({ artist, docs: json.documents || {} })
     setDocsLoading('')
+  }
+
+  async function uploadAgencyAgreement(artistId: string, file: File) {
+    setAgreementUploading(true)
+    setAgreementError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('docType', 'agency_agreement')
+    formData.append('artistId', artistId)
+
+    const res = await fetch('/api/artist-documents', { method: 'POST', body: formData })
+    const json = await res.json()
+
+    if (!res.ok) {
+      setAgreementError(json.error || 'Upload failed')
+      setAgreementUploading(false)
+      return
+    }
+
+    // Refresh the open panel and the card badge behind it.
+    const refreshed = await fetch('/api/artist-documents?artistId=' + artistId)
+    if (refreshed.ok) {
+      const rj = await refreshed.json()
+      setDocsFor(prev => (prev ? { ...prev, docs: rj.documents || {} } : prev))
+    }
+    setDocsByArtist(prev => ({
+      ...prev,
+      [artistId]: Array.from(new Set([...(prev[artistId] || []), 'agency_agreement'])),
+    }))
+    setAgreementUploading(false)
   }
 
   if (loading) {
@@ -235,21 +269,33 @@ export default function RosterPage() {
 
                 {(() => {
                   const held = docsByArtist[artist.id] || []
-                  const complete = held.includes('id') && held.includes('right_to_work')
+                  const rtwComplete = held.includes('id') && held.includes('right_to_work')
+                  const rtwPartial = !rtwComplete && (held.includes('id') || held.includes('right_to_work'))
+                  const signed = held.includes('agency_agreement')
                   return (
-                    <div className="pt-3 mt-3 border-t border-border flex items-center justify-between gap-2">
-                      <span
-                        className={
-                          'text-xs px-2 py-1 rounded-full font-semibold ' +
-                          (complete
-                            ? 'bg-success/15 text-success'
-                            : held.length > 0
-                              ? 'bg-primary/15 text-primary'
-                              : 'bg-destructive/15 text-destructive')
-                        }
-                      >
-                        {complete ? 'Right to work ✓' : held.length > 0 ? 'Docs incomplete' : 'Docs missing'}
-                      </span>
+                    <div className="pt-3 mt-3 border-t border-border flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span
+                          className={
+                            'text-xs px-2 py-1 rounded-full font-semibold ' +
+                            (rtwComplete
+                              ? 'bg-success/15 text-success'
+                              : rtwPartial
+                                ? 'bg-primary/15 text-primary'
+                                : 'bg-destructive/15 text-destructive')
+                          }
+                        >
+                          {rtwComplete ? 'Right to work ✓' : rtwPartial ? 'Docs incomplete' : 'Docs missing'}
+                        </span>
+                        <span
+                          className={
+                            'text-xs px-2 py-1 rounded-full font-semibold ' +
+                            (signed ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive')
+                          }
+                        >
+                          {signed ? 'Agreement ✓' : 'Unsigned'}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-3">
                         {held.length > 0 && (
                           <button
@@ -391,6 +437,7 @@ export default function RosterPage() {
 
               <div className="space-y-3">
                 {[
+                  { type: 'agency_agreement', label: 'Agency agreement' },
                   { type: 'id', label: 'Photo ID' },
                   { type: 'right_to_work', label: 'Right to work' },
                 ].map(({ type, label }) => {
@@ -421,6 +468,28 @@ export default function RosterPage() {
                     </div>
                   )
                 })}
+              </div>
+
+              <div className="border-t border-border mt-5 pt-4">
+                <div className="text-muted-foreground text-xs uppercase tracking-widest mb-2">
+                  File signed agency agreement
+                </div>
+                <p className="text-muted-foreground/60 text-xs mb-3">
+                  Upload the countersigned copy yourself if the artist returned it to you directly.
+                </p>
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  disabled={agreementUploading}
+                  onChange={e => {
+                    const f = e.target.files?.[0]
+                    if (f) uploadAgencyAgreement(docsFor.artist.id, f)
+                    e.target.value = ''
+                  }}
+                  className="text-xs text-muted-foreground/80 file:mr-3 file:bg-secondary file:border file:border-border file:text-muted-foreground/80 file:text-xs file:px-3 file:py-1.5 file:rounded-lg file:cursor-pointer disabled:opacity-50"
+                />
+                {agreementUploading && <div className="text-primary text-xs mt-2">Uploading...</div>}
+                {agreementError && <div className="text-destructive text-xs mt-2">{agreementError}</div>}
               </div>
 
               <p className="text-muted-foreground/60 text-xs mt-4">

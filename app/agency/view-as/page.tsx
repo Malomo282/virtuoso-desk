@@ -122,9 +122,10 @@ export default function ViewAsArtistPage() {
               </div>
 
               <div className={card + ' mb-6'}>
-                <div className={dim + ' mb-4'}>Right to work</div>
+                <div className={dim + ' mb-4'}>Paperwork</div>
                 <div className="space-y-2">
                   {[
+                    { type: 'agency_agreement', label: 'Agency agreement' },
                     { type: 'id', label: 'Photo ID' },
                     { type: 'right_to_work', label: 'Right to work' },
                   ].map(({ type, label }) => {
