@@ -26,6 +26,7 @@ const navItems: NavEntry[] = [
 export default function AgencySidebar() {
   const router = useRouter()
   const pathname = usePathname()
+  const isArtistView = pathname === '/agency/view-as'
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -38,6 +39,29 @@ export default function AgencySidebar() {
         <div className="text-3xl font-bold text-primary mb-1">VE</div>
         <div className="text-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</div>
         <div className="text-muted-foreground/80 text-xs tracking-widest uppercase">Entertainment Ltd</div>
+      </div>
+
+      {/* Agency-only: ARTIST swaps to a read-only view of a roster artist's portal */}
+      <div className="px-3 pt-3 flex-shrink-0">
+        <div className="flex bg-secondary border border-border rounded-lg p-0.5">
+          {[
+            { label: 'Agent', href: '/agency/dashboard', active: !isArtistView },
+            { label: 'Artist', href: '/agency/view-as', active: isArtistView },
+          ].map(({ label, href, active }) => (
+            <button
+              key={label}
+              onClick={() => router.push(href)}
+              className={
+                'flex-1 py-1.5 rounded text-xs uppercase tracking-wider font-semibold transition-colors ' +
+                (active
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground/80 hover:text-foreground')
+              }
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <nav className="py-2 px-3 overflow-y-auto flex-1">
