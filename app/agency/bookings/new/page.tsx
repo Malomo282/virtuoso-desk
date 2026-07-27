@@ -169,14 +169,41 @@ export default function NewBookingPage() {
               <p className="text-subtle-foreground text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Two distinct numbers: what comes in from the venue, and what
+                goes out to the artist. The old "Fee to venue" label read as
+                money paid to the venue, which is backwards. */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
               <div>
-                <label className={lbl}>Fee to venue</label>
+                <label className={lbl}>Venue rate (GBP)</label>
                 <input type="number" value={form.fee_venue} onChange={e => update('fee_venue', e.target.value)} className={inp} placeholder="500" />
+                <p className="text-subtle-foreground text-xs mt-1.5">
+                  Agreed rate with the venue. Never shown to the artist.
+                </p>
               </div>
               <div>
-                <label className={lbl}>Artist fee</label>
+                <label className={lbl}>Artist fee (GBP)</label>
                 <input type="number" value={form.fee_artist} onChange={e => update('fee_artist', e.target.value)} className={inp} placeholder="300" />
+                <p className="text-subtle-foreground text-xs mt-1.5">
+                  What the artist is offered, and sees on their brief.
+                </p>
+              </div>
+              <div>
+                <label className={lbl}>Your margin</label>
+                <div className="bg-secondary border border-border rounded-lg px-4 py-3">
+                  {form.fee_venue && form.fee_artist ? (
+                    <div
+                      className={
+                        'text-lg font-bold ' +
+                        (parseInt(form.fee_venue) - parseInt(form.fee_artist) < 0 ? 'text-destructive' : 'text-success')
+                      }
+                    >
+                      GBP {(parseInt(form.fee_venue) - parseInt(form.fee_artist)).toLocaleString()}
+                    </div>
+                  ) : (
+                    <div className="text-subtle-foreground text-sm">&mdash;</div>
+                  )}
+                </div>
+                <p className="text-subtle-foreground text-xs mt-1.5">Venue rate less artist fee.</p>
               </div>
             </div>
 
