@@ -15,6 +15,7 @@ type Gig = {
   ends_at: string
   genre: string
   fee: number
+  fee_venue: number | null
   notes: string
   status: string
   venue_id: string
@@ -54,6 +55,7 @@ export default function AvailableGigsPage() {
     end_time: '',
     genre: '',
     fee: '',
+    fee_venue: '',
     notes: '',
   })
 
@@ -134,6 +136,7 @@ export default function AvailableGigsPage() {
       ends_at: endsAt.toISOString(),
       genre: genreTags.join(', '),
       fee: form.fee ? parseInt(form.fee) : null,
+      fee_venue: form.fee_venue ? parseInt(form.fee_venue) : null,
       notes: form.notes,
     }
 
@@ -202,7 +205,7 @@ export default function AvailableGigsPage() {
 
     setShowForm(false)
     setEditingGigId('')
-    setForm({ venue_id: '', title: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
+    setForm({ venue_id: '', title: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', fee_venue: '', notes: '' })
     setGenreTags([])
     setSaving(false)
     loadAll()
@@ -210,7 +213,7 @@ export default function AvailableGigsPage() {
 
   function startAddGig() {
     setEditingGigId('')
-    setForm({ venue_id: '', title: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', notes: '' })
+    setForm({ venue_id: '', title: '', start_date: '', start_time: '', end_date: '', end_time: '', genre: '', fee: '', fee_venue: '', notes: '' })
     setGenreTags([])
     setError('')
     setShowForm(true)
@@ -229,6 +232,7 @@ export default function AvailableGigsPage() {
       end_time: pad(e.getHours()) + ':' + pad(e.getMinutes()),
       genre: '',
       fee: gig.fee != null ? String(gig.fee) : '',
+      fee_venue: gig.fee_venue != null ? String(gig.fee_venue) : '',
       notes: gig.notes || '',
     })
     setGenreTags(String(gig.genre || '').split(',').map(g => g.trim()).filter(Boolean))
@@ -288,7 +292,7 @@ export default function AvailableGigsPage() {
       event_name: gig.title || null,
       starts_at: gig.starts_at,
       ends_at: gig.ends_at,
-      fee_venue: gig.fee,
+      fee_venue: gig.fee_venue ?? null,
       fee_artist: confirmFee ? parseInt(confirmFee) : null,
       dress_code: 'Smart casual',
       brag_status: 'G',
@@ -412,15 +416,43 @@ export default function AvailableGigsPage() {
                   <p className="text-subtle-foreground text-xs mt-2">For overnight gigs, set the end date to the day after the start date.</p>
                 </div>
 
-                <div>
-                  <label className={labelClass}>Fee (GBP)</label>
-                  <input
-                    type="number"
-                    value={form.fee}
-                    onChange={e => update('fee', e.target.value)}
-                    className={inputClass}
-                    placeholder="e.g. 400"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                  <div>
+                    <label className={labelClass}>Venue rate (GBP)</label>
+                    <input
+                      type="number"
+                      value={form.fee_venue}
+                      onChange={e => update('fee_venue', e.target.value)}
+                      className={inputClass}
+                      placeholder="e.g. 600"
+                    />
+                    <p className="text-subtle-foreground text-xs mt-1.5">
+                      What the venue pays you. Never shown to artists.
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Artist fee (GBP)</label>
+                    <input
+                      type="number"
+                      value={form.fee}
+                      onChange={e => update('fee', e.target.value)}
+                      className={inputClass}
+                      placeholder="e.g. 400"
+                    />
+                    <p className="text-subtle-foreground text-xs mt-1.5">
+                      The figure artists see on this gig.
+                    </p>
+                  </div>
+                  <div className="bg-secondary border border-border rounded-lg px-4 py-2.5">
+                    <div className="text-muted-foreground text-xs uppercase tracking-widest mb-1">Your margin</div>
+                    {form.fee_venue && form.fee ? (
+                      <div className={'text-lg font-bold ' + (parseInt(form.fee_venue) - parseInt(form.fee) < 0 ? 'text-destructive' : 'text-success')}>
+                        GBP {(parseInt(form.fee_venue) - parseInt(form.fee)).toLocaleString()}
+                      </div>
+                    ) : (
+                      <div className="text-subtle-foreground text-sm">&mdash;</div>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass}>Notes</label>
@@ -495,7 +527,13 @@ export default function AvailableGigsPage() {
                         {startsAt && <span>{startsAt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
                         {timeStr && <span>{timeStr}</span>}
                         {gig.genre && <span>{gig.genre}</span>}
-                        {gig.fee != null && <span className="text-primary font-semibold">GBP {gig.fee.toLocaleString()}</span>}
+                        {gig.fee_venue != null && <span className="text-success font-semibold">Venue GBP {gig.fee_venue.toLocaleString()}</span>}
+                        {gig.fee != null && <span className="text-primary font-semibold">Artist GBP {gig.fee.toLocaleString()}</span>}
+                        {gig.fee_venue != null && gig.fee != null && (
+                          <span className={(gig.fee_venue - gig.fee < 0 ? 'text-destructive' : 'text-muted-foreground') + ' font-semibold'}>
+                            Margin GBP {(gig.fee_venue - gig.fee).toLocaleString()}
+                          </span>
+                        )}
                       </div>
                       {gig.notes && (
                         <div className="text-subtle-foreground text-xs mt-2 italic">{gig.notes}</div>

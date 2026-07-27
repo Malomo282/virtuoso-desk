@@ -39,6 +39,9 @@ export async function GET() {
     const [{ data: gigs }, { data: responses }] = await Promise.all([
       admin
         .from('available_gigs')
+        // Columns are listed explicitly and fee_venue is deliberately absent:
+        // that is the agency's rate with the venue and must never reach an
+        // artist. A `select('*')` here would leak it the moment it was added.
         .select('id, title, starts_at, ends_at, genre, fee, notes, status, venues(name, address)')
         .eq('status', 'open')
         .order('starts_at', { ascending: true }),
