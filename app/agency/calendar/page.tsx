@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
 import { gigTitle } from '@/lib/gig-title'
+import MobileCalendar, { type CalEvent } from '@/components/MobileCalendar'
 
 const BRAG: Record<string, { label: string; color: string; bg: string; cls: string }> = {
   B: { label: 'Completed / To be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-info' },
@@ -69,6 +70,26 @@ export default function CalendarPage() {
     if (venueFilter) return false
     return true
   })
+
+  const mobileEvents: CalEvent[] = filteredBookings
+    .filter(b => b.starts_at && b.ends_at)
+    .map(b => {
+      const brag = BRAG[b.brag_status] || BRAG.A
+      return {
+        id: b.id,
+        title: gigTitle(b.event_name, b.venues?.name),
+        start: b.starts_at,
+        end: b.ends_at,
+        meta: b.artists?.stage_name,
+        location: b.venues?.address,
+        fee: b.fee_venue,
+        feeLabel: 'Venue rate',
+        contactNumber: b.contact_number,
+        statusLabel: brag.label,
+        statusCls: brag.cls + ' bg-secondary',
+        color: brag.color,
+      }
+    })
 
   function handleExportICS() {
     const exportable = filteredBookings.filter(b => b.starts_at && b.ends_at)
@@ -161,6 +182,9 @@ export default function CalendarPage() {
             </div>
           </div>
 
+          <MobileCalendar events={mobileEvents} onOpen={e => router.push('/agency/bookings')} />
+
+          <div className="hidden md:block">
           <div className="flex items-center gap-4 mb-4">
             <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-card border border-border text-foreground px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Prev</button>
             <div className="text-foreground font-semibold text-lg flex-1 text-center">{months[calM]} {calY}</div>
@@ -240,6 +264,7 @@ export default function CalendarPage() {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

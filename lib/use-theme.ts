@@ -36,7 +36,7 @@ export function applyTheme(id: string) {
 }
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<string>('dark')
+  const [theme, setThemeState] = useState<string>('light')
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)

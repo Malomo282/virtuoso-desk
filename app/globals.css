@@ -11,7 +11,6 @@
  * old opacity ladder: muted-foreground/60 only reached 3.3:1 once composited.
  */
 @layer base {
-  :root,
   [data-theme='dark'] {
     --background: 240 16% 6%;
     --foreground: 0 0% 98%;
@@ -47,6 +46,12 @@
     --ring: 45 53% 54%;
 
     --sidebar: 240 28% 5%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-muted: 240 8% 72%;
+    --sidebar-primary: 45 53% 58%;
+    --sidebar-accent: 240 20% 14%;
+    --sidebar-border: 240 10% 20%;
+    --sidebar-destructive: 0 75% 70%;
 
     --radius: 0.125rem;
   }
@@ -76,35 +81,53 @@
     --input-border: 0 0% 38%;
     --ring: 45 60% 62%;
     --sidebar: 0 0% 3%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-muted: 0 0% 76%;
+    --sidebar-primary: 45 60% 62%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-destructive: 0 80% 72%;
     --radius: 0.125rem;
   }
 
+  /*
+   * Light is the default: warm ivory rather than a cool blue-grey, with an
+   * olive-leaning gold. Hues sit around 40-45 (warm) instead of 240 (cool),
+   * which is what makes it read as paper rather than screen.
+   */
+  :root,
   [data-theme='light'] {
-    --background: 240 10% 96%;
-    --foreground: 240 14% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 14% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 14% 10%;
-    /* Gold is darkened here: the dark-theme gold only reaches 2:1 on white. */
-    --primary: 42 88% 26%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 12% 92%;
-    --secondary-foreground: 240 14% 10%;
-    --muted: 240 12% 92%;
-    --muted-foreground: 240 10% 34%;
-    --subtle-foreground: 240 8% 42%;
-    --accent: 42 60% 90%;
-    --accent-foreground: 42 88% 26%;
-    --destructive: 0 72% 38%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 148 70% 24%;
-    --info: 220 80% 38%;
-    --border: 240 12% 82%;
-    --input: 0 0% 100%;
-    --input-border: 240 10% 58%;
-    --ring: 42 88% 26%;
-    --sidebar: 0 0% 100%;
+    --background: 40 20% 96%;
+    --foreground: 40 14% 12%;
+    --card: 40 30% 99%;
+    --card-foreground: 40 14% 12%;
+    --popover: 40 30% 99%;
+    --popover-foreground: 40 14% 12%;
+    /* Deepened olive-gold: the dark-theme gold only reaches ~2:1 on white. */
+    --primary: 42 62% 30%;
+    --primary-foreground: 40 30% 99%;
+    --secondary: 40 18% 92%;
+    --secondary-foreground: 40 14% 12%;
+    --muted: 40 18% 92%;
+    --muted-foreground: 40 10% 28%;
+    --subtle-foreground: 40 8% 39%;
+    --accent: 42 45% 88%;
+    --accent-foreground: 42 62% 30%;
+    --destructive: 0 62% 42%;
+    --destructive-foreground: 40 30% 99%;
+    --success: 148 55% 26%;
+    --info: 220 65% 40%;
+    --border: 40 16% 85%;
+    --input: 40 30% 99%;
+    --input-border: 40 14% 50%;
+    --ring: 42 62% 30%;
+    --sidebar: 40 10% 13%;
+    --sidebar-foreground: 40 20% 97%;
+    --sidebar-muted: 40 10% 76%;
+    --sidebar-primary: 45 58% 62%;
+    --sidebar-accent: 40 12% 20%;
+    --sidebar-border: 40 8% 26%;
+    --sidebar-destructive: 0 68% 68%;
     --radius: 0.125rem;
   }
 
@@ -133,6 +156,12 @@
     --input-border: 222 18% 58%;
     --ring: 45 58% 62%;
     --sidebar: 222 28% 11%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-muted: 222 16% 76%;
+    --sidebar-primary: 45 58% 62%;
+    --sidebar-accent: 222 26% 19%;
+    --sidebar-border: 222 16% 26%;
+    --sidebar-destructive: 0 78% 72%;
     --radius: 0.125rem;
   }
 }

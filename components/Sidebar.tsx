@@ -44,15 +44,15 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
 
   const nav = (
     <>
-      <div className="px-5 py-4 border-b border-border text-center flex-shrink-0">
-        <div className="text-2xl font-bold text-primary">VE</div>
-        <div className="text-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</div>
-        <div className="text-muted-foreground text-[10px] tracking-widest uppercase">Entertainment Ltd</div>
+      <div className="px-5 py-4 border-b border-sidebar-border text-center flex-shrink-0">
+        <div className="text-2xl font-bold text-sidebar-primary">VE</div>
+        <div className="text-sidebar-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</div>
+        <div className="text-sidebar-muted text-[10px] tracking-widest uppercase">Entertainment Ltd</div>
       </div>
 
       {showPortalToggle && (
         <div className="px-3 pt-3 flex-shrink-0">
-          <div className="flex bg-secondary border border-border rounded-lg p-0.5">
+          <div className="flex bg-sidebar-accent border border-sidebar-border rounded-lg p-0.5">
             {[
               { label: 'Agent', href: '/agency/dashboard', active: !isArtistView },
               { label: 'Artist', href: '/agency/view-as', active: isArtistView },
@@ -62,7 +62,7 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
                 onClick={() => go(href)}
                 className={
                   'flex-1 py-1.5 rounded text-xs uppercase tracking-wider font-semibold transition-colors ' +
-                  (active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')
+                  (active ? 'bg-sidebar-primary text-sidebar' : 'text-sidebar-muted hover:text-sidebar-foreground')
                 }
               >
                 {label}
@@ -77,7 +77,7 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
         {navItems.map((item, i) => {
           if ('divider' in item) {
             return (
-              <div key={i} className="text-subtle-foreground text-[10px] uppercase tracking-widest px-3 pt-3 pb-1">
+              <div key={i} className="text-sidebar-muted/70 text-[10px] uppercase tracking-widest px-3 pt-3 pb-1">
                 {item.divider}
               </div>
             )
@@ -92,17 +92,17 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
               className={
                 'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs uppercase tracking-wider font-medium mb-0.5 transition-all text-left ' +
                 (isActive
-                  ? 'bg-accent border-l-2 border-primary text-primary pl-[10px]'
+                  ? 'bg-sidebar-accent border-l-2 border-sidebar-primary text-sidebar-primary pl-[10px]'
                   : showUnread
-                    ? 'text-primary hover:bg-card'
-                    : 'text-muted-foreground hover:bg-card hover:text-foreground')
+                    ? 'text-sidebar-primary hover:bg-sidebar-accent'
+                    : 'text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground')
               }
             >
               <NavIcon name={item.icon} />
               <span className="flex-1">{item.label}</span>
               {showUnread && (
                 <span
-                  className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center"
+                  className="bg-sidebar-primary text-sidebar text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center"
                   aria-label={unread + ' unread notifications'}
                 >
                   {unread > 9 ? '9+' : unread}
@@ -112,10 +112,10 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
           )
         })}
 
-        <div className="mt-2 pt-2 border-t border-border">
+        <div className="mt-2 pt-2 border-t border-sidebar-border">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-destructive text-xs uppercase tracking-wider hover:bg-destructive/10 transition-colors font-medium"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sidebar-destructive text-xs uppercase tracking-wider hover:bg-sidebar-accent transition-colors font-medium"
           >
             <NavIcon name="logout" />
             <span className="flex-1 text-left">Sign out</span>
@@ -128,21 +128,21 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
   return (
     <>
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-sidebar border-b border-border flex items-center gap-3 px-4">
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-sidebar border-b border-sidebar-border flex items-center gap-3 px-4">
         <button
           onClick={() => setOpen(o => !o)}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
-          className="text-foreground p-2 -ml-2 rounded-lg hover:bg-card transition-colors"
+          className="text-sidebar-foreground p-2 -ml-2 rounded-lg hover:bg-sidebar-accent transition-colors"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-5 h-5">
             {open ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
           </svg>
         </button>
-        <span className="text-primary font-bold">VE</span>
-        <span className="text-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</span>
+        <span className="text-sidebar-primary font-bold">VE</span>
+        <span className="text-sidebar-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</span>
         {unread > 0 && (
-          <span className="ml-auto bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
+          <span className="ml-auto bg-sidebar-primary text-sidebar text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -158,7 +158,7 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
 
       <div
         className={
-          'bg-sidebar border-r border-border flex flex-col z-50 ' +
+          'bg-sidebar border-r border-sidebar-border flex flex-col z-50 ' +
           'fixed inset-y-0 left-0 w-64 transition-transform duration-200 ' +
           (open ? 'translate-x-0' : '-translate-x-full') +
           ' md:translate-x-0 md:sticky md:top-0 md:h-screen md:w-56 md:min-w-56'

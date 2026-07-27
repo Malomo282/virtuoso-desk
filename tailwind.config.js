@@ -17,7 +17,15 @@ module.exports = {
         'subtle-foreground': 'hsl(var(--subtle-foreground))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        sidebar: 'hsl(var(--sidebar))',
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+          muted: 'hsl(var(--sidebar-muted))',
+          primary: 'hsl(var(--sidebar-primary))',
+          accent: 'hsl(var(--sidebar-accent))',
+          border: 'hsl(var(--sidebar-border))',
+          destructive: 'hsl(var(--sidebar-destructive))',
+        },
         success: 'hsl(var(--success))',
         info: 'hsl(var(--info))',
         primary: {

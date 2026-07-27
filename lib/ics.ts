@@ -7,6 +7,8 @@ export type IcsEvent = {
   end: string
   /** TENTATIVE marks pipeline gigs the artist has accepted but that are not booked yet. */
   status?: 'CONFIRMED' | 'TENTATIVE'
+  /** Minutes before the start to fire a calendar alert. */
+  reminderMinutes?: number
 }
 
 function toICSDate(dateStr: string) {
@@ -52,6 +54,17 @@ export function generateICS(events: IcsEvent[]) {
     if (e.location) lines.push(foldLine('LOCATION:' + escapeText(e.location)))
     if (e.description) lines.push(foldLine('DESCRIPTION:' + escapeText(e.description)))
     lines.push('STATUS:' + (e.status || 'CONFIRMED'))
+
+    if (e.reminderMinutes && e.reminderMinutes > 0) {
+      // DISPLAY rather than AUDIO: it is the one action every calendar client
+      // honours, and a silent banner is what people actually want here.
+      lines.push('BEGIN:VALARM')
+      lines.push('ACTION:DISPLAY')
+      lines.push(foldLine('DESCRIPTION:' + escapeText(e.summary)))
+      lines.push('TRIGGER:-PT' + e.reminderMinutes + 'M')
+      lines.push('END:VALARM')
+    }
+
     lines.push('END:VEVENT')
   })
 

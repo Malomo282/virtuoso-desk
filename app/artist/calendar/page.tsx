@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
+import MobileCalendar, { type CalEvent } from '@/components/MobileCalendar'
 import { gigTitle } from '@/lib/gig-title'
 
 // Mirrors the agency BRAG scheme: amber covers "available / under review",
@@ -95,6 +96,28 @@ export default function ArtistCalendarPage() {
     }
     load()
   }, [])
+
+  const mobileEvents: CalEvent[] = events
+    .filter(e => e.starts_at && e.ends_at)
+    .map(e => {
+      const st = STATUS[e.status as keyof typeof STATUS]
+      const pipeline = e.kind === 'available_gig'
+      return {
+        id: e.id,
+        title: e.venue_name || 'Gig',
+        start: e.starts_at,
+        end: e.ends_at,
+        meta: e.event_name,
+        location: e.venue_address,
+        fee: pipeline ? e.fee : e.fee_artist,
+        feeLabel: 'Your fee',
+        statusLabel: st.label,
+        statusCls: st.cls + ' bg-secondary',
+        color: st.color,
+        tentative: pipeline,
+        href: pipeline ? undefined : '/artist/brief/' + e.bookingId,
+      }
+    })
 
   function handleExportICS() {
     const exportable: IcsEvent[] = events
@@ -223,6 +246,12 @@ export default function ArtistCalendarPage() {
             ))}
           </div>
 
+          <MobileCalendar
+            events={mobileEvents}
+            onOpen={e => { if (e.href) router.push(e.href) }}
+          />
+
+          <div className="hidden md:block">
           <div className="flex items-center gap-4 mb-4">
             <button onClick={() => { if (calM === 0) { setCalM(11); setCalY(calY - 1) } else setCalM(calM - 1) }} className="bg-card border border-border text-foreground px-3 py-1.5 rounded-lg text-sm hover:border-primary transition-colors">Prev</button>
             <div className="text-foreground font-semibold text-lg flex-1 text-center">{months[calM]} {calY}</div>
@@ -310,6 +339,7 @@ export default function ArtistCalendarPage() {
               )}
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>
