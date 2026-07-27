@@ -3,7 +3,12 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
-import ThemePicker from '@/components/ThemePicker'
+import dynamic from 'next/dynamic'
+
+const ThemePicker = dynamic(() => import('@/components/ThemePicker'), {
+  ssr: false,
+  loading: () => <div className="text-subtle-foreground text-sm py-4">Loading themes...</div>,
+})
 
 export default function SettingsPage() {
   const router = useRouter()

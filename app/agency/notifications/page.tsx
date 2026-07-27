@@ -17,7 +17,7 @@ export default function AgencyNotificationsPage() {
 
       const { data } = await supabase
         .from('notifications')
-        .select('*')
+        .select('id, type, message, booking_id, read')
         .eq('user_id', session.user.id)
         .order('id', { ascending: false })
 

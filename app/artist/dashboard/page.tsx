@@ -37,7 +37,7 @@ export default function ArtistDashboard() {
       setStageName(artist?.stage_name || '')
 
       const [bookingRes, gigRes, docRes, blackoutRes, notifRes] = await Promise.all([
-        supabase.from('artist_booking_view').select('*').order('starts_at', { ascending: true }),
+        supabase.from('artist_booking_view').select('id,event_name,starts_at,ends_at,fee_artist,brag_status,venue_name').order('starts_at', { ascending: true }),
         fetch('/api/gigs').then(r => (r.ok ? r.json() : { gigs: [], responses: {} })).catch(() => ({ gigs: [], responses: {} })),
         fetch('/api/artist-documents').then(r => (r.ok ? r.json() : { documents: {} })).catch(() => ({ documents: {} })),
         artist

@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
 import { gigTitle } from '@/lib/gig-title'
-import MobileCalendar, { type CalEvent } from '@/components/MobileCalendar'
+import dynamic from 'next/dynamic'
+import { type CalEvent } from '@/components/MobileCalendar'
+
+// Hidden at md and up, so desktop never needs to download it.
+const MobileCalendar = dynamic(() => import('@/components/MobileCalendar'), { ssr: false })
 
 const BRAG: Record<string, { label: string; color: string; bg: string; cls: string }> = {
   B: { label: 'Completed / To be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-info' },
@@ -34,7 +38,7 @@ export default function CalendarPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
       const [{ data: bData }, { data: vData }, { data: aData }, blRes] = await Promise.all([
-        supabase.from('bookings').select('*,venues(name,address),artists(stage_name)').is('cancelled_at', null),
+        supabase.from('bookings').select('id,event_name,starts_at,ends_at,venue_id,artist_id,brag_status,fee_venue,dress_code,contact_number,venues(name,address),artists(stage_name)').is('cancelled_at', null),
         supabase.from('venues').select('id,name').order('name'),
         supabase.from('artists').select('id,stage_name').order('stage_name'),
         // Via the API: RLS hides this table from the agency's own session

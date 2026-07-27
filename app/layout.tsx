@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans } from 'next/font/google'
 import './globals.css'
-import InstallPrompt from '@/components/InstallPrompt'
+import dynamic from 'next/dynamic'
+
+// Not needed for first paint: it only appears once the browser offers an install.
+const InstallPrompt = dynamic(() => import('@/components/InstallPrompt'), { ssr: false })
 
 const dmSans = DM_Sans({
   subsets: ['latin'],

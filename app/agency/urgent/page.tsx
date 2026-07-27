@@ -15,7 +15,7 @@ export default function UrgentPage() {
       if (!session) { router.push('/login'); return }
       const { data } = await supabase
         .from('bookings')
-        .select('*,venues(name),artists(stage_name)')
+        .select('id,event_name,starts_at,ends_at,brag_status,fee_venue,venues(name),artists(stage_name)')
         .eq('brag_status', 'R')
         .is('cancelled_at', null)
         .order('starts_at', { ascending: true })

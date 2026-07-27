@@ -67,26 +67,35 @@ export default function AvailableGigsPage() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
 
-    const [{ data: gigData }, { data: venueData }, { data: responseData }] = await Promise.all([
+    // All five in one round of requests. The two genre lookups used to run
+    // sequentially after this block, which meant three waterfalled trips
+    // before the page could render.
+    const [
+      { data: gigData },
+      { data: venueData },
+      { data: responseData },
+      { data: artistGenres },
+      { data: venueGenres },
+    ] = await Promise.all([
       supabase
         .from('available_gigs')
-        .select('*, venues(name, address)')
+        .select('id, title, starts_at, ends_at, genre, fee, fee_venue, notes, status, venue_id, venues(name, address)')
         .eq('status', 'open')
         .order('starts_at', { ascending: true }),
       supabase.from('venues').select('id, name').order('name'),
       supabase
         .from('gig_responses')
-        .select('*, artists(stage_name, user_id)')
+        .select('id, gig_id, artist_id, response, artists(stage_name, user_id)')
         .eq('response', 'accepted'),
+      supabase.from('artists').select('genres'),
+      supabase.from('venues').select('genres'),
     ])
 
-    if (gigData) setGigs(gigData)
+    if (gigData) setGigs(gigData as any)
     if (venueData) setVenues(venueData)
-    if (responseData) setResponses(responseData)
+    if (responseData) setResponses(responseData as any)
 
     // Offer whatever genres are already in play across gigs, artists and venues
-    const { data: artistGenres } = await supabase.from('artists').select('genres')
-    const { data: venueGenres } = await supabase.from('venues').select('genres')
     const pool = new Set<string>()
     ;(gigData || []).forEach((g: any) =>
       String(g.genre || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => pool.add(s))

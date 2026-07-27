@@ -4,7 +4,12 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import TagInput from '@/components/TagInput'
-import ThemePicker from '@/components/ThemePicker'
+import dynamic from 'next/dynamic'
+
+const ThemePicker = dynamic(() => import('@/components/ThemePicker'), {
+  ssr: false,
+  loading: () => <div className="text-subtle-foreground text-sm py-4">Loading themes...</div>,
+})
 
 export default function ArtistProfilePage() {
   const router = useRouter()

@@ -4,7 +4,11 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import { generateICS, downloadICS, type IcsEvent } from '@/lib/ics'
-import MobileCalendar, { type CalEvent } from '@/components/MobileCalendar'
+import dynamic from 'next/dynamic'
+import { type CalEvent } from '@/components/MobileCalendar'
+
+// Hidden at md and up, so desktop never needs to download it.
+const MobileCalendar = dynamic(() => import('@/components/MobileCalendar'), { ssr: false })
 import { gigTitle } from '@/lib/gig-title'
 
 // Mirrors the agency BRAG scheme: amber covers "available / under review",

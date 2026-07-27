@@ -23,9 +23,12 @@ export default function LoginPage() {
     const { data: profile } = await supabase
       .from('profiles').select('role').eq('id', data.user.id).maybeSingle()
 
-    // Brief pause so the auth cookie is written before the server-side
-    // role guard on the destination layout reads it.
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // Wait only as long as the auth cookie actually takes to land, rather
+    // than a flat 500ms on every sign-in.
+    for (let i = 0; i < 25; i++) {
+      if (document.cookie.includes('-auth-token')) break
+      await new Promise(r => setTimeout(r, 20))
+    }
     window.location.href = profile?.role === 'artist' ? '/artist/dashboard' : '/agency/dashboard'
   }
 
