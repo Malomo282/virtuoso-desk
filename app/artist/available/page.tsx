@@ -72,7 +72,7 @@ export default function ArtistAvailableGigsPage() {
           <div className="text-foreground font-semibold">Available Gigs</div>
         </div>
 
-        <div className="p-4 md:p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-6xl">
           {error && (
             <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm mb-6">
               {error}
@@ -85,7 +85,7 @@ export default function ArtistAvailableGigsPage() {
             </div>
           )}
 
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {gigs.map(gig => {
               const startsAt = gig.starts_at ? new Date(gig.starts_at) : null
               const endsAt = gig.ends_at ? new Date(gig.ends_at) : null

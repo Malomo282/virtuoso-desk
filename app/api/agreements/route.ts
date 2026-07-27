@@ -109,6 +109,40 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const supabase = createServerClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
+    const admin = getAdmin()
+    if (!admin) return NextResponse.json({ error: 'Missing env vars' }, { status: 500 })
+
+    const bookingId = new URL(request.url).searchParams.get('bookingId')
+    if (!bookingId) return NextResponse.json({ error: 'bookingId is required' }, { status: 400 })
+
+    // authorize() already restricts an artist to their own bookings.
+    const auth = await authorize(session.user.id, bookingId, admin)
+    if (!auth.ok) return NextResponse.json({ error: 'Not authorized for this booking' }, { status: 403 })
+
+    const { data: existing } = await admin
+      .from('agreements')
+      .select('id, file_url')
+      .eq('booking_id', bookingId)
+      .maybeSingle()
+
+    if (!existing) return NextResponse.json({ error: 'Nothing to remove' }, { status: 404 })
+
+    const { error: delError } = await admin.from('agreements').delete().eq('id', existing.id)
+    if (delError) return NextResponse.json({ error: delError.message }, { status: 500 })
+    if (existing.file_url) await admin.storage.from(BUCKET).remove([existing.file_url])
+
+    return NextResponse.json({ success: true })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const supabase = createServerClient()

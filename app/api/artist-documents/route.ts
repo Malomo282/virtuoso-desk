@@ -131,6 +131,59 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const supabase = createServerClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
+    const admin = getAdmin()
+    if (!admin) return NextResponse.json({ error: 'Missing env vars' }, { status: 500 })
+
+    const caller = await resolveCaller(session.user.id, admin)
+    if (!caller) return NextResponse.json({ error: 'No profile found' }, { status: 403 })
+
+    const params = new URL(request.url).searchParams
+    const docType = params.get('docType')
+    const requestedArtistId = params.get('artistId')
+    if (!docType || !DOC_TYPES.includes(docType)) {
+      return NextResponse.json({ error: 'Valid docType is required' }, { status: 400 })
+    }
+
+    // Same boundary as upload: an artist only ever touches their own row, and
+    // the agency may only remove the agreement it is allowed to file.
+    let targetArtistId: string
+    if (caller.role === 'agency') {
+      if (!AGENCY_UPLOADABLE.includes(docType)) {
+        return NextResponse.json({ error: 'Only the artist can remove their own identity documents' }, { status: 403 })
+      }
+      if (!requestedArtistId) return NextResponse.json({ error: 'artistId is required' }, { status: 400 })
+      targetArtistId = requestedArtistId
+    } else {
+      targetArtistId = caller.artistId
+    }
+
+    const { data: existing } = await admin
+      .from('artist_documents')
+      .select('id, file_url')
+      .eq('artist_id', targetArtistId)
+      .eq('doc_type', docType)
+      .maybeSingle()
+
+    if (!existing) return NextResponse.json({ error: 'Nothing to remove' }, { status: 404 })
+
+    // Remove the row first: an orphaned file is harmless, but a row pointing at
+    // a deleted file would render as "uploaded" and then fail to open.
+    const { error: delError } = await admin.from('artist_documents').delete().eq('id', existing.id)
+    if (delError) return NextResponse.json({ error: delError.message }, { status: 500 })
+    if (existing.file_url) await admin.storage.from(BUCKET).remove([existing.file_url])
+
+    return NextResponse.json({ success: true })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const supabase = createServerClient()

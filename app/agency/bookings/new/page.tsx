@@ -133,7 +133,7 @@ export default function NewBookingPage() {
           <button onClick={() => router.push('/agency/bookings')} className="text-muted-foreground/80 hover:text-foreground text-sm">Back</button>
           <div className="text-foreground font-semibold">New Booking</div>
         </div>
-        <div className="p-4 md:p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-4xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

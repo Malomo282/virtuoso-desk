@@ -38,13 +38,14 @@ export default function SettingsPage() {
           <div className="text-foreground font-semibold">Settings</div>
         </div>
 
-        <div className="p-4 md:p-8 max-w-2xl">
-          <section className="bg-card border border-border rounded-xl p-6 mb-6">
+        <div className="p-4 md:p-8 max-w-6xl w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <section className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Appearance</h2>
             <ThemePicker />
           </section>
-
-          <section className="bg-card border border-border rounded-xl p-6 mb-6">
+          <div className="flex flex-col gap-6">
+          <section className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Artist management</h2>
             <div className={row + ' border-b border-border'}>
               <div>
@@ -89,6 +90,8 @@ export default function SettingsPage() {
               </button>
             </div>
           </section>
+          </div>
+          </div>
         </div>
       </div>
     </div>

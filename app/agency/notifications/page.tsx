@@ -77,13 +77,13 @@ export default function AgencyNotificationsPage() {
           )}
         </div>
 
-        <div className="p-4 md:p-8 max-w-2xl">
+        <div className="p-4 md:p-8 max-w-5xl">
           {notifications.length === 0 ? (
             <div className="text-center py-16 text-subtle-foreground text-sm">
               No notifications yet.
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               {notifications.map(n => (
                 <div
                   key={n.id}

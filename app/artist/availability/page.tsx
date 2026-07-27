@@ -100,7 +100,7 @@ export default function ArtistAvailabilityPage() {
           <div className="text-foreground font-semibold">My Availability</div>
         </div>
 
-        <div className="p-4 md:p-8 max-w-xl">
+        <div className="p-4 md:p-8 max-w-5xl">
           <div className="mb-6">
             <h1 className="text-foreground text-xl font-semibold mb-1">Blackout dates</h1>
             <p className="text-muted-foreground/80 text-sm">
