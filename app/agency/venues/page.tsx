@@ -13,7 +13,7 @@ type Venue = {
   address: string
   type: string
   capacity: number
-  contact: string
+  contact_name: string
   contact_phone: string
   notes: string
   genres: string[]
@@ -52,7 +52,7 @@ export default function VenuesPage() {
       address: v.address || '',
       type: v.type || 'Club',
       capacity: v.capacity != null ? String(v.capacity) : '',
-      contact: v.contact || '',
+      contact: v.contact_name || '',
       contactPhone: v.contact_phone || '',
       notes: v.notes || '',
       genres: (v.genres || []).join(', '),
@@ -106,7 +106,9 @@ export default function VenuesPage() {
       address: form.address,
       type: form.type,
       capacity: form.capacity ? parseInt(form.capacity) : null,
-      contact: form.contact,
+      // Column is contact_name, not contact. Sending `contact` made every
+      // save fail with a schema-cache error and made saved names invisible.
+      contact_name: form.contact,
       contact_phone: form.contactPhone,
       notes: form.notes,
       genres: form.genres ? form.genres.split(',').map(g => g.trim()).filter(Boolean) : [],
@@ -302,11 +304,11 @@ export default function VenuesPage() {
 
                 {selected?.id === v.id && (
                   <div className="mt-4 pt-4 border-t border-border space-y-2">
-                    {(v.contact || v.contact_phone) && (
+                    {(v.contact_name || v.contact_phone) && (
                       <div>
                         <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-1">Contact</div>
                         <div className="text-muted-foreground/80 text-sm">
-                          {v.contact}{v.contact && v.contact_phone && ' • '}{v.contact_phone}
+                          {v.contact_name}{v.contact_name && v.contact_phone && ' • '}{v.contact_phone}
                         </div>
                       </div>
                     )}
