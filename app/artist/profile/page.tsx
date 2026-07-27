@@ -114,14 +114,14 @@ export default function ArtistProfilePage() {
       <ArtistSidebar />
       <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
         <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
-          <div className="text-foreground font-semibold">My Profile</div>
+          <div className="text-foreground font-semibold">Settings</div>
         </div>
 
         <div className="p-4 md:p-8 max-w-6xl">
           <div className="mb-6">
-            <h1 className="text-foreground text-xl font-semibold mb-1">Edit your profile</h1>
+            <h1 className="text-foreground text-xl font-semibold mb-1">Settings</h1>
             <p className="text-muted-foreground/80 text-sm">
-              Update how you appear to Virtuoso Entertainment and prospective venues.
+              Your profile, appearance and documents.
             </p>
           </div>
 

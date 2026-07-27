@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import { notificationLink } from '@/lib/notification-link'
 
 export default function ArtistNotificationsPage() {
   const router = useRouter()
@@ -106,14 +107,18 @@ export default function ArtistNotificationsPage() {
                       <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
                     )}
                   </div>
-                  {n.booking_id && (
-                    <button
-                      onClick={e => { e.stopPropagation(); router.push('/artist/brief/' + n.booking_id) }}
-                      className="text-xs text-primary hover:underline mt-2"
-                    >
-                      View booking
-                    </button>
-                  )}
+                  {(() => {
+                    const link = notificationLink(n.type, n.booking_id, 'artist')
+                    if (!link) return null
+                    return (
+                      <button
+                        onClick={e => { e.stopPropagation(); if (!n.read) markAsRead(n.id); router.push(link.href) }}
+                        className="text-xs text-primary hover:underline mt-2 font-semibold"
+                      >
+                        {link.label} &rarr;
+                      </button>
+                    )
+                  })()}
                 </div>
               ))}
             </div>

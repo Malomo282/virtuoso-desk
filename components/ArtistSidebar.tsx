@@ -8,7 +8,7 @@ const navItems: NavEntry[] = [
   { label: 'My availability', href: '/artist/availability', icon: 'calendarOff' },
   { label: 'Notifications', href: '/artist/notifications', icon: 'bell' },
   { label: 'My documents', href: '/artist/documents', icon: 'file' },
-  { label: 'My profile', href: '/artist/profile', icon: 'user' },
+  { label: 'Settings', href: '/artist/profile', icon: 'settings' },
 ]
 
 export default function ArtistSidebar() {
