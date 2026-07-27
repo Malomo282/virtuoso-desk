@@ -112,7 +112,7 @@ export default function ArtistDashboard() {
           <div className="text-foreground font-semibold">Artist Dashboard</div>
         </div>
 
-        <div className="p-4 md:p-8 max-w-4xl w-full">
+        <div className="p-4 md:p-8 max-w-6xl w-full">
           <div className="mb-6">
             <h1 className="text-foreground text-2xl font-bold mb-1">
               Welcome back{stageName ? ', ' + stageName : ''}

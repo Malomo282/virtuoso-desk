@@ -22,19 +22,27 @@ export default function CalendarPage() {
   const [calY, setCalY] = useState(new Date().getFullYear())
   const [calM, setCalM] = useState(new Date().getMonth())
   const [selected, setSelected] = useState<any>(null)
+  const [artists, setArtists] = useState<any[]>([])
+  const [blackouts, setBlackouts] = useState<any[]>([])
   const [venueFilter, setVenueFilter] = useState('')
+  const [artistFilter, setArtistFilter] = useState('')
   const [bragFilter, setBragFilter] = useState('')
 
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
-      const [{ data: bData }, { data: vData }] = await Promise.all([
+      const [{ data: bData }, { data: vData }, { data: aData }, blRes] = await Promise.all([
         supabase.from('bookings').select('*,venues(name,address),artists(stage_name)').is('cancelled_at', null),
         supabase.from('venues').select('id,name').order('name'),
+        supabase.from('artists').select('id,stage_name').order('stage_name'),
+        // Via the API: RLS hides this table from the agency's own session
+        fetch('/api/agency/blackouts').then(r => (r.ok ? r.json() : { blackouts: [] })).catch(() => ({ blackouts: [] })),
       ])
       if (bData) setBookings(bData)
       if (vData) setVenues(vData)
+      if (aData) setArtists(aData)
+      setBlackouts(blRes.blackouts || [])
       setLoading(false)
     }
     load()
@@ -49,7 +57,16 @@ export default function CalendarPage() {
 
   const filteredBookings = bookings.filter(b => {
     if (venueFilter && b.venue_id !== venueFilter) return false
+    if (artistFilter && b.artist_id !== artistFilter) return false
     if (bragFilter && b.brag_status !== bragFilter) return false
+    return true
+  })
+
+  // Blackout dates follow the artist filter. Filtering by venue is a
+  // venue-centric view, so availability is not meaningful there.
+  const filteredBlackouts = blackouts.filter(d => {
+    if (artistFilter && d.artist_id !== artistFilter) return false
+    if (venueFilter) return false
     return true
   })
 
@@ -106,9 +123,24 @@ export default function CalendarPage() {
         </div>
         <div className="p-4 md:p-8">
           <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-card border border-border text-foreground text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+            <select
+              value={venueFilter}
+              onChange={e => { setVenueFilter(e.target.value); if (e.target.value) setArtistFilter('') }}
+              aria-label="Filter by venue"
+              className="bg-card border border-input-border text-foreground text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+            >
               <option value="">All venues</option>
               {venues.map(v => (<option key={v.id} value={v.id}>{v.name}</option>))}
+            </select>
+
+            <select
+              value={artistFilter}
+              onChange={e => { setArtistFilter(e.target.value); if (e.target.value) setVenueFilter('') }}
+              aria-label="Filter by artist"
+              className="bg-card border border-input-border text-foreground text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+            >
+              <option value="">All artists</option>
+              {artists.map(a => (<option key={a.id} value={a.id}>{a.stage_name}</option>))}
             </select>
             <div className="flex gap-2">
               {[{ value: '', label: 'All' }, { value: 'B', label: 'Complete' }, { value: 'R', label: 'Urgent' }, { value: 'A', label: 'Pending' }, { value: 'G', label: 'Confirmed' }].map(({ value, label }) => (
@@ -122,6 +154,10 @@ export default function CalendarPage() {
                   <span className="text-muted-foreground/80 text-xs">{v.label}</span>
                 </div>
               ))}
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-subtle-foreground" />
+                <span className="text-muted-foreground/80 text-xs">Artist unavailable</span>
+              </div>
             </div>
           </div>
 
@@ -141,6 +177,7 @@ export default function CalendarPage() {
               const d = i + 1
               const ds = calY + '-' + String(calM + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0')
               const dayBks = filteredBookings.filter(b => b.starts_at && b.starts_at.slice(0, 10) === ds)
+              const dayOff = filteredBlackouts.filter(b => b.date === ds)
               const isT = today.getFullYear() === calY && today.getMonth() === calM && today.getDate() === d
               return (
                 <div key={d} className={'min-h-20 bg-card border rounded-lg p-1.5 ' + (isT ? 'border-primary' : 'border-border')}>
@@ -150,6 +187,18 @@ export default function CalendarPage() {
                     return (
                       <div key={b.id} onClick={() => setSelected(selected?.id === b.id ? null : b)} className={'text-xs rounded px-1 py-0.5 mb-0.5 cursor-pointer truncate ' + br.cls} style={{ background: br.bg }}>
                         {b.venues?.name?.split(' ')[0] || 'Gig'}
+                      </div>
+                    )
+                  })}
+                  {dayOff.map(o => {
+                    const who = Array.isArray(o.artists) ? o.artists[0] : o.artists
+                    return (
+                      <div
+                        key={o.id}
+                        title={(who?.stage_name || 'Artist') + ' unavailable' + (o.note ? ' — ' + o.note : '')}
+                        className="text-xs rounded px-1 py-0.5 mb-0.5 truncate bg-secondary text-subtle-foreground border-l-2 border-subtle-foreground"
+                      >
+                        {(who?.stage_name || 'Artist').split(' ')[0]} off
                       </div>
                     )
                   })}

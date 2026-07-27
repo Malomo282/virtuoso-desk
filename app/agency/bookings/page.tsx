@@ -185,12 +185,10 @@ export default function BookingsPage() {
       return
     }
 
-    const { data: blackoutDates } = await supabase
-      .from('artist_availability')
-      .select('id, date, note')
-      .eq('artist_id', booking.artist_id)
-      .gte('date', start_date)
-      .lte('date', end_date)
+    const blackoutRes = await fetch(
+      '/api/agency/blackouts?artistId=' + booking.artist_id + '&from=' + start_date + '&to=' + end_date
+    ).then(r => (r.ok ? r.json() : { blackouts: [] })).catch(() => ({ blackouts: [] }))
+    const blackoutDates = blackoutRes.blackouts
 
     if (blackoutDates && blackoutDates.length > 0) {
       setActionError((booking.artists?.stage_name || 'This artist') + ' has marked ' + blackoutDates[0].date + ' as unavailable' + (blackoutDates[0].note ? ' (' + blackoutDates[0].note + ')' : '') + '.')

@@ -271,12 +271,10 @@ export default function AvailableGigsPage() {
       return
     }
 
-    const { data: blackoutDates } = await supabase
-      .from('artist_availability')
-      .select('id, date, note')
-      .eq('artist_id', response.artist_id)
-      .gte('date', gig.starts_at.slice(0, 10))
-      .lte('date', gig.ends_at.slice(0, 10))
+    const blackoutRes = await fetch(
+      '/api/agency/blackouts?artistId=' + response.artist_id + '&from=' + gig.starts_at.slice(0, 10) + '&to=' + gig.ends_at.slice(0, 10)
+    ).then(r => (r.ok ? r.json() : { blackouts: [] })).catch(() => ({ blackouts: [] }))
+    const blackoutDates = blackoutRes.blackouts
 
     if (blackoutDates && blackoutDates.length > 0) {
       setError((response.artists?.stage_name || 'This artist') + ' has marked ' + blackoutDates[0].date + ' as unavailable' + (blackoutDates[0].note ? ' (' + blackoutDates[0].note + ')' : '') + '.')

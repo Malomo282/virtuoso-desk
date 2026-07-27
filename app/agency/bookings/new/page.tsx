@@ -84,12 +84,12 @@ export default function NewBookingPage() {
       return
     }
 
-    const { data: blackoutDates } = await supabase
-      .from('artist_availability')
-      .select('id, date, note')
-      .eq('artist_id', form.artist_id)
-      .gte('date', form.start_date)
-      .lte('date', form.end_date)
+    // Through the API: RLS hides artist_availability from the agency session,
+    // so querying it directly here always came back empty and this check never fired.
+    const blackoutRes = await fetch(
+      '/api/agency/blackouts?artistId=' + form.artist_id + '&from=' + form.start_date + '&to=' + form.end_date
+    ).then(r => (r.ok ? r.json() : { blackouts: [] })).catch(() => ({ blackouts: [] }))
+    const blackoutDates = blackoutRes.blackouts
 
     if (blackoutDates && blackoutDates.length > 0) {
       const artistName = artists.find(a => a.id === form.artist_id)?.name || 'This artist'
@@ -133,7 +133,7 @@ export default function NewBookingPage() {
           <button onClick={() => router.push('/agency/bookings')} className="text-muted-foreground/80 hover:text-foreground text-sm">Back</button>
           <div className="text-foreground font-semibold">New Booking</div>
         </div>
-        <div className="p-4 md:p-8 max-w-4xl">
+        <div className="p-4 md:p-8 max-w-6xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
