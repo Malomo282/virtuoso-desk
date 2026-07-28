@@ -19,6 +19,7 @@ export function notificationLink(
         return { href: '/artist/available', label: 'View gig' }
       case 'booking_confirmed':
       case 'booking_rescheduled':
+      case 'booking_updated':
       case 'reminder_48h':
       case 'reminder_24h':
         return bookingId

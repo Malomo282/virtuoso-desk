@@ -246,8 +246,9 @@ export default function NewBookingPage() {
               <textarea value={form.internal_notes} onChange={e => update('internal_notes', e.target.value)} className={inp} rows={3} placeholder="Contact, parking, load-in..." />
             </div>
             <div>
-              <label className={lbl}>Google Doc brief link</label>
-              <input type="text" value={form.brief_doc_url} onChange={e => update('brief_doc_url', e.target.value)} className={inp} placeholder="https://docs.google.com/..." />
+              <label className={lbl}>Music brief link</label>
+              <input type="url" value={form.brief_doc_url} onChange={e => update('brief_doc_url', e.target.value)} className={inp} placeholder="https://... (Spotify, SoundCloud, Google Drive)" />
+              <p className="text-subtle-foreground text-xs mt-1">Shown to the artist on their brief. Editable later from Booked gigs.</p>
             </div>
 
             {error && <div className="bg-destructive/10 border border-destructive/40 rounded-lg px-4 py-3 text-destructive text-sm">{error}</div>}

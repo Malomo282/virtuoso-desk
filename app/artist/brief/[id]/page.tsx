@@ -10,10 +10,6 @@ export default function BriefPage({ params }: { params: { id: string } }) {
   const [booking, setBooking] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [agreement, setAgreement] = useState<any>(null)
-  const [uploadFile, setUploadFile] = useState<File | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -30,44 +26,12 @@ export default function BriefPage({ params }: { params: { id: string } }) {
         setError('Brief not found or you do not have access.')
       } else {
         setBooking(data)
-        loadAgreement()
       }
       setLoading(false)
     }
     load()
   }, [params.id])
 
-  async function loadAgreement() {
-    const res = await fetch('/api/agreements?bookingId=' + params.id)
-    if (res.ok) {
-      const json = await res.json()
-      setAgreement(json.agreement)
-    }
-  }
-
-  async function handleUpload(e: React.FormEvent) {
-    e.preventDefault()
-    if (!uploadFile) return
-    setUploading(true)
-    setUploadError('')
-
-    const formData = new FormData()
-    formData.append('file', uploadFile)
-    formData.append('bookingId', params.id)
-
-    const res = await fetch('/api/agreements', { method: 'POST', body: formData })
-    const json = await res.json()
-
-    if (!res.ok) {
-      setUploadError(json.error || 'Upload failed')
-      setUploading(false)
-      return
-    }
-
-    setUploadFile(null)
-    setUploading(false)
-    loadAgreement()
-  }
 
   if (loading) {
     return (
@@ -163,42 +127,9 @@ export default function BriefPage({ params }: { params: { id: string } }) {
             </a>
           )}
 
-          <div className="bg-card border border-border rounded-xl p-5 mb-4">
-            <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-3">Contract / rider</div>
-            {agreement ? (
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="min-w-0">
-                  <div className="text-foreground text-sm truncate">{agreement.fileName}</div>
-                  <div className="text-subtle-foreground text-xs">
-                    Uploaded {agreement.uploadedAt ? new Date(agreement.uploadedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
-                  </div>
-                </div>
-                <a href={agreement.url} target="_blank" rel="noreferrer" className="text-xs bg-success/15 border border-success/40 text-success px-3 py-1.5 rounded-lg hover:bg-success/25 transition-colors flex-shrink-0">
-                  View
-                </a>
-              </div>
-            ) : (
-              <p className="text-muted-foreground/80 text-xs mb-3">
-                Upload your signed contract or rider for this gig (PDF, Word, or image — max 4MB).
-              </p>
-            )}
-            <form onSubmit={handleUpload} className="flex items-center gap-2 flex-wrap">
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                className="text-xs text-muted-foreground/80 file:mr-3 file:bg-secondary file:border file:border-border file:text-muted-foreground/80 file:text-xs file:px-3 file:py-1.5 file:rounded-lg file:cursor-pointer"
-              />
-              <button
-                type="submit"
-                disabled={!uploadFile || uploading}
-                className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-40 transition-colors"
-              >
-                {uploading ? 'Uploading...' : agreement ? 'Replace document' : 'Upload document'}
-              </button>
-            </form>
-            {uploadError && <div className="text-destructive text-xs mt-2">{uploadError}</div>}
-          </div>
+          {/* The per-booking contract/rider upload lived here. Artists sign a
+              single agency agreement instead, handled once in My documents,
+              so there is nothing to attach to an individual gig. */}
 
           <div className="bg-secondary border border-border rounded-xl p-4 text-center">
             <div className="text-muted-foreground/80 text-xs">

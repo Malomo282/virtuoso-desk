@@ -13,6 +13,9 @@ const BRAG: Record<string, { label: string; color: string; border: string }> = {
   G: { label: 'Booking confirmed', color: 'bg-success/15 text-success', border: 'border-l-success' },
 }
 
+const editInput = 'w-full bg-background border border-input-border rounded-lg px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary'
+const editLabel = 'block text-subtle-foreground text-xs uppercase tracking-widest mb-1'
+
 export default function BookingsPage() {
   const router = useRouter()
   const [bookings, setBookings] = useState<any[]>([])
@@ -23,6 +26,11 @@ export default function BookingsPage() {
   const [cancelReason, setCancelReason] = useState('')
   const [rescheduling, setRescheduling] = useState('')
   const [rescheduleForm, setRescheduleForm] = useState({ start_date: '', start_time: '', end_date: '', end_time: '' })
+  const [editing, setEditing] = useState('')
+  const [editForm, setEditForm] = useState({
+    event_name: '', fee_artist: '', fee_venue: '', dress_code: '',
+    contact_number: '', brief_text: '', brief_doc_url: '', internal_notes: '',
+  })
   const [actionError, setActionError] = useState('')
   const [actionSaving, setActionSaving] = useState(false)
 
@@ -46,6 +54,81 @@ export default function BookingsPage() {
     if (b.cancelled_at) return false
     return !filter || b.brag_status === filter
   })
+
+  function startEdit(b: any) {
+    setEditing(b.id)
+    setCancelling('')
+    setRescheduling('')
+    setActionError('')
+    setEditForm({
+      event_name: b.event_name || '',
+      fee_artist: b.fee_artist != null ? String(b.fee_artist) : '',
+      fee_venue: b.fee_venue != null ? String(b.fee_venue) : '',
+      dress_code: b.dress_code || '',
+      contact_number: b.contact_number || '',
+      brief_text: b.brief_text || '',
+      brief_doc_url: b.brief_doc_url || '',
+      internal_notes: b.internal_notes || '',
+    })
+  }
+
+  /**
+   * Save edits to a booking's details. Dates are deliberately not editable
+   * here - changing them goes through Reschedule, which preserves the
+   * original in cancelled history rather than silently moving it.
+   */
+  async function saveEdit(booking: any) {
+    setActionSaving(true)
+    setActionError('')
+
+    const num = (s: string) => (s.trim() === '' ? null : Number(s))
+    if ([editForm.fee_artist, editForm.fee_venue].some(v => v.trim() !== '' && Number.isNaN(Number(v)))) {
+      setActionError('Fees must be numbers.')
+      setActionSaving(false)
+      return
+    }
+
+    const { error } = await supabase
+      .from('bookings')
+      .update({
+        event_name: editForm.event_name || null,
+        fee_artist: num(editForm.fee_artist),
+        fee_venue: num(editForm.fee_venue),
+        dress_code: editForm.dress_code || null,
+        contact_number: editForm.contact_number || null,
+        brief_text: editForm.brief_text || null,
+        brief_doc_url: editForm.brief_doc_url || null,
+        internal_notes: editForm.internal_notes || null,
+      })
+      .eq('id', booking.id)
+
+    if (error) {
+      setActionError(error.message)
+      setActionSaving(false)
+      return
+    }
+
+    // Tell the artist their gig changed, so they re-read the brief rather
+    // than turning up on out-of-date information.
+    if (booking.artists?.user_id) {
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIds: [booking.artists.user_id],
+          type: 'booking_updated',
+          bookingId: booking.id,
+          message:
+            'Your booking ' + gigTitle(editForm.event_name, booking.venues?.name) +
+            ' has been updated. Please re-read your brief.',
+        }),
+      })
+    }
+
+    setEditing('')
+    setActionSaving(false)
+    loadBookings()
+  }
 
   function startCancel(id: string) {
     setCancelling(id)
@@ -335,9 +418,9 @@ export default function BookingsPage() {
                           <div className="text-muted-foreground/80 text-sm leading-relaxed">{b.internal_notes}</div>
                         </div>
                       )}
-                      {!b.cancelled_at && cancelling !== b.id && rescheduling !== b.id && (
+                      {!b.cancelled_at && cancelling !== b.id && rescheduling !== b.id && editing !== b.id && (
                         <div className="col-span-2 flex gap-2 mt-2 flex-wrap">
-                          <button className="bg-secondary border border-border text-muted-foreground/80 text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Edit booking</button>
+                          <button onClick={e => { e.stopPropagation(); startEdit(b) }} className="bg-secondary border border-border text-muted-foreground/80 text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Edit booking</button>
                           {b.brag_status !== 'B' && (
                             <button onClick={e => { e.stopPropagation(); markCompleted(b) }} disabled={actionSaving} className="bg-info/15 border border-info/40 text-info text-xs px-3 py-1.5 rounded-lg hover:bg-info/25 disabled:opacity-50 transition-colors">
                               {actionSaving ? 'Saving...' : 'Mark completed'}
@@ -346,6 +429,57 @@ export default function BookingsPage() {
                           <button onClick={e => { e.stopPropagation(); startReschedule(b) }} className="bg-secondary border border-border text-primary text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Reschedule</button>
                           <button onClick={e => { e.stopPropagation(); startCancel(b.id) }} className="bg-destructive/15 border border-destructive/40 text-destructive text-xs px-3 py-1.5 rounded-lg hover:bg-destructive/25 transition-colors">Cancel booking</button>
                           {actionError && <div className="w-full text-destructive text-xs mt-1">{actionError}</div>}
+                        </div>
+                      )}
+
+                      {editing === b.id && (
+                        <div className="col-span-2 mt-2 bg-secondary border border-border rounded-lg p-4" onClick={e => e.stopPropagation()}>
+                          <div className="text-foreground text-sm font-semibold mb-3">Edit booking details</div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="sm:col-span-2">
+                              <label className={editLabel}>Gig title</label>
+                              <input type="text" value={editForm.event_name} onChange={e => setEditForm(p => ({ ...p, event_name: e.target.value }))} className={editInput} placeholder="e.g. Saturday Night Residency" />
+                            </div>
+                            <div>
+                              <label className={editLabel}>Artist fee (GBP)</label>
+                              <input type="text" inputMode="decimal" value={editForm.fee_artist} onChange={e => setEditForm(p => ({ ...p, fee_artist: e.target.value }))} className={editInput} placeholder="e.g. 300" />
+                            </div>
+                            <div>
+                              <label className={editLabel}>Venue rate (GBP)</label>
+                              <input type="text" inputMode="decimal" value={editForm.fee_venue} onChange={e => setEditForm(p => ({ ...p, fee_venue: e.target.value }))} className={editInput} placeholder="e.g. 500" />
+                            </div>
+                            <div>
+                              <label className={editLabel}>Dress code</label>
+                              <input type="text" value={editForm.dress_code} onChange={e => setEditForm(p => ({ ...p, dress_code: e.target.value }))} className={editInput} placeholder="e.g. Smart casual" />
+                            </div>
+                            <div>
+                              <label className={editLabel}>Contact on the night</label>
+                              <input type="tel" value={editForm.contact_number} onChange={e => setEditForm(p => ({ ...p, contact_number: e.target.value }))} className={editInput} placeholder="e.g. 07123 456789" />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={editLabel}>Music brief link</label>
+                              <input type="url" value={editForm.brief_doc_url} onChange={e => setEditForm(p => ({ ...p, brief_doc_url: e.target.value }))} className={editInput} placeholder="https://... (Spotify, SoundCloud, Google Drive)" />
+                              <p className="text-subtle-foreground text-xs mt-1">Shown to the artist as &ldquo;Open full brief document&rdquo; on their booking.</p>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={editLabel}>Brief notes (visible to artist)</label>
+                              <textarea value={editForm.brief_text} onChange={e => setEditForm(p => ({ ...p, brief_text: e.target.value }))} rows={2} className={editInput + ' resize-none'} placeholder="Set, timings, anything the artist needs to know" />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={editLabel}>Internal notes (agency only)</label>
+                              <textarea value={editForm.internal_notes} onChange={e => setEditForm(p => ({ ...p, internal_notes: e.target.value }))} rows={2} className={editInput + ' resize-none'} placeholder="Never shown to the artist" />
+                            </div>
+                          </div>
+                          <p className="text-subtle-foreground text-xs mt-3">
+                            To change the date or time, use Reschedule &mdash; it keeps the original booking in cancelled history.
+                          </p>
+                          {actionError && <div className="text-destructive text-xs mt-2">{actionError}</div>}
+                          <div className="flex gap-2 mt-3">
+                            <button onClick={() => saveEdit(b)} disabled={actionSaving} className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors">
+                              {actionSaving ? 'Saving...' : 'Save changes'}
+                            </button>
+                            <button onClick={() => setEditing('')} className="text-xs text-muted-foreground/80 hover:text-foreground">Back</button>
+                          </div>
                         </div>
                       )}
 
