@@ -4,6 +4,9 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 import { sendNotifications } from '@/lib/notify'
 
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
 export async function POST(request: Request) {
   try {
     const supabase = createServerClient()

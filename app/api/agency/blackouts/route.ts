@@ -11,6 +11,7 @@ import { createClient as createServerClient } from '@/lib/supabase-server'
 // conflict check on New Booking always passed. Both now come through here,
 // which verifies the caller is the agency and then reads with the service role.
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export async function GET(request: Request) {
   try {

@@ -6,6 +6,9 @@ import { notifyAgency } from '@/lib/notify'
 import { makeCalendarToken } from '@/lib/calendar-token'
 import { gigTitle } from '@/lib/gig-title'
 
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
 // Artist-facing view of open gigs, and their response to them.
 //
 // gig_responses and available_gigs both have RLS enabled with no policy for

@@ -4,6 +4,9 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 import { notifyAgency } from '@/lib/notify'
 
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
 const BUCKET = 'artist-documents'
 const DOC_TYPES = ['id', 'right_to_work', 'agency_agreement']
 const DOC_LABELS: Record<string, string> = {

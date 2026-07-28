@@ -3,6 +3,9 @@ import type { Database } from '@/lib/database.types'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
 // Agency-only window onto a single artist's portal data.
 //
 // The artist-facing view and RLS policies are scoped to auth.uid(), which is

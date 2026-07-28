@@ -2,6 +2,9 @@ import{NextResponse}from'next/server'
 import type { Database } from '@/lib/database.types'
 import{createClient}from'@supabase/supabase-js'
 import{Resend}from'resend'
+
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 export async function POST(request:Request){
 try{
 const{email,fullName,stageName}=await request.json()

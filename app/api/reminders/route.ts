@@ -5,6 +5,10 @@ import { Resend } from 'resend'
 import { gigTitle } from '@/lib/gig-title'
 
 export const dynamic = 'force-dynamic'
+// supabase-js calls global fetch, which the App Router caches. That silently
+// served a stale (empty) reminder ledger, so every run re-sent reminders that
+// had already gone out. Opt this route out of fetch caching entirely.
+export const fetchCache = 'force-no-store'
 
 const HOUR = 60 * 60 * 1000
 

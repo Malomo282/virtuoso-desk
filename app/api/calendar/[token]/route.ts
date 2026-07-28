@@ -11,6 +11,7 @@ import { gigTitle } from '@/lib/gig-title'
 // Deliberately unauthenticated: the signed token in the path is the
 // credential, because calendar clients cannot carry a session.
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export async function GET(_request: Request, { params }: { params: { token: string } }) {
   const artistId = verifyCalendarToken(params.token)
