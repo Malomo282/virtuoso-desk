@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/database.types'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 import { notifyAgency } from '@/lib/notify'
@@ -19,7 +20,7 @@ function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) return null
-  return createServiceClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  return createServiceClient<Database>(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
 // These are identity documents (passports, visas, share codes), so the rules

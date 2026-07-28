@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/database.types'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!url || !key) return NextResponse.json({ error: 'Missing env vars' }, { status: 500 })
-    const admin = createServiceClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+    const admin = createServiceClient<Database>(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 
     const { data: profile } = await admin.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
     if (profile?.role !== 'agency') {

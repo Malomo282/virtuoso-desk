@@ -1,4 +1,5 @@
 import{NextResponse}from'next/server'
+import type { Database } from '@/lib/database.types'
 import{createClient}from'@supabase/supabase-js'
 import{Resend}from'resend'
 export async function POST(request:Request){
@@ -8,7 +9,7 @@ if(!email)return NextResponse.json({error:'Email required'},{status:400})
 const url=process.env.NEXT_PUBLIC_SUPABASE_URL
 const key=process.env.SUPABASE_SERVICE_ROLE_KEY
 if(!url||!key)return NextResponse.json({error:'Missing env vars: url='+!!url+' key='+!!key},{status:500})
-const supabaseAdmin=createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}})
+const supabaseAdmin=createClient<Database>(url,key,{auth:{autoRefreshToken:false,persistSession:false}})
 const token=Math.random().toString(36).substring(2)+Math.random().toString(36).substring(2)+Date.now().toString(36)
 const{error:insertError}=await supabaseAdmin.from('artist_invites').insert({email,token,full_name:fullName||null,stage_name:stageName||null})
 if(insertError)return NextResponse.json({error:insertError.message,hint:insertError.hint},{status:400})

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/database.types'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase-server'
 import { sendNotifications } from '@/lib/notify'
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!url || !key) return NextResponse.json({ error: 'Missing env vars' }, { status: 500 })
-    const supabaseAdmin = createServiceClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+    const supabaseAdmin = createServiceClient<Database>(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 
     await sendNotifications(supabaseAdmin, userIds, {
       type: type || 'general',

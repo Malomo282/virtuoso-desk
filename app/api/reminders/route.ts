@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/database.types'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { gigTitle } from '@/lib/gig-title'
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!url || !key) return NextResponse.json({ error: 'Missing env vars' }, { status: 500 })
-    const supabase = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+    const supabase = createClient<Database>(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 
     const now = Date.now()
     const in48h = new Date(now + 48 * HOUR).toISOString()

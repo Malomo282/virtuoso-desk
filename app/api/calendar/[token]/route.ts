@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@/lib/database.types'
 import { generateICS, type IcsEvent } from '@/lib/ics'
 import { verifyCalendarToken } from '@/lib/calendar-token'
 import { gigTitle } from '@/lib/gig-title'
@@ -20,7 +21,7 @@ export async function GET(_request: Request, { params }: { params: { token: stri
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) return new Response('Server not configured', { status: 500 })
-  const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  const admin = createClient<Database>(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 
   const [bookingsRes, responsesRes] = await Promise.all([
     admin

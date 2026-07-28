@@ -88,12 +88,21 @@ export default function RosterPage() {
       if (!session) { router.push('/login'); return }
 
       const [{ data: artistData }, { data: bookingData }, { data: docData }] = await Promise.all([
-        supabase.from('artists').select('*').order('stage_name'),
+        // full_name and email live on profiles, not artists. Selecting '*'
+        // here quietly returned neither, so the roster never showed an email
+        // and search-by-name never matched.
+        supabase.from('artists').select('*, profiles(full_name, email)').order('stage_name'),
         supabase.from('bookings').select('artist_id'),
         supabase.from('artist_documents').select('artist_id, doc_type'),
       ])
 
-      if (artistData) setArtists(artistData)
+      if (artistData) {
+        setArtists(artistData.map((a: any) => ({
+          ...a,
+          full_name: a.profiles?.full_name || '',
+          email: a.profiles?.email || '',
+        })))
+      }
 
       if (bookingData) {
         const counts: Record<string, number> = {}
