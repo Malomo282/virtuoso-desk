@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import TagInput from '@/components/TagInput'
+import VenueBriefs from '@/components/VenueBriefs'
 import NavIcon from '@/components/NavIcon'
 
 type Venue = {
@@ -318,6 +319,11 @@ export default function VenuesPage() {
                         <div className="text-muted-foreground/80 text-sm leading-relaxed">{v.notes}</div>
                       </div>
                     )}
+
+                    <div className="pt-3 mt-1 border-t border-border">
+                      <VenueBriefs venueId={v.id} canManage />
+                    </div>
+
                     <div className="flex gap-2 mt-2 flex-wrap">
                       <button
                         onClick={e => { e.stopPropagation(); startEdit(v); window.scrollTo({ top: 0, behavior: 'smooth' }) }}

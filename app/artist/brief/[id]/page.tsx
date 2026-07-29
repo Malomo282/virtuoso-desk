@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import VenueBriefs from '@/components/VenueBriefs'
 import { gigTitle } from '@/lib/gig-title'
 
 export default function BriefPage({ params }: { params: { id: string } }) {
@@ -126,6 +127,12 @@ export default function BriefPage({ params }: { params: { id: string } }) {
               Open full brief document
             </a>
           )}
+
+          {/* Briefs the agency filed against this venue - house rules, floor
+              plans, load-in. Read-only here; hidden entirely if there are none. */}
+          <div className="mb-4">
+            <VenueBriefs bookingId={params.id} />
+          </div>
 
           {/* The per-booking contract/rider upload lived here. Artists sign a
               single agency agreement instead, handled once in My documents,

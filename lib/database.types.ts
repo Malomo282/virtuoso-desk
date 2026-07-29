@@ -471,6 +471,41 @@ export type Database = {
         Relationships: [
         ]
       }
+      venue_documents: {
+        Row: {
+          id: string
+          venue_id: string
+          name: string
+          file_url: string
+          doc_type: string | null
+          uploaded_at: string
+        }
+        Insert: {
+          id?: string
+          venue_id: string
+          name: string
+          file_url: string
+          doc_type?: string | null
+          uploaded_at?: string
+        }
+        Update: {
+          id?: string
+          venue_id?: string
+          name?: string
+          file_url?: string
+          doc_type?: string | null
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_documents_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       venues: {
         Row: {
           id: string

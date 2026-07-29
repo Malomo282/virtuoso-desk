@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
+import NotificationBell from '@/components/NotificationBell'
 import NavIcon from '@/components/NavIcon'
 import { gigTitle } from '@/lib/gig-title'
 
@@ -110,6 +111,7 @@ export default function ArtistDashboard() {
       <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
         <div className="bg-card border-b border-border px-4 md:px-8 h-14 flex items-center">
           <div className="text-foreground font-semibold">Artist Dashboard</div>
+          <div className="ml-auto"><NotificationBell role="artist" /></div>
         </div>
 
         <div className="p-4 md:p-8 max-w-6xl w-full">
