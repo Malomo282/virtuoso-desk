@@ -8,7 +8,7 @@ import NavIcon from '@/components/NavIcon'
 import { gigTitle } from '@/lib/gig-title'
 
 const BRAG: Record<string, { label: string; cls: string }> = {
-  B: { label: 'Completed', cls: 'bg-info/15 text-info' },
+  B: { label: 'Signed off for payment', cls: 'bg-info/15 text-info' },
   R: { label: 'Urgent', cls: 'bg-destructive/15 text-destructive' },
   A: { label: 'Under review', cls: 'bg-primary/15 text-primary' },
   G: { label: 'Confirmed', cls: 'bg-success/15 text-success' },

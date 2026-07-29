@@ -270,6 +270,21 @@ export default function AvailableGigsPage() {
   async function confirmArtist(gig: Gig, response: GigResponse) {
     setConfirming(true)
 
+    // Same gate the artist portal applies. Checked again here because an
+    // agreement can be removed between an artist accepting and the agency
+    // getting round to confirming.
+    const docsRes = await fetch('/api/artist-documents?artistId=' + response.artist_id)
+      .then(r => (r.ok ? r.json() : { documents: {} }))
+      .catch(() => ({ documents: {} }))
+    if (!docsRes.documents?.agency_agreement) {
+      setError(
+        (response.artists?.stage_name || 'This artist') +
+        ' has no signed agency agreement on file, so they cannot be confirmed for a gig yet.'
+      )
+      setConfirming(false)
+      return
+    }
+
     const { data: conflicts } = await supabase
       .from('bookings')
       .select('id, event_name')

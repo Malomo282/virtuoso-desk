@@ -18,7 +18,7 @@ const STATUS = {
   available: { label: 'Available (awaiting agency decision)', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-primary' },
   reviewing: { label: 'Being reviewed', color: '#C8A94A', bg: 'rgba(200,169,74,0.15)', cls: 'text-primary' },
   confirmed: { label: 'Confirmed', color: '#4BAF7A', bg: 'rgba(75,175,122,0.15)', cls: 'text-success' },
-  completed: { label: 'Completed / to be paid', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-info' },
+  completed: { label: 'Signed off for payment', color: '#5B8DEF', bg: 'rgba(91,141,239,0.15)', cls: 'text-info' },
 }
 
 // available and reviewing share a colour, so the key lists one amber entry.

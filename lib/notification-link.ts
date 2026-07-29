@@ -20,6 +20,7 @@ export function notificationLink(
       case 'booking_confirmed':
       case 'booking_rescheduled':
       case 'booking_updated':
+      case 'booking_signed_off':
       case 'reminder_48h':
       case 'reminder_24h':
         return bookingId

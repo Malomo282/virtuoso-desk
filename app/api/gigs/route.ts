@@ -5,6 +5,7 @@ import { createClient as createServerClient } from '@/lib/supabase-server'
 import { notifyAgency } from '@/lib/notify'
 import { makeCalendarToken } from '@/lib/calendar-token'
 import { gigTitle } from '@/lib/gig-title'
+import { hasSignedAgreement, AGREEMENT_REQUIRED_MESSAGE } from '@/lib/agreement-gate'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -39,6 +40,19 @@ export async function GET() {
 
     const artist = await resolveArtist(session.user.id, admin)
     if (!artist) return NextResponse.json({ error: 'No artist profile found' }, { status: 403 })
+
+    // No signed agreement, no gigs. Returning an empty list with a reason
+    // rather than an error so the page can explain itself instead of just
+    // looking broken.
+    if (!(await hasSignedAgreement(admin, artist.id))) {
+      return NextResponse.json({
+        gigs: [],
+        responses: {},
+        agreementRequired: true,
+        reason: AGREEMENT_REQUIRED_MESSAGE,
+        calendarToken: makeCalendarToken(artist.id),
+      })
+    }
 
     const [{ data: gigs }, { data: responses }] = await Promise.all([
       admin
@@ -83,6 +97,12 @@ export async function POST(request: Request) {
     const { gigId, response } = await request.json()
     if (!gigId || !['accepted', 'declined'].includes(response)) {
       return NextResponse.json({ error: 'gigId and a valid response are required' }, { status: 400 })
+    }
+
+    // Enforced here as well as on the list: the list only hides gigs, and a
+    // POST does not have to come from that page.
+    if (!(await hasSignedAgreement(admin, artist.id))) {
+      return NextResponse.json({ error: AGREEMENT_REQUIRED_MESSAGE }, { status: 403 })
     }
 
     const { data: gig } = await admin

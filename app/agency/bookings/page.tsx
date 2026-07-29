@@ -176,6 +176,25 @@ export default function BookingsPage() {
       }
     }
 
+    // Marking a gig completed is the payment sign-off, so tell the artist.
+    // Until now this happened silently and they had no way to know their fee
+    // had been approved.
+    if (booking.artists?.user_id) {
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIds: [booking.artists.user_id],
+          type: 'booking_signed_off',
+          bookingId: booking.id,
+          message:
+            gigTitle(booking.event_name, booking.venues?.name) +
+            ' has been signed off for payment' +
+            (booking.fee_artist != null ? ' (GBP ' + booking.fee_artist.toLocaleString() + ')' : '') + '.',
+        }),
+      })
+    }
+
     setSelected(null)
     setActionSaving(false)
     loadBookings()

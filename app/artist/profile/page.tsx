@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import TagInput from '@/components/TagInput'
+import ChangePassword from '@/components/ChangePassword'
 import dynamic from 'next/dynamic'
 
 const ThemePicker = dynamic(() => import('@/components/ThemePicker'), {
@@ -229,6 +230,14 @@ export default function ArtistProfilePage() {
             >
               Go to My documents &rarr;
             </button>
+          </div>
+
+          <div className="mt-8 bg-card border border-border rounded-xl p-6">
+            <h2 className="text-foreground font-semibold mb-1">Password</h2>
+            <p className="text-muted-foreground/80 text-xs mb-4">
+              Change it here without needing an email link.
+            </p>
+            <ChangePassword />
           </div>
 
           <div className="mt-8 bg-card border border-border rounded-xl p-6">

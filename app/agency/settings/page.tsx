@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
+import ChangePassword from '@/components/ChangePassword'
 import dynamic from 'next/dynamic'
 
 const ThemePicker = dynamic(() => import('@/components/ThemePicker'), {
@@ -45,10 +46,19 @@ export default function SettingsPage() {
 
         <div className="p-4 md:p-8 max-w-6xl w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <section className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Appearance</h2>
-            <ThemePicker />
-          </section>
+          <div className="flex flex-col gap-6">
+            <section className="bg-card border border-border rounded-xl p-6">
+              <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Appearance</h2>
+              <ThemePicker />
+            </section>
+            <section className="bg-card border border-border rounded-xl p-6">
+              <h2 className="text-foreground font-semibold mb-1">Password</h2>
+              <p className="text-muted-foreground/80 text-xs mb-4">
+                Change it here without needing an email link.
+              </p>
+              <ChangePassword />
+            </section>
+          </div>
           <div className="flex flex-col gap-6">
           <section className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Artist management</h2>
@@ -75,13 +85,8 @@ export default function SettingsPage() {
 
           <section className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-muted-foreground text-xs uppercase tracking-widest mb-4">Account</h2>
-            <div className={row + ' border-b border-border'}>
-              <div>
-                <div className="text-foreground text-sm font-medium">Change password</div>
-                <div className="text-muted-foreground text-xs mt-0.5">Update your login password</div>
-              </div>
-              <button onClick={() => router.push('/reset-password')} className={secondaryBtn}>Change</button>
-            </div>
+            {/* Changing a password no longer means an email round trip - it is
+                done in place in the Password panel. */}
             <div className={row}>
               <div>
                 <div className="text-foreground text-sm font-medium">Sign out</div>

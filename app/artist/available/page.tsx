@@ -12,6 +12,7 @@ export default function ArtistAvailableGigsPage() {
   const [responses, setResponses] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState<string>('')
   const [error, setError] = useState('')
+  const [agreementRequired, setAgreementRequired] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -32,6 +33,7 @@ export default function ArtistAvailableGigsPage() {
     }
     setGigs(json.gigs || [])
     setResponses(json.responses || {})
+    setAgreementRequired(!!json.agreementRequired)
   }
 
   async function respond(gigId: string, response: string) {
@@ -79,7 +81,25 @@ export default function ArtistAvailableGigsPage() {
             </div>
           )}
 
-          {gigs.length === 0 && (
+          {agreementRequired && (
+            <div className="bg-primary/10 border border-primary/40 rounded-xl p-5 mb-4">
+              <div className="text-primary text-xs uppercase tracking-widest font-semibold mb-2">
+                Agreement needed
+              </div>
+              <p className="text-foreground text-sm mb-3">
+                Gigs are on hold until your signed agency agreement is on file. Upload it once
+                and gigs will appear here straight away.
+              </p>
+              <button
+                onClick={() => router.push('/artist/documents')}
+                className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-widest hover:bg-primary/90 transition-colors"
+              >
+                Upload agreement
+              </button>
+            </div>
+          )}
+
+          {!agreementRequired && gigs.length === 0 && (
             <div className="text-center py-16 text-subtle-foreground text-sm">
               No open gigs at the moment. Check back soon.
             </div>
