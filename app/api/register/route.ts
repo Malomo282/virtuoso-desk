@@ -1,6 +1,7 @@
 import{NextResponse}from'next/server'
 import type { Database } from '@/lib/database.types'
 import{createClient}from'@supabase/supabase-js'
+import{notifyAgency}from'@/lib/notify'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -18,6 +19,20 @@ const userId=authData.user.id
 await supabaseAdmin.from('profiles').insert({id:userId,role:'artist',full_name:fullName,email})
 const{error:artistError}=await supabaseAdmin.from('artists').insert({user_id:userId,stage_name:stageName});if(artistError)return NextResponse.json({error:'Artist profile creation failed: '+artistError.message},{status:500})
 await supabaseAdmin.from('artist_invites').update({used:true}).eq('token',token)
+
+// The invite is sent and then goes quiet - without this the agency has no
+// way of knowing an artist actually finished signing up, short of checking
+// the roster. Never let a notification failure fail the registration
+// itself: the account already exists by this point.
+try{
+await notifyAgency(supabaseAdmin,{
+type:'artist_registered',
+message:(stageName||fullName||email)+' has completed registration and joined your roster.',
+})
+}catch(e){
+console.error('artist_registered notification failed',e)
+}
+
 return NextResponse.json({success:true})
 }catch(e:any){
 return NextResponse.json({error:e.message},{status:500})

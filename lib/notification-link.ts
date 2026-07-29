@@ -36,6 +36,8 @@ export function notificationLink(
     case 'gig_response':
       // The whole point of this one is to go and confirm someone.
       return { href: '/agency/available', label: 'Review and confirm' }
+    case 'artist_registered':
+      return { href: '/agency/roster', label: 'View roster' }
     case 'document_uploaded':
       return { href: '/agency/roster', label: 'View documents' }
     case 'agreement_uploaded':
