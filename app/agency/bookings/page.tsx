@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import AgencySidebar from '@/components/AgencySidebar'
 import TimeSelect from '@/components/TimeSelect'
 import { gigTitle } from '@/lib/gig-title'
+import { signOffDate, signOffHours } from '@/lib/sign-off'
 
 const BRAG: Record<string, { label: string; color: string; border: string }> = {
-  B: { label: 'Completed / To be paid', color: 'bg-info/15 text-info', border: 'border-l-info' },
+  B: { label: 'Signed off / To be paid', color: 'bg-info/15 text-info', border: 'border-l-info' },
   R: { label: 'Less than 48h / Urgent', color: 'bg-destructive/15 text-destructive', border: 'border-l-destructive' },
   A: { label: 'Available / Reviewing', color: 'bg-primary/15 text-primary', border: 'border-l-primary' },
   G: { label: 'Booking confirmed', color: 'bg-success/15 text-success', border: 'border-l-success' },
@@ -176,9 +177,9 @@ export default function BookingsPage() {
       }
     }
 
-    // Marking a gig completed is the payment sign-off, so tell the artist.
-    // Until now this happened silently and they had no way to know their fee
-    // had been approved.
+    // Marking a gig completed is the payment sign-off, so tell the artist -
+    // and say what was signed off, not just that something was. They need to
+    // be able to check the hours against what they actually worked.
     if (booking.artists?.user_id) {
       await fetch('/api/notify', {
         method: 'POST',
@@ -188,9 +189,12 @@ export default function BookingsPage() {
           type: 'booking_signed_off',
           bookingId: booking.id,
           message:
-            gigTitle(booking.event_name, booking.venues?.name) +
-            ' has been signed off for payment' +
-            (booking.fee_artist != null ? ' (GBP ' + booking.fee_artist.toLocaleString() + ')' : '') + '.',
+            'Your hours and work for ' + gigTitle(booking.event_name, booking.venues?.name) +
+            ' on ' + signOffDate(booking.starts_at) +
+            ' have been signed off (' + signOffHours(booking.starts_at, booking.ends_at) + ')' +
+            (booking.fee_artist != null
+              ? '. GBP ' + booking.fee_artist.toLocaleString() + ' approved for payment.'
+              : '.'),
         }),
       })
     }
@@ -442,7 +446,7 @@ export default function BookingsPage() {
                           <button onClick={e => { e.stopPropagation(); startEdit(b) }} className="bg-secondary border border-border text-muted-foreground/80 text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Edit booking</button>
                           {b.brag_status !== 'B' && (
                             <button onClick={e => { e.stopPropagation(); markCompleted(b) }} disabled={actionSaving} className="bg-info/15 border border-info/40 text-info text-xs px-3 py-1.5 rounded-lg hover:bg-info/25 disabled:opacity-50 transition-colors">
-                              {actionSaving ? 'Saving...' : 'Mark completed'}
+                              {actionSaving ? 'Signing off...' : 'Sign off for payment'}
                             </button>
                           )}
                           <button onClick={e => { e.stopPropagation(); startReschedule(b) }} className="bg-secondary border border-border text-primary text-xs px-3 py-1.5 rounded-lg hover:text-foreground transition-colors">Reschedule</button>

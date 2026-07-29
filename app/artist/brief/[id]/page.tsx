@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import ArtistSidebar from '@/components/ArtistSidebar'
 import VenueBriefs from '@/components/VenueBriefs'
 import { gigTitle } from '@/lib/gig-title'
+import { signOffDate, signOffHours } from '@/lib/sign-off'
 
 export default function BriefPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -78,6 +79,28 @@ export default function BriefPage({ params }: { params: { id: string } }) {
             <div className="text-primary text-xs uppercase tracking-widest font-mono mb-2">Virtuoso Entertainment Ltd</div>
             <h1 className="text-foreground text-2xl font-bold mb-1">{gigTitle(booking.event_name, booking.venue_name)}</h1>
           </div>
+
+          {booking.brag_status === 'B' && (
+            <div className="bg-success/10 border border-success/40 rounded-xl p-5 mb-4">
+              <div className="text-success text-xs uppercase tracking-widest font-semibold mb-2">
+                Signed off for payment
+              </div>
+              <p className="text-foreground text-sm leading-relaxed">
+                The agency has confirmed your hours and work for this gig:{' '}
+                <span className="font-semibold">{signOffHours(booking.starts_at, booking.ends_at)}</span>
+                {' '}on {signOffDate(booking.starts_at)}.
+              </p>
+              {booking.fee_artist != null && (
+                <p className="text-foreground text-sm mt-2">
+                  <span className="font-semibold">GBP {booking.fee_artist.toLocaleString()}</span> has been
+                  approved for payment.
+                </p>
+              )}
+              <p className="text-muted-foreground/80 text-xs mt-3">
+                If these hours do not match what you worked, contact the agency before invoicing.
+              </p>
+            </div>
+          )}
 
           <div className="bg-card border border-border rounded-xl p-5 mb-4">
             <div className="text-subtle-foreground text-xs uppercase tracking-widest mb-4">Booking details</div>
