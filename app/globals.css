@@ -95,7 +95,14 @@
    * olive-leaning gold. Hues sit around 40-45 (warm) instead of 240 (cool),
    * which is what makes it read as paper rather than screen.
    */
-  :root,
+  /*
+   * `:root` and `[data-theme='...']` have equal specificity (0,1,0), and this
+   * block sits after dark and midnight - so a bare `:root` here always won on
+   * source order and light silently overrode every darker scheme. Scoping the
+   * default to "no theme chosen yet" keeps it as the fallback without letting
+   * it outrank an explicit choice.
+   */
+  :root:not([data-theme]),
   [data-theme='light'] {
     --background: 40 20% 96%;
     --foreground: 40 14% 12%;
