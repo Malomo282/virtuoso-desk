@@ -6,7 +6,7 @@ export default function OfflinePage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="max-w-sm text-center">
-        <div className="text-primary text-4xl font-bold mb-4">VE</div>
+        <div className="text-primary text-4xl font-bold mb-4">VC</div>
         <h1 className="text-foreground text-xl font-semibold mb-2">You are offline</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Virtuoso Desk needs a connection to load your gigs and paperwork. Anything you already had

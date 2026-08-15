@@ -76,9 +76,9 @@ export default function UpdatePasswordPage() {
       <div className="w-full max-w-md">
 
         <div className="text-center mb-10">
-          <div className="text-5xl font-bold text-primary mb-3">VE</div>
+          <div className="text-5xl font-bold text-primary mb-3">VC</div>
           <div className="text-foreground text-sm font-semibold tracking-[0.2em] uppercase mb-1">
-            Virtuoso Entertainment
+            Virtuoso Collective
           </div>
         </div>
 

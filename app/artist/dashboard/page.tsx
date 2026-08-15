@@ -65,7 +65,7 @@ export default function ArtistDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
+        <div className="text-primary text-4xl font-bold animate-pulse">VC</div>
       </div>
     )
   }

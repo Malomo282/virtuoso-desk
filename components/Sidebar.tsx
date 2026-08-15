@@ -45,9 +45,9 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
   const nav = (
     <>
       <div className="px-5 py-4 border-b border-sidebar-border text-center flex-shrink-0">
-        <div className="text-2xl font-bold text-sidebar-primary">VE</div>
+        <div className="text-2xl font-bold text-sidebar-primary">VC</div>
         <div className="text-sidebar-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</div>
-        <div className="text-sidebar-muted text-[10px] tracking-widest uppercase">Entertainment Ltd</div>
+        <div className="text-sidebar-muted text-[10px] tracking-widest uppercase">Collective</div>
       </div>
 
       {showPortalToggle && (
@@ -139,7 +139,7 @@ export default function Sidebar({ navItems, notificationsHref, showPortalToggle 
             {open ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
           </svg>
         </button>
-        <span className="text-sidebar-primary font-bold">VE</span>
+        <span className="text-sidebar-primary font-bold">VC</span>
         <span className="text-sidebar-foreground text-xs font-semibold tracking-widest uppercase">Virtuoso</span>
         {unread > 0 && (
           <span className="ml-auto bg-sidebar-primary text-sidebar text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">

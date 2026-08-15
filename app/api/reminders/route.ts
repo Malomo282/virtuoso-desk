@@ -102,7 +102,7 @@ export async function GET(request: Request) {
 
       const html =
         '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto">' +
-        '<div style="background:#151A22;padding:32px;text-align:center"><div style="font-size:36px;font-weight:bold;color:#C8A24A">VE</div><div style="color:#fff;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;margin-top:8px">Virtuoso Entertainment Ltd</div></div>' +
+        '<div style="background:#151A22;padding:32px;text-align:center"><div style="font-size:36px;font-weight:bold;color:#C8A24A">VC</div><div style="color:#fff;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;margin-top:8px">Virtuoso Entertainment Ltd</div></div>' +
         '<div style="padding:32px;background:#0E1117">' +
         '<h2 style="color:#fff;margin-top:0">Your gig is ' + tierLabel + '</h2>' +
         '<p style="color:#8A96A8">Hi ' + (artist.stage_name || profile.full_name || 'there') + ', here is your brief again for your upcoming gig.</p>' +
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
         '</div>'
 
       const { error: emailError } = await resend.emails.send({
-        from: 'Virtuoso Entertainment <bookings@virtuosoentertainment.co.uk>',
+        from: 'Virtuoso Collective <bookings@virtuosoentertainment.co.uk>',
         to: profile.email,
         subject,
         html,

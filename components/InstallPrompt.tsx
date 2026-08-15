@@ -78,7 +78,7 @@ export default function InstallPrompt() {
       className="fixed inset-x-3 bottom-3 z-50 md:left-auto md:right-4 md:bottom-4 md:w-80 bg-card border border-primary/40 rounded-xl p-4 shadow-lg"
     >
       <div className="flex items-start gap-3">
-        <div className="text-primary text-xl font-bold flex-shrink-0">VE</div>
+        <div className="text-primary text-xl font-bold flex-shrink-0">VC</div>
         <div className="min-w-0 flex-1">
           <div className="text-foreground text-sm font-semibold mb-1">Install Virtuoso Desk</div>
           {showIosHint ? (

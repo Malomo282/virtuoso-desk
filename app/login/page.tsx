@@ -43,9 +43,9 @@ export default function LoginPage() {
           and 16px inputs also stop iOS zooming in on focus. */}
       <div className="w-full max-w-lg">
         <div className="text-center mb-8 sm:mb-10">
-          <div className="text-6xl sm:text-7xl font-bold text-primary mb-3">VE</div>
+          <div className="text-6xl sm:text-7xl font-bold text-primary mb-3">VC</div>
           <div className="text-foreground text-base sm:text-lg font-semibold tracking-[0.2em] uppercase mb-1">
-            Virtuoso Entertainment
+            Virtuoso Collective
           </div>
           <div className="text-muted-foreground text-xs sm:text-sm tracking-widest uppercase italic">
             Connecting Talent. Elevating Experiences.

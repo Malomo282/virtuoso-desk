@@ -38,7 +38,7 @@ export function generateICS(events: IcsEvent[]) {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Virtuoso Entertainment//Booking Calendar//EN',
+    'PRODID:-//Virtuoso Collective//Booking Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
   ]

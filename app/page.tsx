@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-primary text-4xl font-bold">VE</div>
+      <div className="text-primary text-4xl font-bold">VC</div>
     </div>
   )
 }

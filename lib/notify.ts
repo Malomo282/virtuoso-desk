@@ -15,7 +15,7 @@ function emailHtml(greetingName: string | null, message: string, portalPath: str
   return (
     '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto">' +
     '<div style="background:#15151C;padding:32px;text-align:center">' +
-    '<div style="font-size:36px;font-weight:bold;color:#C8A94A">VE</div>' +
+    '<div style="font-size:36px;font-weight:bold;color:#C8A94A">VC</div>' +
     '<div style="color:#fff;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;margin-top:8px">Virtuoso Entertainment Ltd</div>' +
     '</div>' +
     '<div style="padding:32px;background:#0D0D12">' +
@@ -84,7 +84,7 @@ export async function sendNotifications(
           const firstName = p.full_name ? String(p.full_name).split(' ')[0] : null
           return resend.emails
             .send({
-              from: 'Virtuoso Entertainment <bookings@virtuosoentertainment.co.uk>',
+              from: 'Virtuoso Collective <bookings@virtuosoentertainment.co.uk>',
               to: p.email,
               subject: 'Virtuoso Desk: ' + opts.message.slice(0, 90),
               html: emailHtml(firstName, opts.message, path),

@@ -14,7 +14,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: 'Virtuoso Desk',
-  description: 'Booking management for Virtuoso Entertainment Ltd',
+  description: 'Booking management for Virtuoso Collective',
   applicationName: 'Virtuoso Desk',
   manifest: '/manifest.webmanifest',
   // iOS ignores the web manifest when installing, so these carry the standalone

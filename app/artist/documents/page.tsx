@@ -115,7 +115,7 @@ export default function ArtistDocumentsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary text-4xl font-bold animate-pulse">VE</div>
+        <div className="text-primary text-4xl font-bold animate-pulse">VC</div>
       </div>
     )
   }
@@ -150,7 +150,7 @@ export default function ArtistDocumentsPage() {
             <h2 className="text-foreground font-semibold">Your paperwork</h2>
             <p className="text-muted-foreground text-xs mt-0.5">
               UK law requires the agency to verify your identity and right to work before you can be
-              booked. These files are private and visible only to Virtuoso Entertainment.
+              booked. These files are private and visible only to Virtuoso Collective.
             </p>
           </div>
 

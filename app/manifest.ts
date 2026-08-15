@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Virtuoso Desk',
     short_name: 'Virtuoso',
-    description: 'Booking management for Virtuoso Entertainment Ltd — gigs, availability, paperwork and invoices.',
+    description: 'Booking management for Virtuoso Collective — gigs, availability, paperwork and invoices.',
     id: '/',
     // Landing on the login page lets it route each role to their own portal.
     start_url: '/login',
