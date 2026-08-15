@@ -6,6 +6,13 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "virtuoso-entertainment",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Users/jesse/virtuoso-entertainment", "start"],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }
