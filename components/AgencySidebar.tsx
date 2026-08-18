@@ -5,6 +5,10 @@ const navItems: NavEntry[] = [
   { label: 'Dashboard', href: '/agency/dashboard', icon: 'dashboard' },
   { label: 'Calendar', href: '/agency/calendar', icon: 'calendar' },
   { label: 'Notifications', href: '/agency/notifications', icon: 'bell' },
+  // Business development lives only in the agent portal - ArtistSidebar has
+  // no equivalent entry, and /agency/* is role-guarded server-side.
+  { divider: 'Business Development' },
+  { label: 'Venue Pipeline', href: '/agency/pipeline', icon: 'pipeline' },
   { divider: 'Gig Management' },
   { label: 'Available gigs', href: '/agency/available', icon: 'music' },
   { label: 'Booked gigs', href: '/agency/bookings', icon: 'clipboard' },
@@ -13,10 +17,6 @@ const navItems: NavEntry[] = [
   { divider: 'Finance' },
   { label: 'Invoices', href: '/agency/invoices', icon: 'receipt' },
   { label: 'Documents', href: '/agency/documents', icon: 'file' },
-  // Business development lives only in the agent portal - ArtistSidebar has
-  // no equivalent entry, and /agency/* is role-guarded server-side.
-  { divider: 'Business Development' },
-  { label: 'CRM', href: '/agency/crm', icon: 'pipeline' },
   { divider: 'Agency' },
   { label: 'Artist roster', href: '/agency/roster', icon: 'users' },
   { label: 'Venues', href: '/agency/venues', icon: 'pin' },
