@@ -16,6 +16,8 @@ const paths: Record<string, string> = {
   user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
   calendarOff: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM9 15l6 -3M9 12l6 3',
   logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
+  // Rising trend - business development / pipeline.
+  pipeline: 'M3 3v18h18M7 15l4-4 3 3 5-6M15 8h4v4',
 }
 
 export default function NavIcon({ name, className = '' }: { name: string; className?: string }) {

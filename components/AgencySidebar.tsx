@@ -13,6 +13,10 @@ const navItems: NavEntry[] = [
   { divider: 'Finance' },
   { label: 'Invoices', href: '/agency/invoices', icon: 'receipt' },
   { label: 'Documents', href: '/agency/documents', icon: 'file' },
+  // Business development lives only in the agent portal - ArtistSidebar has
+  // no equivalent entry, and /agency/* is role-guarded server-side.
+  { divider: 'Business Development' },
+  { label: 'CRM', href: '/agency/crm', icon: 'pipeline' },
   { divider: 'Agency' },
   { label: 'Artist roster', href: '/agency/roster', icon: 'users' },
   { label: 'Venues', href: '/agency/venues', icon: 'pin' },
