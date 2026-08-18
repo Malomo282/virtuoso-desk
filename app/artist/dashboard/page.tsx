@@ -119,7 +119,7 @@ export default function ArtistDashboard() {
             <h1 className="text-foreground text-2xl font-bold mb-1">
               Welcome back{stageName ? ', ' + stageName : ''}
             </h1>
-            <p className="text-muted-foreground text-sm">Virtuoso Entertainment Ltd</p>
+            <p className="text-muted-foreground text-sm">Virtuoso Collective Ltd</p>
           </div>
 
           {/* Anything needing action, surfaced above the numbers */}

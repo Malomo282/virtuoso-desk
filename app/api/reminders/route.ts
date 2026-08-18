@@ -102,7 +102,7 @@ export async function GET(request: Request) {
 
       const html =
         '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto">' +
-        '<div style="background:#151A22;padding:32px;text-align:center"><div style="font-size:36px;font-weight:bold;color:#C8A24A">VC</div><div style="color:#fff;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;margin-top:8px">Virtuoso Entertainment Ltd</div></div>' +
+        '<div style="background:#151A22;padding:32px;text-align:center"><div style="font-size:36px;font-weight:bold;color:#C8A24A">VC</div><div style="color:#fff;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;margin-top:8px">Virtuoso Collective Ltd</div></div>' +
         '<div style="padding:32px;background:#0E1117">' +
         '<h2 style="color:#fff;margin-top:0">Your gig is ' + tierLabel + '</h2>' +
         '<p style="color:#8A96A8">Hi ' + (artist.stage_name || profile.full_name || 'there') + ', here is your brief again for your upcoming gig.</p>' +
@@ -110,7 +110,7 @@ export async function GET(request: Request) {
         (b.brief_doc_url ? '<div style="text-align:center;margin:24px 0"><a href="' + b.brief_doc_url + '" style="background:#C8A24A;color:#0E1117;font-weight:bold;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:13px;text-transform:uppercase">Open full brief</a></div>' : '') +
         '<div style="text-align:center;margin:16px 0"><a href="' + siteUrl + '/artist/brief/' + b.id + '" style="color:#C8A24A;font-size:13px">View this booking in your portal</a></div>' +
         '</div>' +
-        '<div style="background:#151A22;padding:16px;text-align:center"><p style="color:#4E5A6A;font-size:11px;margin:0">Virtuoso Entertainment Ltd - bookings@virtuosoentertainment.co.uk</p></div>' +
+        '<div style="background:#151A22;padding:16px;text-align:center"><p style="color:#4E5A6A;font-size:11px;margin:0">Virtuoso Collective Ltd - bookings@virtuosoentertainment.co.uk</p></div>' +
         '</div>'
 
       const { error: emailError } = await resend.emails.send({

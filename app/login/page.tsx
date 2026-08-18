@@ -108,7 +108,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-subtle-foreground text-xs mt-6">
-          Virtuoso Entertainment Ltd · London
+          Virtuoso Collective Ltd · London
         </p>
       </div>
     </div>

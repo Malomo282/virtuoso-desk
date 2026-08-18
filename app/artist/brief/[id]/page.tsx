@@ -76,7 +76,7 @@ export default function BriefPage({ params }: { params: { id: string } }) {
 
         <div className="p-4 md:p-6 max-w-6xl">
           <div className="mb-6">
-            <div className="text-primary text-xs uppercase tracking-widest font-mono mb-2">Virtuoso Entertainment Ltd</div>
+            <div className="text-primary text-xs uppercase tracking-widest font-mono mb-2">Virtuoso Collective Ltd</div>
             <h1 className="text-foreground text-2xl font-bold mb-1">{gigTitle(booking.event_name, booking.venue_name)}</h1>
           </div>
 
