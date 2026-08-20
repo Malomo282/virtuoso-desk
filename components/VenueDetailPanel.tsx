@@ -1,13 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-
-// venue_pipeline and activity_log are not in lib/database.types.ts yet - that
-// file is generated from the live schema, and the tables only exist once
-// CREATE-VENUE-PIPELINE.sql has been run. Row shapes are still enforced via
-// VenueRow / ActivityRow below. Re-run scripts/gen-types.mjs afterwards and
-// this cast can go.
-const db = supabase as any
 import {
   ALL_STATUSES, PRIORITIES, ACTIVITY_TYPES,
   statusClasses, fmtDate, type VenueRow, type ActivityRow,
@@ -45,7 +38,7 @@ export default function VenueDetailPanel(
 
   async function loadLog() {
     setLogLoading(true)
-    const { data } = await db
+    const { data } = await supabase
       .from('activity_log')
       .select('*')
       .eq('venue_id', venue.id)
@@ -70,7 +63,7 @@ export default function VenueDetailPanel(
     }
 
     const statusChanged = form.status !== venue.status
-    const { error: err } = await db
+    const { error: err } = await supabase
       .from('venue_pipeline')
       .update({
         holding_company: form.holding_company || null,
@@ -100,7 +93,7 @@ export default function VenueDetailPanel(
     // A status change is a real event in the funnel, so it belongs in the log
     // whether it happened by drag or by dropdown.
     if (statusChanged) {
-      await db.from('activity_log').insert({
+      await supabase.from('activity_log').insert({
         venue_id: venue.id,
         activity_type: 'Status Change',
         content: venue.status + ' → ' + form.status,
@@ -117,14 +110,14 @@ export default function VenueDetailPanel(
     e.preventDefault()
     if (!logContent.trim()) return
     setLogging(true)
-    await db.from('activity_log').insert({
+    await supabase.from('activity_log').insert({
       venue_id: venue.id,
       activity_type: logType,
       content: logContent.trim(),
     })
     // Logging something is itself activity, so keep last_activity current.
     const today = new Date().toISOString().slice(0, 10)
-    await db.from('venue_pipeline').update({ last_activity: today }).eq('id', venue.id)
+    await supabase.from('venue_pipeline').update({ last_activity: today }).eq('id', venue.id)
     setForm(p => ({ ...p, last_activity: today }))
     setLogContent('')
     setShowLogForm(false)

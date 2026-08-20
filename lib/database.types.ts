@@ -6,6 +6,41 @@ export type Json = string | number | boolean | null | { [key: string]: Json } | 
 export type Database = {
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          id: string
+          created_at: string
+          venue_id: string | null
+          activity_type: string | null
+          content: string | null
+          logged_by: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          venue_id?: string | null
+          activity_type?: string | null
+          content?: string | null
+          logged_by?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          venue_id?: string | null
+          activity_type?: string | null
+          content?: string | null
+          logged_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venue_pipeline"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agreements: {
         Row: {
           id: string
@@ -504,6 +539,73 @@ export type Database = {
             referencedRelation: "venues"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      venue_pipeline: {
+        Row: {
+          id: string
+          created_at: string
+          updated_at: string
+          holding_company: string | null
+          brand_name: string
+          venue_type: string | null
+          area: string | null
+          priority: string | null
+          contact_name: string | null
+          contact_title: string | null
+          linkedin_url: string | null
+          email: string | null
+          status: string
+          date_contacted: string | null
+          last_activity: string | null
+          next_action: string | null
+          next_action_date: string | null
+          notes: string | null
+          assigned_to: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          holding_company?: string | null
+          brand_name: string
+          venue_type?: string | null
+          area?: string | null
+          priority?: string | null
+          contact_name?: string | null
+          contact_title?: string | null
+          linkedin_url?: string | null
+          email?: string | null
+          status?: string
+          date_contacted?: string | null
+          last_activity?: string | null
+          next_action?: string | null
+          next_action_date?: string | null
+          notes?: string | null
+          assigned_to?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          holding_company?: string | null
+          brand_name?: string
+          venue_type?: string | null
+          area?: string | null
+          priority?: string | null
+          contact_name?: string | null
+          contact_title?: string | null
+          linkedin_url?: string | null
+          email?: string | null
+          status?: string
+          date_contacted?: string | null
+          last_activity?: string | null
+          next_action?: string | null
+          next_action_date?: string | null
+          notes?: string | null
+          assigned_to?: string | null
+        }
+        Relationships: [
         ]
       }
       venues: {

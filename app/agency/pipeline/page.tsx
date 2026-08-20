@@ -2,13 +2,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-
-// venue_pipeline and activity_log are not in lib/database.types.ts yet - that
-// file is generated from the live schema, and the tables only exist once
-// CREATE-VENUE-PIPELINE.sql has been run. Row shapes are still enforced via
-// VenueRow / ActivityRow below. Re-run scripts/gen-types.mjs afterwards and
-// this cast can go.
-const db = supabase as any
 import AgencySidebar from '@/components/AgencySidebar'
 import VenueDetailPanel from '@/components/VenueDetailPanel'
 import AddVenueModal from '@/components/AddVenueModal'
@@ -52,7 +45,7 @@ export default function PipelinePage() {
   async function load() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const { data, error } = await db
+    const { data, error } = await supabase
       .from('venue_pipeline')
       .select('*')
       .order('brand_name')
@@ -104,13 +97,13 @@ export default function PipelinePage() {
     const previous = row.status
     setRows(rs => rs.map(r => (r.id === id ? { ...r, status } : r)))
 
-    const { error } = await db.from('venue_pipeline').update({ status }).eq('id', id)
+    const { error } = await supabase.from('venue_pipeline').update({ status }).eq('id', id)
     if (error) {
       setRows(rs => rs.map(r => (r.id === id ? { ...r, status: previous } : r)))
       setLoadError(error.message)
       return
     }
-    await db.from('activity_log').insert({
+    await supabase.from('activity_log').insert({
       venue_id: id,
       activity_type: 'Status Change',
       content: previous + ' → ' + status,
@@ -135,7 +128,14 @@ export default function PipelinePage() {
       <div
         key={v.id}
         draggable
-        onDragStart={() => setDragId(v.id)}
+        onDragStart={e => {
+          // The id rides on the drag event itself. Relying on React state
+          // alone raced the drop handler, which then read an empty id and
+          // silently dropped the move.
+          e.dataTransfer.setData('text/plain', v.id)
+          e.dataTransfer.effectAllowed = 'move'
+          setDragId(v.id)
+        }}
         onDragEnd={() => setDragId('')}
         onClick={() => setSelected(v)}
         className="bg-card border border-border rounded-xl p-3 mb-2 cursor-pointer hover:border-primary transition-colors"
@@ -176,8 +176,12 @@ export default function PipelinePage() {
     return (
       <div
         key={status}
-        onDragOver={e => e.preventDefault()}
-        onDrop={e => { e.preventDefault(); if (dragId) moveTo(dragId, status) }}
+        onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
+        onDrop={e => {
+          e.preventDefault()
+          const id = e.dataTransfer.getData('text/plain') || dragId
+          if (id) moveTo(id, status)
+        }}
         className="w-64 flex-shrink-0 bg-secondary border border-border rounded-xl p-2.5"
       >
         <div className="flex items-center justify-between gap-2 mb-2 px-1">

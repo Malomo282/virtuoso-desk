@@ -1,13 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-
-// venue_pipeline and activity_log are not in lib/database.types.ts yet - that
-// file is generated from the live schema, and the tables only exist once
-// CREATE-VENUE-PIPELINE.sql has been run. Row shapes are still enforced via
-// VenueRow / ActivityRow below. Re-run scripts/gen-types.mjs afterwards and
-// this cast can go.
-const db = supabase as any
 import { ALL_STATUSES, PRIORITIES } from '@/lib/pipeline'
 
 const input =
@@ -37,7 +30,7 @@ export default function AddVenueModal({ onClose, onAdded }: { onClose: () => voi
     setSaving(true)
     setError('')
 
-    const { data, error: err } = await db
+    const { data, error: err } = await supabase
       .from('venue_pipeline')
       .insert({
         holding_company: form.holding_company || null,
@@ -57,7 +50,7 @@ export default function AddVenueModal({ onClose, onAdded }: { onClose: () => voi
 
     if (err) { setError(err.message); setSaving(false); return }
 
-    await db.from('activity_log').insert({
+    await supabase.from('activity_log').insert({
       venue_id: (data as any).id,
       activity_type: 'Note',
       content: 'Venue added to pipeline.',
