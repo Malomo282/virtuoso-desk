@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { passwordError } from '@/lib/password'
+import PasswordRequirements from '@/components/PasswordRequirements'
 import { useRouter } from 'next/navigation'
 
 export default function UpdatePasswordPage() {
@@ -54,8 +56,9 @@ export default function UpdatePasswordPage() {
       setError('Passwords do not match')
       return
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters')
+    const weak = passwordError(password)
+    if (weak) {
+      setError(weak)
       return
     }
 
@@ -111,8 +114,9 @@ export default function UpdatePasswordPage() {
                   onChange={e => setPassword(e.target.value)}
                   required
                   className="w-full bg-secondary border border-input-border rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
-                  placeholder="Minimum 8 characters"
+                  placeholder="Choose a strong password"
                 />
+                <PasswordRequirements value={password} />
               </div>
 
               <div>

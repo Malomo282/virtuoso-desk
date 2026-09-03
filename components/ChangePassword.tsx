@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { passwordError } from '@/lib/password'
+import PasswordRequirements from '@/components/PasswordRequirements'
 
 /**
  * In-app password change: current password, new password, confirm.
@@ -26,7 +28,8 @@ export default function ChangePassword() {
     setError('')
     setDone(false)
 
-    if (next.length < 8) { setError('New password must be at least 8 characters.'); return }
+    const weak = passwordError(next)
+    if (weak) { setError(weak); return }
     if (next !== confirm) { setError('New passwords do not match.'); return }
     if (next === current) { setError('New password must be different from your current one.'); return }
 
@@ -90,7 +93,7 @@ export default function ChangePassword() {
           required
           className={input}
         />
-        <p className="text-subtle-foreground text-xs mt-1">At least 8 characters.</p>
+        <PasswordRequirements value={next} />
       </div>
 
       <div>

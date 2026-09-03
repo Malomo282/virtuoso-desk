@@ -2,6 +2,7 @@ import{NextResponse}from'next/server'
 import type { Database } from '@/lib/database.types'
 import{createClient}from'@supabase/supabase-js'
 import{notifyAgency}from'@/lib/notify'
+import{passwordError}from'@/lib/password'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -9,6 +10,10 @@ export async function POST(request:Request){
 try{
 const{token,email,fullName,stageName,password}=await request.json()
 if(!token||!email||!password)return NextResponse.json({error:'Missing required fields'},{status:400})
+// Enforced here as well as in the form: this endpoint can be called directly,
+// so the browser check is a convenience, not the control.
+const weak=passwordError(password)
+if(weak)return NextResponse.json({error:weak},{status:400})
 const supabaseAdmin=createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!)
 const{data:invite,error:inviteError}=await supabaseAdmin.from('artist_invites').select('*').eq('token',token).eq('used',false).single()
 if(inviteError||!invite)return NextResponse.json({error:'Invalid or expired invite'},{status:400})
